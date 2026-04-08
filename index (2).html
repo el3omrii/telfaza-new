@@ -1,0 +1,239 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <base target="_self">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StreamTV - Watch TV Channels Online</title>
+    <meta name="description" content="Stream thousands of TV channels from around the world. Browse by category, country, or popularity.">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#E50914",
+                        secondary: "#221F1F",
+                        accent: "#F5F5F1",
+                        dark: "#000000"
+                    },
+                    fontFamily: {
+                        'sans': ['Helvetica Neue', 'Arial', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="min-h-screen bg-secondary text-accent font-sans">
+    <!-- Header/Navigation -->
+    <header class="bg-dark sticky top-0 z-50 shadow-lg">
+        <div class="container mx-auto px-4 py-3">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-8">
+                    <a href="#" class="text-primary text-3xl font-bold">StreamTV</a>
+                    <nav>
+                        <ul id="nav-menu" class="flex space-x-6"></ul>
+                    </nav>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <div class="relative">
+                        <input type="text" placeholder="Search channels..." class="bg-gray-800 text-white px-4 py-2 rounded-lg w-64 focus:outline-none focus:ring-2 focus:ring-primary">
+                        <button class="absolute right-3 top-2 text-gray-400"><i class="fas fa-search"></i></button>
+                    </div>
+                    <button class="bg-primary text-white px-4 py-2 rounded hover:bg-red-700 transition">Sign In</button>
+                    <div class="w-10 h-10 rounded-full bg-gray-700 flex items-center justify-center cursor-pointer">
+                        <i class="fas fa-user text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 py-6">
+        <!-- Featured Channels Carousel -->
+        <section class="mb-12">
+            <h2 class="text-2xl font-bold mb-4">Featured Channels</h2>
+            <div class="relative">
+                <div id="carousel-container" class="flex overflow-x-auto space-x-4 pb-4 scrollbar-hide"></div>
+                <button id="carousel-prev" class="absolute left-0 top-1/2 transform -translate-y-1/2 bg-dark text-white p-2 rounded-full opacity-80 hover:opacity-100"><i class="fas fa-chevron-left"></i></button>
+                <button id="carousel-next" class="absolute right-0 top-1/2 transform -translate-y-1/2 bg-dark text-white p-2 rounded-full opacity80 hover:opacity-100"><i class="fas fa-chevron-right"></i></button>
+            </div>
+        </section>
+
+        <!-- Channel Categories -->
+        <section class="mb-12">
+            <h2 class="text-2xl font-bold mb-4">Browse by Category</h2>
+            <div id="category-filters" class="flex space-x-3 mb-6"></div>
+            <div id="category-channels" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"></div>
+        </section>
+
+        <!-- Country Filter -->
+        <section class="mb-12">
+            <h2 class="text-2xl font-bold mb-4">Channels by Country</h2>
+            <div id="country-filters" class="flex flex-wrap gap-3 mb-6"></div>
+            <div id="country-channels" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"></div>
+        </section>
+
+        <!-- All Channels Grid -->
+        <section>
+            <h2 class="text-2xl font-bold mb-4">All Channels</h2>
+            <div class="flex items-center mb-6">
+                <span class="text-gray-400 mr-4">Sort by:</span>
+                <div id="sort-options" class="flex space-x-3"></div>
+            </div>
+            <div id="all-channels-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6"></div>
+            <div class="text-center mt-8">
+                <button id="load-more" class="bg-primary text-white px-6 py-3 rounded-lg hover:bg-red-700 transition">Load More Channels</button>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-dark py-10 mt-12">
+        <div class="container mx-auto px–4">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div>
+                    <h3 class="text-primary text-lg font-bold mb-4">StreamTV</h3>
+                    <p class="text-gray-400">Watch thousands of TV channels from around the world. Live streaming, on-demand content, and curated collections.</p>
+                </div>
+                <div>
+                    <h4 class="text-white font-semibold mb-4">Quick Links</h4>
+                    <ul id="footer-quicklinks"></ul>
+                </div>
+                <div>
+                    <h4 class="text-white font-semibold mb-4">Countries</h4>
+                    <ul id="footer-countries"></ul>
+                </div>
+                <div>
+                    <h4 class="text-white font-semibold mb-4">Connect</h4>
+                    <ul id="footer-social"></ul>
+                    <div class="mt-4">
+                        <p class="text-gray-400 mb-2">Subscribe to our newsletter</p>
+                        <div class="flex">
+                            <input type="email" placeholder="Your email" class="bg-gray-800 text-white px-3 py-2 rounded-l w-full focus:outline-none">
+                            <button class="bg-primary text-white px-4 py-2 rounded-r hover:bg-red-700">Subscribe</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="border-t border-gray-800 mt-8 pt-6 text-center text-gray-400">
+                <p>&copy; 2023 StreamTV. All channel content is provided by broadcasters.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Data Layer - All content arrays
+        const navigationItems = [
+            { "label": "Home", "href": "#home", "active": true },
+            { "label": "Live TV", "href": "#live" },
+            { "label": "Categories", "href": "#categories" },
+            { "label": "Countries", "href": "#countries" },
+            { "label": "My List", "href": "#mylist" },
+            { "label": "New", "href": "#new" }
+        ];
+
+        const featuredChannels = [
+            { 
+                "id": 1, 
+                "name": "Global News Network", 
+                "logo": "https://picsum.photos/300/200?random=1", 
+                "description": "24/7 international news coverage", 
+                "views": "2.4M", 
+                "tags": ["News", "International", "Live"], 
+                "country": "USA"
+            },
+            { 
+                "id": 2, 
+                "name": "Sports Premier", 
+                "logo": "https://picsum.photos/300/200?random=2", 
+                "description": "Live sports events & highlights", 
+                "views": "3.1M", 
+                "tags": ["Sports", "Live Events", "Football"], 
+                "country": "UK"
+            },
+            { 
+                "id": 3, 
+                "name": "Cinema Classics", 
+                "logo": "https://picsum.photos/300/200?random=3", 
+                "description": "Classic movies & film analysis", 
+                "views": "1.8M", 
+                "tags": ["Movies", "Classics", "Entertainment"], 
+                "country": "France"
+            },
+            { 
+                "id": 4, 
+                "name": "Kids Fun World", 
+                "logo": "https://picsum.photos/300/200?random=4", 
+                "description": "Children's cartoons & educational shows", 
+                "views": "1.5M", 
+                "tags": ["Kids", "Education", "Cartoons"], 
+                "country": "Canada"
+            },
+            { 
+                "id": 5, 
+                "name": "Music Live", 
+                "logo": "https://picsum.photos/300/200?random=5", 
+                "description": "Live concerts & music festivals", 
+                "views": "2.9M", 
+                "tags": ["Music", "Live Concerts", "Festivals"], 
+                "country": "Germany"
+            }
+        ];
+
+        const categories = [
+            { "id": "news", "name": "News", "count": 45 },
+            { "id": "sports", "name": "Sports", "count": 32 },
+            { "id": "entertainment", "name": "Entertainment", "count": 78 },
+            { "id": "movies", "name": "Movies", "count": 56 },
+            { "id": "kids", "name": "Kids", "count": 23 },
+            { "id": "music", "name": "Music", "count": 41 },
+            { "id": "documentary", "name": "Documentary", "count": 19 },
+            { "id": "lifestyle", "name": "Lifestyle", "count": 27 }
+        ];
+
+        const countries = [
+            { "code": "US", "name": "United States", "count": 120 },
+            { "code": "UK", "name": "United Kingdom", "count": 65 },
+            { "code": "FR", "name": "France", "count": 42 },
+            { "code": "DE", "name": "Germany", "count": 38 },
+            { "code": "JP", "name": "Japan", "count": 25 },
+            { "code": "IN", "name": "India", "count": 58 },
+            { "code": "CA", "name": "Canada", "count": 32 },
+            { "code": "AU", "name": "Australia", "count": 21 }
+        ];
+
+        const allChannels = [
+            { 
+                "id": 101, 
+                "name": "BBC World News", 
+                "logo": "https://picsum.photos/200?random=6", 
+                "description": "Global news from BBC", 
+                "views": "1.2M", 
+                "tags": ["News", "UK", "International"], 
+                "country": "UK", 
+                "category": "news", 
+                "featured": false
+            },
+            { 
+                "id": 102, 
+                "name": "NBA TV", 
+                "logo": "https://picsum.photos/200?random=7", 
+                "description": "NBA basketball games & analysis", 
+                "views": "2.1M", 
+                "tags": ["Sports", "Basketball", "USA"], 
+                "country": "US", 
+                "category": "sports", 
+                "featured": false
+            },
+            { 
+                "id": 103, 
+                "name": "Film Festival Channel", 
+                "logo": "https://picsum.photos/200?random=8", 
+                "description": "Independent films & festivals", 
+                "views": "850K", 
+                "tags": ["Movies", "Indie", "Arts
