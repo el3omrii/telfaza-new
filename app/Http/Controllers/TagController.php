@@ -44,4 +44,22 @@ class TagController extends Controller
 
         return redirect()->route('tags.index')->with('success', 'Tag deleted.');
     }
+
+    /**
+     * AJAX quick-create called from channel create/edit form.
+     * Returns JSON: { tag_id, name }
+     */
+    public function quickCreate(Request $request): \Illuminate\Http\JsonResponse
+    {
+        $data = $request->validate([
+            'name' => 'required|string|max:255',
+        ]);
+
+        $tag = Tag::firstOrCreate(['name' => trim($data['name'])]);
+
+        return response()->json([
+            'tag_id' => $tag->tag_id,
+            'name'   => $tag->name,
+        ]);
+    }
 }

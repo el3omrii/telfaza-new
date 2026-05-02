@@ -5,9 +5,11 @@ namespace App\Http\Controllers;
 use App\Models\Category;
 use App\Models\Channel;
 use App\Models\Country;
+use App\Models\Source;
 use App\Models\Tag;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 
 class ChannelController extends Controller
@@ -47,21 +49,58 @@ class ChannelController extends Controller
 
     public function store(Request $request): RedirectResponse
     {
-        $data = $request->validate([
-            'name'        => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'logo'        => 'nullable|string|max:255',
-            'image'       => 'nullable|string|max:255',
-            'country_id'  => 'nullable|exists:countries,country_id',
-            'categories'  => 'nullable|array',
-            'categories.*'=> 'exists:categories,category_id',
-            'tags'        => 'nullable|array',
-            'tags.*'      => 'exists:tags,tag_id',
+        $request->validate([
+            'name'                => 'required|string|max:255',
+            'description'         => 'nullable|string',
+            'logo'                => 'nullable|image|mimes:jpeg,png,webp,svg|max:2048',
+            'image'               => 'nullable|image|mimes:jpeg,png,webp|max:4096',
+            'country_id'          => 'nullable|exists:countries,id',
+            'categories'          => 'nullable|array',
+            'categories.*'        => 'exists:categories,id',
+            'tags'                => 'nullable|array',
+            'tags.*'              => 'exists:tags,id',
+            'new_tags'            => 'nullable|string',
+            'sources'             => 'nullable|array',
+            'sources.*.type'      => 'required_with:sources|in:hls,dash,mp4',
+            'sources.*.link'      => 'nullable|url|max:2048',
+            'sources.*.drm'       => 'nullable|boolean',
+            'sources.*.clearkeys' => 'nullable|integer',
         ]);
 
-        $channel = Channel::create($data);
+        $channel = Channel::create([
+            'name'       => $request->name,
+            'description'=> $request->description,
+            'country_id' => $request->country_id,
+            'logo'       => $request->hasFile('logo')
+                                ? $request->file('logo')->store('channels/logos', 'uploads')
+                                : null,
+            'image'      => $request->hasFile('image')
+                                ? $request->file('image')->store('channels/images', 'uploads')
+                                : null,
+        ]);
+
         $channel->categories()->sync($request->input('categories', []));
-        $channel->tags()->sync($request->input('tags', []));
+
+        // Resolve tag IDs — existing + newly typed ones
+        $tagIds = $request->input('tags', []);
+        if ($request->filled('new_tags')) {
+            foreach (array_filter(array_map('trim', explode(',', $request->new_tags))) as $tagName) {
+                $tag      = Tag::firstOrCreate(['name' => $tagName]);
+                $tagIds[] = $tag->tag_id;
+            }
+        }
+        $channel->tags()->sync(array_unique($tagIds));
+
+        // Create inline sources
+        foreach ($request->input('sources', []) as $src) {
+            if (empty($src['type'])) continue;
+            $channel->sources()->create([
+                'type'      => $src['type'],
+                'link'      => $src['link']      ?? null,
+                'drm'       => !empty($src['drm']),
+                'clearkeys' => $src['clearkeys'] ?? null,
+            ]);
+        }
 
         return redirect()->route('channels.show', $channel)
                          ->with('success', 'Channel created successfully.');
@@ -86,17 +125,50 @@ class ChannelController extends Controller
 
     public function update(Request $request, Channel $channel): RedirectResponse
     {
-        $data = $request->validate([
+        $request->validate([
             'name'        => 'required|string|max:255',
             'description' => 'nullable|string',
-            'logo'        => 'nullable|string|max:255',
-            'image'       => 'nullable|string|max:255',
-            'country_id'  => 'nullable|exists:countries,country_id',
+            'logo'        => 'nullable|image|mimes:jpeg,png,webp,svg|max:2048',
+            'image'       => 'nullable|image|mimes:jpeg,png,webp|max:4096',
+            'country_id'  => 'nullable|exists:countries,id',
             'categories'  => 'nullable|array',
-            'categories.*'=> 'exists:categories,category_id',
+            'categories.*'=> 'exists:categories,id',
             'tags'        => 'nullable|array',
-            'tags.*'      => 'exists:tags,tag_id',
+            'tags.*'      => 'exists:tags,id',
         ]);
+
+        $data = [
+            'name'        => $request->name,
+            'description' => $request->description,
+            'country_id'  => $request->country_id,
+        ];
+
+        // Replace logo only if a new file was uploaded; delete the old one
+        if ($request->hasFile('logo')) {
+            if ($channel->logo) {
+                Storage::disk('uploads')->delete($channel->logo);
+            }
+            $data['logo'] = $request->file('logo')->store('channels/logos', 'uploads');
+        }
+
+        // Replace image only if a new file was uploaded; delete the old one
+        if ($request->hasFile('image')) {
+            if ($channel->image) {
+                Storage::disk('uploads')->delete($channel->image);
+            }
+            $data['image'] = $request->file('image')->store('channels/images', 'uploads');
+        }
+
+        // Allow explicitly clearing logo/image via hidden checkbox
+        if ($request->boolean('remove_logo') && $channel->logo) {
+            Storage::disk('uploads')->delete($channel->logo);
+            $data['logo'] = null;
+        }
+
+        if ($request->boolean('remove_image') && $channel->image) {
+            Storage::disk('uploads')->delete($channel->image);
+            $data['image'] = null;
+        }
 
         $channel->update($data);
         $channel->categories()->sync($request->input('categories', []));
@@ -108,6 +180,10 @@ class ChannelController extends Controller
 
     public function destroy(Channel $channel): RedirectResponse
     {
+        // Clean up stored files before deleting the record
+        if ($channel->logo)  Storage::disk('uploads')->delete($channel->logo);
+        if ($channel->image) Storage::disk('uploads')->delete($channel->image);
+
         $channel->delete();
 
         return redirect()->route('channels.index')

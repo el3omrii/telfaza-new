@@ -10,6 +10,13 @@ use Illuminate\View\View;
 
 class SourceController extends Controller
 {
+    public function index(): View
+    {
+        $sources = Source::with('channel')->orderByDesc('source_id')->paginate(20);
+
+        return view('sources.index', compact('sources'));
+    }
+
     public function create(Channel $channel): View
     {
         return view('sources.create', compact('channel'));
