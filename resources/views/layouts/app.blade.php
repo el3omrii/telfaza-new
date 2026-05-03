@@ -123,7 +123,7 @@
 </aside>
 
 {{-- ── Main ── --}}
-<main class="lg:ml-60 min-h-screen pt-14 lg:pt-0 p-4 sm:p-6 lg:p-8">
+<main class="lg:ml-60 min-h-screen pt-14 p-4 sm:p-6 lg:p-8">
     @if(session('success'))
         <div class="mb-5 px-4 py-3 rounded-[10px] text-sm bg-green-500/10 border border-green-500/30 text-green-400">
             {{ session('success') }}

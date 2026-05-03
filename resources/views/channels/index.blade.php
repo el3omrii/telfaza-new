@@ -61,7 +61,10 @@
                         <p class="text-muted text-xs mt-0.5">{{ Str::limit($channel->description, 60) }}</p>
                     @endif
                 </td>
-                <td class="px-4 py-3 text-sm">{{ $channel->country?->flag }} {{ $channel->country?->name ?? '—' }}</td>
+                <td class="px-4 py-3 text-sm flex items-center gap-1.5">
+                    <img src="//flagcdn.com/{{ strtolower($channel->country?->flag ?? '') }}.svg" alt="{{ $channel->country?->name ?? '—' }}" class="w-8 h-8 rounded-xl">
+                    {{ $channel->country?->name ?? '—' }}
+                </td>
                 <td class="px-4 py-3">
                     <div class="flex flex-wrap gap-1">
                         @foreach($channel->categories->take(3) as $cat)

@@ -46,7 +46,9 @@
             <tbody>
             @forelse($countries as $country)
                 <tr class="border-b border-border last:border-0 hover:bg-white/[.02] transition-colors">
-                    <td class="px-4 py-3 text-2xl">{{ $country->flag }}</td>
+                    <td class="px-4 py-3">
+                        <img src="//flagcdn.com/{{ strtolower($country->flag) }}.svg" alt="{{ $country->name }}" class="w-8 h-8 rounded-full">
+                    </td>
                     <td class="px-4 py-3 font-medium text-sm">{{ $country->name }}</td>
                     <td class="px-4 py-3">
                         <span class="px-2 py-0.5 rounded-full text-[0.72rem] font-semibold bg-accent2/15 text-accent2">{{ $country->channels_count }}</span>

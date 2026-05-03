@@ -325,6 +325,7 @@ async function generateDescription() {
         btnText.textContent = 'Generate with AI';
     }
 }
+async function createTag() {
     const input    = document.getElementById('newTagInput');
     const feedback = document.getElementById('tagFeedback');
     const name     = input.value.trim();
