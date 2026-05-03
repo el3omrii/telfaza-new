@@ -228,7 +228,7 @@ function buildConfig(type, drmOn, ckRaw) {
                     // Convert hex to base64url as required by ClearKey spec
                     ...Object.fromEntries(Object.entries(keys).map(([kid, key]) => [hexToBase64url(kid), hexToBase64url(key)]))
                 }
-            }
+            };
         }
     }
 

@@ -175,16 +175,17 @@
                 Save Changes
             </button>
 
-            <form action="{{ route('channels.destroy', $channel) }}" method="POST"
-                  onsubmit="return confirm('Permanently delete this channel?')">
-                @csrf @method('DELETE')
-                <button type="submit"
-                        class="w-full py-3 bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30 font-medium text-sm rounded-[10px] transition-colors">
-                    Delete Channel
-                </button>
-            </form>
         </div>
     </div>
+</form>
+<hr class="border-border my-6">
+<form action="{{ route('channels.destroy', $channel) }}" method="POST"
+      onsubmit="return confirm('Permanently delete this channel?')">
+    @csrf @method('DELETE')
+    <button type="submit"
+            class="w-full py-3 bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30 font-medium text-sm rounded-[10px] transition-colors">
+        Delete Channel
+    </button>
 </form>
 
 @push('styles')
