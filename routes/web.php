@@ -1,9 +1,10 @@
 <?php
 
-//use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ChannelController;
 use App\Http\Controllers\CountryController;
+use App\Http\Controllers\GeminiController;
+use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SourceController;
 use App\Http\Controllers\TagController;
 use Illuminate\Support\Facades\Route;
@@ -16,6 +17,7 @@ use Illuminate\Support\Facades\Route;
 
 // ── Authentication (guest only) ───────────────────────────────────────────────
 Auth::routes(['register' => false, 'reset' => false, 'verify' => false]);
+
 // ── Protected application routes (auth required) ──────────────────────────────
 Route::middleware('auth')->group(function () {
 
@@ -42,4 +44,14 @@ Route::middleware('auth')->group(function () {
     // Countries (no show/create/edit pages — managed inline)
     Route::resource('countries', CountryController::class)
          ->only(['index', 'store', 'update', 'destroy']);
+
+    // AI
+    Route::post('/ai/generate-description', [GeminiController::class, 'generateDescription'])
+         ->name('ai.generate-description');
+
+    // Profile
+    Route::get('/profile',               [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::put('/profile',               [ProfileController::class, 'update'])->name('profile.update');
+    Route::put('/profile/password',      [ProfileController::class, 'updatePassword'])->name('profile.password');
+    Route::delete('/profile',            [ProfileController::class, 'destroy'])->name('profile.destroy');
 });

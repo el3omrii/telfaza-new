@@ -16,14 +16,10 @@ return new class extends Migration
             $table->enum('type', ['hls', 'dash', 'embed'])->default('hls');
             $table->string('link')->nullable();
             $table->boolean('drm')->default(false);
-            $table->bigInteger('clearkeys')->nullable();
-            $table->unsignedBigInteger('channel_id');
+            $table->text('clearkeys')->nullable();
+            $table->foreignId('channel_id')->constrained()->cascadeOnDelete();
             $table->timestamps();
  
-            $table->foreign('channel_id')
-                  ->references('channel_id')
-                  ->on('channels')
-                  ->cascadeOnDelete();
         });
     }
 

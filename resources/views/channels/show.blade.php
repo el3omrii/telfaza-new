@@ -2,125 +2,168 @@
 @section('title', $channel->name)
 
 @section('content')
-<div class="page-header">
+<div class="flex items-start justify-between mb-7">
     <div>
-        <div class="page-title">{{ $channel->name }}</div>
-        <div class="page-subtitle">{{ $channel->country?->flag }} {{ $channel->country?->name }}</div>
+        <h1 class="font-display font-bold text-2xl">{{ $channel->name }}</h1>
+        <p class="text-muted text-sm mt-0.5">{{ $channel->country?->flag }} {{ $channel->country?->name }}</p>
     </div>
-    <div style="display:flex;gap:10px">
-        <a href="{{ route('channels.edit', $channel) }}" class="btn btn-secondary">Edit</a>
-        <a href="{{ route('channels.index') }}" class="btn btn-secondary">← Back</a>
-    </div>
-</div>
-
-<div class="stat-grid">
-    <div class="stat-card">
-        <div class="stat-label">Total Views</div>
-        <div class="stat-value amber">{{ number_format($channel->views) }}</div>
-    </div>
-    <div class="stat-card">
-        <div class="stat-label">Sources</div>
-        <div class="stat-value blue">{{ $channel->sources->count() }}</div>
-    </div>
-    <div class="stat-card">
-        <div class="stat-label">Categories</div>
-        <div class="stat-value">{{ $channel->categories->count() }}</div>
-    </div>
-    <div class="stat-card">
-        <div class="stat-label">Tags</div>
-        <div class="stat-value">{{ $channel->tags->count() }}</div>
+    <div class="flex gap-2.5">
+        <a href="{{ route('channels.edit', $channel) }}"
+           class="px-4 py-2 bg-border hover:bg-[#2e3748] text-gray-200 text-sm font-medium rounded-[10px] transition-colors">Edit</a>
+        <a href="{{ route('channels.index') }}"
+           class="px-4 py-2 bg-border hover:bg-[#2e3748] text-gray-200 text-sm font-medium rounded-[10px] transition-colors">← Back</a>
     </div>
 </div>
 
-<div style="display:grid;grid-template-columns:2fr 1fr;gap:20px;margin-bottom:20px">
-    <div class="card">
-        <div class="card-header"><strong>Details</strong></div>
-        <div class="card-body">
+{{-- Stats --}}
+<div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+    @foreach([
+        ['Total Views',  number_format($channel->views),         'text-accent'],
+        ['Sources',      $channel->sources->count(),             'text-accent2'],
+        ['Categories',   $channel->categories->count(),          'text-gray-200'],
+        ['Tags',         $channel->tags->count(),                'text-gray-200'],
+    ] as [$label, $val, $color])
+    <div class="bg-surface border border-border rounded-[10px] p-5">
+        <p class="text-[0.72rem] uppercase tracking-wider text-muted">{{ $label }}</p>
+        <p class="font-display font-bold text-3xl mt-1.5 {{ $color }}">{{ $val }}</p>
+    </div>
+    @endforeach
+</div>
+
+<div class="grid grid-cols-3 gap-5 mb-5">
+    {{-- Details --}}
+    <div class="col-span-2 bg-surface border border-border rounded-[10px] overflow-hidden">
+        <div class="px-5 py-4 border-b border-border font-semibold text-sm">Details</div>
+        <div class="p-5">
             @if($channel->description)
-                <p style="color:var(--muted);line-height:1.7;margin-bottom:16px">{{ $channel->description }}</p>
+                <p class="text-muted text-sm leading-relaxed mb-5">{{ $channel->description }}</p>
             @endif
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+            <div class="grid grid-cols-2 gap-4">
                 <div>
-                    <div class="form-label">Logo</div>
+                    <p class="text-[0.72rem] uppercase tracking-wider text-muted mb-1.5">Logo</p>
                     @if($channel->logo)
-                        <img src="{{ Storage::disk('uploads')->url($channel->logo) }}" alt="Logo"
-                             style="max-height:60px;max-width:100%;border-radius:6px;border:1px solid var(--border);margin-top:4px">
+                        <img src="{{ Storage::disk('uploads')->url($channel->logo) }}" alt="Logo" class="max-h-16 max-w-full rounded-lg border border-border">
                     @else
-                        <span style="color:var(--muted);font-size:.85rem">—</span>
+                        <span class="text-muted text-sm">—</span>
                     @endif
                 </div>
                 <div>
-                    <div class="form-label">Channel Image</div>
+                    <p class="text-[0.72rem] uppercase tracking-wider text-muted mb-1.5">Channel Image</p>
                     @if($channel->image)
-                        <img src="{{ Storage::disk('uploads')->url($channel->image,) }}" alt="Channel image"
-                             style="max-height:60px;max-width:100%;border-radius:6px;border:1px solid var(--border);margin-top:4px">
+                        <img src="{{ Storage::disk('uploads')->url($channel->image) }}" alt="Image" class="max-h-16 max-w-full rounded-lg border border-border">
                     @else
-                        <span style="color:var(--muted);font-size:.85rem">—</span>
+                        <span class="text-muted text-sm">—</span>
                     @endif
                 </div>
-                <div><div class="form-label">Created</div>{{ $channel->created_at->format('d M Y') }}</div>
-                <div><div class="form-label">Updated</div>{{ $channel->updated_at->format('d M Y') }}</div>
+                <div>
+                    <p class="text-[0.72rem] uppercase tracking-wider text-muted mb-1">Created</p>
+                    <p class="text-sm">{{ $channel->created_at->format('d M Y') }}</p>
+                </div>
+                <div>
+                    <p class="text-[0.72rem] uppercase tracking-wider text-muted mb-1">Updated</p>
+                    <p class="text-sm">{{ $channel->updated_at->format('d M Y') }}</p>
+                </div>
             </div>
         </div>
     </div>
-    <div style="display:flex;flex-direction:column;gap:16px">
-        <div class="card">
-            <div class="card-header"><strong>Categories</strong></div>
-            <div class="card-body" style="display:flex;flex-wrap:wrap;gap:6px">
+
+    {{-- Sidebar --}}
+    <div class="flex flex-col gap-4">
+        {{-- Language & Quality --}}
+        <div class="bg-surface border border-border rounded-[10px] overflow-hidden">
+            <div class="px-5 py-4 border-b border-border font-semibold text-sm">Stream Info</div>
+            <div class="p-4 space-y-3">
+                <div>
+                    <p class="text-[0.68rem] uppercase tracking-wider text-muted mb-1">Language</p>
+                    <p class="text-sm">{{ $channel->language ?? '—' }}</p>
+                </div>
+                <div>
+                    <p class="text-[0.68rem] uppercase tracking-wider text-muted mb-1">Quality</p>
+                    @if($channel->quality)
+                        <span class="px-2.5 py-1 rounded-lg text-xs font-semibold bg-accent/15 text-accent">{{ $channel->quality }}</span>
+                    @else
+                        <span class="text-sm text-muted">—</span>
+                    @endif
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-surface border border-border rounded-[10px] overflow-hidden">
+            <div class="px-5 py-4 border-b border-border font-semibold text-sm">Categories</div>
+            <div class="p-4 flex flex-wrap gap-1.5">
                 @forelse($channel->categories as $cat)
-                    <span class="badge badge-blue" @if($cat->color) style="background:{{ $cat->color }}22;color:{{ $cat->color }}" @endif>{{ $cat->name }}</span>
+                    <span class="px-2.5 py-1 rounded-full text-[0.72rem] font-semibold bg-accent2/15 text-accent2"
+                          @if($cat->color) style="background:{{ $cat->color }}22;color:{{ $cat->color }}" @endif>
+                        {{ $cat->name }}
+                    </span>
                 @empty
-                    <span style="color:var(--muted);font-size:.8rem">None</span>
+                    <span class="text-muted text-xs">None</span>
                 @endforelse
             </div>
         </div>
-        <div class="card">
-            <div class="card-header"><strong>Tags</strong></div>
-            <div class="card-body" style="display:flex;flex-wrap:wrap;gap:6px">
+        <div class="bg-surface border border-border rounded-[10px] overflow-hidden">
+            <div class="px-5 py-4 border-b border-border font-semibold text-sm">Tags</div>
+            <div class="p-4 flex flex-wrap gap-1.5">
                 @forelse($channel->tags as $tag)
-                    <span class="badge badge-amber">{{ $tag->name }}</span>
+                    <span class="px-2.5 py-1 rounded-full text-[0.72rem] font-semibold bg-accent/15 text-accent">{{ $tag->name }}</span>
                 @empty
-                    <span style="color:var(--muted);font-size:.8rem">None</span>
+                    <span class="text-muted text-xs">None</span>
                 @endforelse
             </div>
         </div>
     </div>
 </div>
 
-<div class="card">
-    <div class="card-header">
-        <strong>Sources</strong>
-        <a href="{{ route('channels.sources.create', $channel) }}" class="btn btn-primary btn-sm">+ Add Source</a>
+{{-- Sources --}}
+<div class="bg-surface border border-border rounded-[10px] overflow-hidden">
+    <div class="px-5 py-4 border-b border-border flex items-center justify-between">
+        <span class="font-semibold text-sm">Sources</span>
+        <a href="{{ route('channels.sources.create', $channel) }}"
+           class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-accent hover:bg-yellow-400 text-black text-xs font-medium rounded-lg transition-colors">
+            + Add Source
+        </a>
     </div>
-    <table>
+    <table class="w-full border-collapse">
         <thead>
-            <tr><th>Type</th><th>Link</th><th>DRM</th><th>Clearkeys</th><th>Actions</th></tr>
+            <tr class="border-b border-border">
+                <th class="px-4 py-3 text-left text-[0.72rem] uppercase tracking-wider text-muted">Type</th>
+                <th class="px-4 py-3 text-left text-[0.72rem] uppercase tracking-wider text-muted">Link</th>
+                <th class="px-4 py-3 text-left text-[0.72rem] uppercase tracking-wider text-muted">DRM</th>
+                <th class="px-4 py-3 text-left text-[0.72rem] uppercase tracking-wider text-muted">Clearkeys</th>
+                <th class="px-4 py-3 text-left text-[0.72rem] uppercase tracking-wider text-muted">Actions</th>
+            </tr>
         </thead>
         <tbody>
         @forelse($channel->sources as $source)
-            <tr>
-                <td><span class="badge badge-amber">{{ strtoupper($source->type) }}</span></td>
-                <td style="max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">
-                    <code style="font-size:.78rem;color:var(--muted)">{{ $source->link ?? '—' }}</code>
+            <tr class="border-b border-border last:border-0 hover:bg-white/[.02] transition-colors">
+                <td class="px-4 py-3">
+                    <span class="px-2 py-0.5 rounded-full text-[0.72rem] font-semibold bg-accent/15 text-accent">{{ strtoupper($source->type) }}</span>
                 </td>
-                <td>
+                <td class="px-4 py-3 max-w-xs">
+                    <code class="text-xs text-muted truncate block">{{ $source->link ?? '—' }}</code>
+                </td>
+                <td class="px-4 py-3">
                     @if($source->drm)
-                        <span class="badge badge-green">Yes</span>
+                        <span class="px-2 py-0.5 rounded-full text-[0.72rem] font-semibold bg-green-500/15 text-green-400">Yes</span>
                     @else
-                        <span class="badge badge-gray">No</span>
+                        <span class="px-2 py-0.5 rounded-full text-[0.72rem] font-semibold bg-border text-muted">No</span>
                     @endif
                 </td>
-                <td>{{ $source->clearkeys ?? '—' }}</td>
-                <td>
-                    <a href="{{ route('channels.sources.edit', [$channel, $source]) }}" class="btn btn-secondary btn-sm">Edit</a>
-                    <form action="{{ route('channels.sources.destroy', [$channel, $source]) }}" method="POST" style="display:inline" onsubmit="return confirm('Delete source?')">
-                        @csrf @method('DELETE')
-                        <button class="btn btn-danger btn-sm">Delete</button>
-                    </form>
+                <td class="px-4 py-3 text-sm">{{ $source->clearkeys ?? '—' }}</td>
+                <td class="px-4 py-3">
+                    <div class="flex gap-1.5">
+                        <a href="{{ route('sources.edit',  [$channel, $source]) }}"
+                           class="px-3 py-1.5 bg-border hover:bg-[#2e3748] text-gray-200 text-xs font-medium rounded-lg transition-colors">Edit</a>
+                        <form action="{{ route('sources.destroy', $source) }}" method="POST"
+                              onsubmit="return confirm('Delete source?')">
+                            @csrf @method('DELETE')
+                            <button class="px-3 py-1.5 bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30 text-xs font-medium rounded-lg transition-colors">Delete</button>
+                        </form>
+                    </div>
                 </td>
             </tr>
         @empty
-            <tr><td colspan="5" style="text-align:center;color:var(--muted);padding:30px">No sources yet.</td></tr>
+            <tr><td colspan="5" class="px-4 py-8 text-center text-muted text-sm">No sources yet.</td></tr>
         @endforelse
         </tbody>
     </table>

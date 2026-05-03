@@ -2,73 +2,67 @@
 @section('title', 'Sources')
 
 @section('content')
-<div class="page-header">
+<div class="flex items-start justify-between mb-7">
     <div>
-        <div class="page-title">Sources</div>
-        <div class="page-subtitle">{{ $sources->total() }} stream sources across all channels</div>
+        <h1 class="font-display font-bold text-2xl">Sources</h1>
+        <p class="text-muted text-sm mt-0.5">{{ $sources->total() }} stream sources across all channels</p>
     </div>
 </div>
 
-<div class="card">
-    <table>
+<div class="bg-surface border border-border rounded-[10px] overflow-hidden">
+    <table class="w-full border-collapse">
         <thead>
-            <tr>
-                <th>Channel</th>
-                <th>Type</th>
-                <th>Stream URL</th>
-                <th>DRM</th>
-                <th>Clearkeys</th>
-                <th>Actions</th>
+            <tr class="border-b border-border">
+                <th class="px-4 py-3 text-left text-[0.72rem] uppercase tracking-wider text-muted">Channel</th>
+                <th class="px-4 py-3 text-left text-[0.72rem] uppercase tracking-wider text-muted">Type</th>
+                <th class="px-4 py-3 text-left text-[0.72rem] uppercase tracking-wider text-muted">Stream URL</th>
+                <th class="px-4 py-3 text-left text-[0.72rem] uppercase tracking-wider text-muted">DRM</th>
+                <th class="px-4 py-3 text-left text-[0.72rem] uppercase tracking-wider text-muted">Clearkeys</th>
+                <th class="px-4 py-3 text-left text-[0.72rem] uppercase tracking-wider text-muted">Actions</th>
             </tr>
         </thead>
         <tbody>
         @forelse($sources as $source)
-            <tr>
-                <td>
-                    <a href="{{ route('channels.show', $source->channel) }}"
-                       style="color:var(--accent);text-decoration:none;font-weight:500">
+            <tr class="border-b border-border last:border-0 hover:bg-white/[.02] transition-colors">
+                <td class="px-4 py-3">
+                    <a href="{{ route('channels.show', $source->channel) }}" class="text-accent hover:underline font-medium text-sm">
                         {{ $source->channel->name }}
                     </a>
                 </td>
-                <td><span class="badge badge-amber">{{ strtoupper($source->type) }}</span></td>
-                <td style="max-width:320px">
-                    @if($source->link)
-                        <code style="font-size:.75rem;color:var(--muted);display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">
-                            {{ $source->link }}
-                        </code>
-                    @else
-                        <span style="color:var(--muted)">—</span>
-                    @endif
+                <td class="px-4 py-3">
+                    <span class="px-2 py-0.5 rounded-full text-[0.72rem] font-semibold bg-accent/15 text-accent">{{ strtoupper($source->type) }}</span>
                 </td>
-                <td>
+                <td class="px-4 py-3 max-w-xs">
+                    <code class="text-xs text-muted truncate block">{{ $source->link ?? '—' }}</code>
+                </td>
+                <td class="px-4 py-3">
                     @if($source->drm)
-                        <span class="badge badge-green">Yes</span>
+                        <span class="px-2 py-0.5 rounded-full text-[0.72rem] font-semibold bg-green-500/15 text-green-400">Yes</span>
                     @else
-                        <span class="badge badge-gray">No</span>
+                        <span class="px-2 py-0.5 rounded-full text-[0.72rem] font-semibold bg-border text-muted">No</span>
                     @endif
                 </td>
-                <td>{{ $source->clearkeys ?? '—' }}</td>
-                <td>
-                    <a href="{{ route('channels.sources.create', $source->channel) }}"
-                       class="btn btn-secondary btn-sm" title="Add source to this channel">+ Source</a>
-                    <a href="{{ route('sources.edit', $source) }}" class="btn btn-secondary btn-sm">Edit</a>
-                    <form action="{{ route('sources.destroy', $source) }}" method="POST"
-                          style="display:inline" onsubmit="return confirm('Delete this source?')">
-                        @csrf @method('DELETE')
-                        <button class="btn btn-danger btn-sm">Delete</button>
-                    </form>
+                <td class="px-4 py-3 text-sm">{{ $source->clearkeys ?? '—' }}</td>
+                <td class="px-4 py-3">
+                    <div class="flex gap-1.5">
+                        <a href="{{ route('channels.sources.create', $source->channel) }}"
+                           class="px-3 py-1.5 bg-border hover:bg-[#2e3748] text-gray-200 text-xs font-medium rounded-lg transition-colors" title="Add source to channel">+ Source</a>
+                        <a href="{{ route('sources.edit', $source) }}"
+                           class="px-3 py-1.5 bg-border hover:bg-[#2e3748] text-gray-200 text-xs font-medium rounded-lg transition-colors">Edit</a>
+                        <form action="{{ route('sources.destroy', $source) }}" method="POST"
+                              onsubmit="return confirm('Delete this source?')">
+                            @csrf @method('DELETE')
+                            <button class="px-3 py-1.5 bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30 text-xs font-medium rounded-lg transition-colors">Delete</button>
+                        </form>
+                    </div>
                 </td>
             </tr>
         @empty
-            <tr>
-                <td colspan="6" style="text-align:center;color:var(--muted);padding:40px">
-                    No sources yet. Add one from a channel page.
-                </td>
-            </tr>
+            <tr><td colspan="6" class="px-4 py-10 text-center text-muted text-sm">No sources yet. Add one from a channel page.</td></tr>
         @endforelse
         </tbody>
     </table>
 </div>
 
-<div class="pagination">{{ $sources->links() }}</div>
+<div class="mt-5">{{ $sources->links() }}</div>
 @endsection

@@ -2,63 +2,79 @@
 @section('title', 'Tags')
 
 @section('content')
-<div class="page-header">
+<div class="flex items-center justify-between mb-7">
     <div>
-        <div class="page-title">Tags</div>
-        <div class="page-subtitle">{{ $tags->total() }} tags</div>
+        <h1 class="font-display font-bold text-2xl">Tags</h1>
+        <p class="text-muted text-sm mt-0.5">{{ $tags->total() }} tags</p>
     </div>
 </div>
 
-<div style="display:grid;grid-template-columns:320px 1fr;gap:24px">
+<div class="grid grid-cols-[320px_1fr] gap-6">
     {{-- Add form --}}
-    <div class="card" style="align-self:start">
-        <div class="card-header"><strong>Add Tag</strong></div>
-        <div class="card-body">
-            <form action="{{ route('tags.store') }}" method="POST">
+    <div class="bg-surface border border-border rounded-[10px] overflow-hidden self-start">
+        <div class="px-5 py-4 border-b border-border font-semibold text-sm">Add Tag</div>
+        <div class="p-5">
+            <form action="{{ route('tags.store') }}" method="POST" class="space-y-4">
                 @csrf
-                <div class="form-group">
-                    <label class="form-label">Tag Name *</label>
-                    <input name="name" class="form-control" value="{{ old('name') }}" required placeholder="e.g. Sports">
+                <div>
+                    <label class="block text-[0.72rem] font-medium uppercase tracking-wider text-muted mb-1.5">Tag Name *</label>
+                    <input name="name" value="{{ old('name') }}" required placeholder="e.g. Sports"
+                           class="w-full px-3.5 py-2.5 bg-bg border border-border rounded-[10px] text-sm text-gray-200 placeholder-muted focus:outline-none focus:border-accent transition-colors">
                 </div>
-                <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center">Add Tag</button>
+                <button type="submit"
+                        class="w-full py-2.5 bg-accent hover:bg-yellow-400 text-black font-display font-bold text-sm rounded-[10px] transition-colors">
+                    Add Tag
+                </button>
             </form>
         </div>
     </div>
 
-    {{-- Tag cloud + table --}}
-    <div style="display:flex;flex-direction:column;gap:16px">
-        <div class="card">
-            <div class="card-header"><strong>Tag Cloud</strong></div>
-            <div class="card-body" style="display:flex;flex-wrap:wrap;gap:8px">
+    <div class="flex flex-col gap-5">
+        {{-- Tag cloud --}}
+        <div class="bg-surface border border-border rounded-[10px] overflow-hidden">
+            <div class="px-5 py-4 border-b border-border font-semibold text-sm">Tag Cloud</div>
+            <div class="p-4 flex flex-wrap gap-2">
                 @foreach($tags as $tag)
-                    <span class="badge badge-amber" style="font-size:{{ min(1.1, 0.7 + ($tag->channels_count / 20)) }}rem;padding:5px 12px">
+                    <span class="px-3 py-1 rounded-full font-semibold bg-accent/15 text-accent"
+                          style="font-size: {{ min(1.05, 0.72 + ($tag->channels_count / 25)) }}rem">
                         {{ $tag->name }}
-                        <span style="opacity:.6;font-size:.7em;margin-left:4px">{{ $tag->channels_count }}</span>
+                        <span class="opacity-50 text-[0.7em] ml-1">{{ $tag->channels_count }}</span>
                     </span>
                 @endforeach
             </div>
         </div>
 
-        <div class="card">
-            <table>
+        {{-- Table --}}
+        <div class="bg-surface border border-border rounded-[10px] overflow-hidden">
+            <table class="w-full border-collapse">
                 <thead>
-                    <tr><th>Tag</th><th>Channels</th><th>Actions</th></tr>
+                    <tr class="border-b border-border">
+                        <th class="px-4 py-3 text-left text-[0.72rem] uppercase tracking-wider text-muted">Tag</th>
+                        <th class="px-4 py-3 text-left text-[0.72rem] uppercase tracking-wider text-muted">Channels</th>
+                        <th class="px-4 py-3 text-left text-[0.72rem] uppercase tracking-wider text-muted">Actions</th>
+                    </tr>
                 </thead>
                 <tbody>
                 @forelse($tags as $tag)
-                    <tr>
-                        <td><strong>{{ $tag->name }}</strong></td>
-                        <td><span class="badge badge-amber">{{ $tag->channels_count }}</span></td>
-                        <td>
-                            <button onclick="openEdit({{ $tag->tag_id }}, '{{ addslashes($tag->name) }}')" class="btn btn-secondary btn-sm">Edit</button>
-                            <form action="{{ route('tags.destroy', $tag) }}" method="POST" style="display:inline" onsubmit="return confirm('Delete tag?')">
-                                @csrf @method('DELETE')
-                                <button class="btn btn-danger btn-sm">Delete</button>
-                            </form>
+                    <tr class="border-b border-border last:border-0 hover:bg-white/[.02] transition-colors">
+                        <td class="px-4 py-3 font-medium text-sm">{{ $tag->name }}</td>
+                        <td class="px-4 py-3">
+                            <span class="px-2 py-0.5 rounded-full text-[0.72rem] font-semibold bg-accent/15 text-accent">{{ $tag->channels_count }}</span>
+                        </td>
+                        <td class="px-4 py-3">
+                            <div class="flex gap-1.5">
+                                <button onclick="openEdit({{ $tag->id }}, '{{ addslashes($tag->name) }}')"
+                                        class="px-3 py-1.5 bg-border hover:bg-[#2e3748] text-gray-200 text-xs font-medium rounded-lg transition-colors">Edit</button>
+                                <form action="{{ route('tags.destroy', $tag) }}" method="POST"
+                                      onsubmit="return confirm('Delete tag?')">
+                                    @csrf @method('DELETE')
+                                    <button class="px-3 py-1.5 bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30 text-xs font-medium rounded-lg transition-colors">Delete</button>
+                                </form>
+                            </div>
                         </td>
                     </tr>
                 @empty
-                    <tr><td colspan="3" style="text-align:center;color:var(--muted);padding:30px">No tags yet.</td></tr>
+                    <tr><td colspan="3" class="px-4 py-10 text-center text-muted text-sm">No tags yet.</td></tr>
                 @endforelse
                 </tbody>
             </table>
@@ -66,22 +82,25 @@
     </div>
 </div>
 
-<div class="pagination">{{ $tags->links() }}</div>
+<div class="mt-5">{{ $tags->links() }}</div>
 
-{{-- Inline edit modal --}}
-<div id="editModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:100;align-items:center;justify-content:center">
-    <div class="card" style="width:360px">
-        <div class="card-header"><strong>Edit Tag</strong></div>
-        <div class="card-body">
-            <form id="editForm" method="POST">
+{{-- Edit modal --}}
+<div id="editModal" class="hidden fixed inset-0 bg-black/70 z-50 flex items-center justify-center">
+    <div class="bg-surface border border-border rounded-[10px] w-80 overflow-hidden">
+        <div class="px-5 py-4 border-b border-border font-semibold text-sm">Edit Tag</div>
+        <div class="p-5">
+            <form id="editForm" method="POST" class="space-y-4">
                 @csrf @method('PUT')
-                <div class="form-group">
-                    <label class="form-label">Name *</label>
-                    <input id="editName" name="name" class="form-control" required>
+                <div>
+                    <label class="block text-[0.72rem] font-medium uppercase tracking-wider text-muted mb-1.5">Name *</label>
+                    <input id="editName" name="name" required
+                           class="w-full px-3.5 py-2.5 bg-bg border border-border rounded-[10px] text-sm text-gray-200 focus:outline-none focus:border-accent transition-colors">
                 </div>
-                <div style="display:flex;gap:10px">
-                    <button type="submit" class="btn btn-primary">Save</button>
-                    <button type="button" onclick="closeEdit()" class="btn btn-secondary">Cancel</button>
+                <div class="flex gap-2.5">
+                    <button type="submit"
+                            class="px-5 py-2.5 bg-accent hover:bg-yellow-400 text-black font-display font-bold text-sm rounded-[10px] transition-colors">Save</button>
+                    <button type="button" onclick="closeEdit()"
+                            class="px-5 py-2.5 bg-border hover:bg-[#2e3748] text-gray-200 text-sm font-medium rounded-[10px] transition-colors">Cancel</button>
                 </div>
             </form>
         </div>
@@ -93,10 +112,10 @@
 function openEdit(id, name) {
     document.getElementById('editForm').action = '/tags/' + id;
     document.getElementById('editName').value = name;
-    document.getElementById('editModal').style.display = 'flex';
+    document.getElementById('editModal').classList.remove('hidden');
 }
 function closeEdit() {
-    document.getElementById('editModal').style.display = 'none';
+    document.getElementById('editModal').classList.add('hidden');
 }
 </script>
 @endpush

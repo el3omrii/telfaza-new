@@ -2,79 +2,101 @@
 @section('title', 'Countries')
 
 @section('content')
-<div class="page-header">
+<div class="flex items-center justify-between mb-7">
     <div>
-        <div class="page-title">Countries</div>
-        <div class="page-subtitle">{{ $countries->total() }} countries</div>
+        <h1 class="font-display font-bold text-2xl">Countries</h1>
+        <p class="text-muted text-sm mt-0.5">{{ $countries->total() }} countries</p>
     </div>
 </div>
 
-<div style="display:grid;grid-template-columns:320px 1fr;gap:24px">
-    <div class="card" style="align-self:start">
-        <div class="card-header"><strong>Add Country</strong></div>
-        <div class="card-body">
-            <form action="{{ route('countries.store') }}" method="POST">
+<div class="grid grid-cols-[320px_1fr] gap-6">
+    <div class="bg-surface border border-border rounded-[10px] overflow-hidden self-start">
+        <div class="px-5 py-4 border-b border-border font-semibold text-sm">Add Country</div>
+        <div class="p-5">
+            <form action="{{ route('countries.store') }}" method="POST" class="space-y-4">
                 @csrf
-                <div class="form-group">
-                    <label class="form-label">Name *</label>
-                    <input name="name" class="form-control" value="{{ old('name') }}" required placeholder="e.g. France">
+                <div>
+                    <label class="block text-[0.72rem] font-medium uppercase tracking-wider text-muted mb-1.5">Name *</label>
+                    <input name="name" value="{{ old('name') }}" required placeholder="e.g. France"
+                           class="w-full px-3.5 py-2.5 bg-bg border border-border rounded-[10px] text-sm text-gray-200 placeholder-muted focus:outline-none focus:border-accent transition-colors">
                 </div>
-                <div class="form-group">
-                    <label class="form-label">Flag Emoji</label>
-                    <input name="flag" class="form-control" value="{{ old('flag') }}" placeholder="🇫🇷" maxlength="10">
+                <div>
+                    <label class="block text-[0.72rem] font-medium uppercase tracking-wider text-muted mb-1.5">Flag Emoji</label>
+                    <input name="flag" value="{{ old('flag') }}" placeholder="🇫🇷" maxlength="10"
+                           class="w-full px-3.5 py-2.5 bg-bg border border-border rounded-[10px] text-sm text-gray-200 placeholder-muted focus:outline-none focus:border-accent transition-colors">
                 </div>
-                <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center">Add Country</button>
+                <button type="submit"
+                        class="w-full py-2.5 bg-accent hover:bg-yellow-400 text-black font-display font-bold text-sm rounded-[10px] transition-colors">
+                    Add Country
+                </button>
             </form>
         </div>
     </div>
 
-    <div class="card">
-        <table>
+    <div class="bg-surface border border-border rounded-[10px] overflow-hidden">
+        <table class="w-full border-collapse">
             <thead>
-                <tr><th>Flag</th><th>Name</th><th>Channels</th><th>Actions</th></tr>
+                <tr class="border-b border-border">
+                    <th class="px-4 py-3 text-left text-[0.72rem] uppercase tracking-wider text-muted">Flag</th>
+                    <th class="px-4 py-3 text-left text-[0.72rem] uppercase tracking-wider text-muted">Name</th>
+                    <th class="px-4 py-3 text-left text-[0.72rem] uppercase tracking-wider text-muted">Channels</th>
+                    <th class="px-4 py-3 text-left text-[0.72rem] uppercase tracking-wider text-muted">Actions</th>
+                </tr>
             </thead>
             <tbody>
             @forelse($countries as $country)
-                <tr>
-                    <td style="font-size:1.5rem">{{ $country->flag }}</td>
-                    <td><strong>{{ $country->name }}</strong></td>
-                    <td><span class="badge badge-blue">{{ $country->channels_count }}</span></td>
-                    <td>
-                        <button onclick="openEdit({{ $country->country_id }}, '{{ addslashes($country->name) }}', '{{ $country->flag }}')"
-                            class="btn btn-secondary btn-sm">Edit</button>
-                        <form action="{{ route('countries.destroy', $country) }}" method="POST" style="display:inline" onsubmit="return confirm('Delete country?')">
-                            @csrf @method('DELETE')
-                            <button class="btn btn-danger btn-sm">Delete</button>
-                        </form>
+                <tr class="border-b border-border last:border-0 hover:bg-white/[.02] transition-colors">
+                    <td class="px-4 py-3">
+                        <img src="//flagcdn.com/{{ strtolower($country->flag) }}.svg" alt="{{ $country->name }}" class="w-8 h-8 rounded-full">
+                    </td>
+                    <td class="px-4 py-3 font-medium text-sm">{{ $country->name }}</td>
+                    <td class="px-4 py-3">
+                        <span class="px-2 py-0.5 rounded-full text-[0.72rem] font-semibold bg-accent2/15 text-accent2">{{ $country->channels_count }}</span>
+                    </td>
+                    <td class="px-4 py-3">
+                        <div class="flex gap-1.5">
+                            <button onclick="openEdit({{ $country->id }}, '{{ addslashes($country->name) }}', '{{ $country->flag }}')"
+                                    class="px-3 py-1.5 bg-border hover:bg-[#2e3748] text-gray-200 text-xs font-medium rounded-lg transition-colors">Edit</button>
+                            <form action="{{ route('countries.destroy', $country) }}" method="POST"
+                                  onsubmit="return confirm('Delete country?')">
+                                @csrf @method('DELETE')
+                                <button class="px-3 py-1.5 bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30 text-xs font-medium rounded-lg transition-colors">Delete</button>
+                            </form>
+                        </div>
                     </td>
                 </tr>
             @empty
-                <tr><td colspan="4" style="text-align:center;color:var(--muted);padding:30px">No countries yet.</td></tr>
+                <tr><td colspan="4" class="px-4 py-10 text-center text-muted text-sm">No countries yet.</td></tr>
             @endforelse
             </tbody>
         </table>
     </div>
 </div>
 
-<div class="pagination">{{ $countries->links() }}</div>
+<div class="mt-5">{{ $countries->links() }}</div>
 
-<div id="editModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:100;align-items:center;justify-content:center">
-    <div class="card" style="width:360px">
-        <div class="card-header"><strong>Edit Country</strong></div>
-        <div class="card-body">
-            <form id="editForm" method="POST">
+{{-- Edit modal --}}
+<div id="editModal" class="hidden fixed inset-0 bg-black/70 z-50 flex items-center justify-center">
+    <div class="bg-surface border border-border rounded-[10px] w-80 overflow-hidden">
+        <div class="px-5 py-4 border-b border-border font-semibold text-sm">Edit Country</div>
+        <div class="p-5">
+            <form id="editForm" method="POST" class="space-y-4">
                 @csrf @method('PUT')
-                <div class="form-group">
-                    <label class="form-label">Name *</label>
-                    <input id="editName" name="name" class="form-control" required>
+                <div>
+                    <label class="block text-[0.72rem] font-medium uppercase tracking-wider text-muted mb-1.5">Name *</label>
+                    <input id="editName" name="name" required
+                           class="w-full px-3.5 py-2.5 bg-bg border border-border rounded-[10px] text-sm text-gray-200 focus:outline-none focus:border-accent transition-colors">
                 </div>
-                <div class="form-group">
-                    <label class="form-label">Flag Emoji</label>
-                    <input id="editFlag" name="flag" class="form-control" maxlength="10">
+                <div>
+                    <label class="block text-[0.72rem] font-medium uppercase tracking-wider text-muted mb-1.5">Flag</label>
+                    <input id="editFlag" name="flag" maxlength="10"
+                           class="w-full px-3.5 py-2.5 bg-bg border border-border rounded-[10px] text-sm text-gray-200 focus:outline-none focus:border-accent transition-colors">
                 </div>
-                <div style="display:flex;gap:10px">
-                    <button type="submit" class="btn btn-primary">Save</button>
-                    <button type="button" onclick="closeEdit()" class="btn btn-secondary">Cancel</button>
+                <div class="flex gap-2.5">
+                    <button type="submit"
+                            class="px-5 py-2.5 bg-accent hover:bg-yellow-400 text-black font-display font-bold text-sm rounded-[10px] transition-colors">Save</button>
+                    <button type="button" onclick="closeEdit()"
+                            class="px-5 py-2.5 bg-border hover:bg-[#2e3748] text-gray-200 text-sm font-medium rounded-[10px] transition-colors">Cancel</button>
                 </div>
             </form>
         </div>
@@ -87,10 +109,10 @@ function openEdit(id, name, flag) {
     document.getElementById('editForm').action = '/countries/' + id;
     document.getElementById('editName').value = name;
     document.getElementById('editFlag').value = flag;
-    document.getElementById('editModal').style.display = 'flex';
+    document.getElementById('editModal').classList.remove('hidden');
 }
 function closeEdit() {
-    document.getElementById('editModal').style.display = 'none';
+    document.getElementById('editModal').classList.add('hidden');
 }
 </script>
 @endpush

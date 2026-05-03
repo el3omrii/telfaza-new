@@ -2,82 +2,101 @@
 @section('title', 'Channels')
 
 @section('content')
-<div class="page-header">
+<div class="flex items-start justify-between mb-7">
     <div>
-        <div class="page-title">Channels</div>
-        <div class="page-subtitle">{{ $channels->total() }} channels total</div>
+        <h1 class="font-display font-bold text-2xl">Channels</h1>
+        <p class="text-muted text-sm mt-0.5">{{ $channels->total() }} channels total</p>
     </div>
-    <a href="{{ route('channels.create') }}" class="btn btn-primary">
-        <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
+    <a href="{{ route('channels.create') }}"
+       class="inline-flex items-center gap-1.5 px-4 py-2.5 bg-accent hover:bg-yellow-400 text-black text-sm font-medium rounded-[10px] transition-colors">
+        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
         New Channel
     </a>
 </div>
 
-<form method="GET" class="filters">
-    <input name="search" class="form-control" placeholder="Search by name…" value="{{ request('search') }}">
-    <select name="category" class="form-control">
+{{-- Filters --}}
+<form method="GET" class="flex flex-wrap gap-2.5 mb-5">
+    <input name="search" value="{{ request('search') }}" placeholder="Search by name…"
+           class="px-3 py-2 bg-bg border border-border rounded-[10px] text-sm text-gray-200 placeholder-muted focus:outline-none focus:border-accent transition-colors w-48">
+    <select name="category"
+            class="px-3 py-2 bg-bg border border-border rounded-[10px] text-sm text-gray-200 focus:outline-none focus:border-accent transition-colors">
         <option value="">All categories</option>
         @foreach($categories as $cat)
-            <option value="{{ $cat->category_id }}" {{ request('category') == $cat->category_id ? 'selected' : '' }}>{{ $cat->name }}</option>
+            <option value="{{ $cat->id }}" {{ request('category') == $cat->id ? 'selected' : '' }}>{{ $cat->name }}</option>
         @endforeach
     </select>
-    <select name="country" class="form-control">
+    <select name="country"
+            class="px-3 py-2 bg-bg border border-border rounded-[10px] text-sm text-gray-200 focus:outline-none focus:border-accent transition-colors">
         <option value="">All countries</option>
         @foreach($countries as $c)
-            <option value="{{ $c->country_id }}" {{ request('country') == $c->country_id ? 'selected' : '' }}>{{ $c->flag }} {{ $c->name }}</option>
+            <option value="{{ $c->id }}" {{ request('country') == $c->id ? 'selected' : '' }}>{{ $c->flag }} {{ $c->name }}</option>
         @endforeach
     </select>
-    <button type="submit" class="btn btn-secondary">Filter</button>
-    <a href="{{ route('channels.index') }}" class="btn btn-secondary">Reset</a>
+    <button type="submit"
+            class="px-4 py-2 bg-border hover:bg-[#2e3748] text-gray-200 text-sm font-medium rounded-[10px] transition-colors">Filter</button>
+    <a href="{{ route('channels.index') }}"
+       class="px-4 py-2 bg-border hover:bg-[#2e3748] text-gray-200 text-sm font-medium rounded-[10px] transition-colors">Reset</a>
 </form>
 
-<div class="card">
-    <table>
+{{-- Table --}}
+<div class="bg-surface border border-border rounded-[10px] overflow-hidden">
+    <table class="w-full border-collapse">
         <thead>
-            <tr>
-                <th>Channel</th>
-                <th>Country</th>
-                <th>Categories</th>
-                <th>Sources</th>
-                <th>Views</th>
-                <th>Actions</th>
+            <tr class="border-b border-border">
+                <th class="px-4 py-3 text-left text-[0.72rem] uppercase tracking-wider text-muted">Channel</th>
+                <th class="px-4 py-3 text-left text-[0.72rem] uppercase tracking-wider text-muted">Country</th>
+                <th class="px-4 py-3 text-left text-[0.72rem] uppercase tracking-wider text-muted">Categories</th>
+                <th class="px-4 py-3 text-left text-[0.72rem] uppercase tracking-wider text-muted">Sources</th>
+                <th class="px-4 py-3 text-left text-[0.72rem] uppercase tracking-wider text-muted">Views</th>
+                <th class="px-4 py-3 text-left text-[0.72rem] uppercase tracking-wider text-muted">Actions</th>
             </tr>
         </thead>
         <tbody>
         @forelse($channels as $channel)
-            <tr>
-                <td>
-                    <strong>{{ $channel->name }}</strong>
+            <tr class="border-b border-border last:border-0 hover:bg-white/[.02] transition-colors">
+                <td class="px-4 py-3">
+                    <span class="font-medium text-sm">{{ $channel->name }}</span>
                     @if($channel->description)
-                        <div style="color:var(--muted);font-size:.78rem;margin-top:2px">{{ Str::limit($channel->description, 60) }}</div>
+                        <p class="text-muted text-xs mt-0.5">{{ Str::limit($channel->description, 60) }}</p>
                     @endif
                 </td>
-                <td>{{ $channel->country?->flag }} {{ $channel->country?->name ?? '—' }}</td>
-                <td>
-                    @foreach($channel->categories->take(3) as $cat)
-                        <span class="badge badge-blue" style="margin-right:3px">{{ $cat->name }}</span>
-                    @endforeach
-                    @if($channel->categories->count() > 3)
-                        <span class="badge badge-gray">+{{ $channel->categories->count() - 3 }}</span>
-                    @endif
+                <td class="px-4 py-3 text-sm">{{ $channel->country?->flag }} {{ $channel->country?->name ?? '—' }}</td>
+                <td class="px-4 py-3">
+                    <div class="flex flex-wrap gap-1">
+                        @foreach($channel->categories->take(3) as $cat)
+                            <span class="px-2 py-0.5 rounded-full text-[0.72rem] font-semibold bg-accent2/15 text-accent2">{{ $cat->name }}</span>
+                        @endforeach
+                        @if($channel->categories->count() > 3)
+                            <span class="px-2 py-0.5 rounded-full text-[0.72rem] font-semibold bg-border text-muted">+{{ $channel->categories->count() - 3 }}</span>
+                        @endif
+                    </div>
                 </td>
-                <td><span class="badge badge-amber">{{ $channel->sources_count }}</span></td>
-                <td>{{ number_format($channel->views) }}</td>
-                <td>
-                    <a href="{{ route('channels.show', $channel) }}" class="btn btn-secondary btn-sm">View</a>
-                    <a href="{{ route('channels.edit', $channel) }}" class="btn btn-secondary btn-sm">Edit</a>
-                    <form action="{{ route('channels.destroy', $channel) }}" method="POST" style="display:inline" onsubmit="return confirm('Delete this channel?')">
-                        @csrf @method('DELETE')
-                        <button class="btn btn-danger btn-sm">Delete</button>
-                    </form>
+                <td class="px-4 py-3">
+                    <span class="px-2 py-0.5 rounded-full text-[0.72rem] font-semibold bg-accent/15 text-accent">{{ $channel->sources_count }}</span>
+                </td>
+                <td class="px-4 py-3 text-sm">{{ number_format($channel->views) }}</td>
+                <td class="px-4 py-3">
+                    <div class="flex items-center gap-1.5">
+                        <a href="{{ route('channels.show', $channel) }}"
+                           class="px-3 py-1.5 bg-border hover:bg-[#2e3748] text-gray-200 text-xs font-medium rounded-lg transition-colors">View</a>
+                        <a href="{{ route('channels.edit', $channel) }}"
+                           class="px-3 py-1.5 bg-border hover:bg-[#2e3748] text-gray-200 text-xs font-medium rounded-lg transition-colors">Edit</a>
+                        <form action="{{ route('channels.destroy', $channel) }}" method="POST"
+                              onsubmit="return confirm('Delete this channel?')">
+                            @csrf @method('DELETE')
+                            <button class="px-3 py-1.5 bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30 text-xs font-medium rounded-lg transition-colors">Delete</button>
+                        </form>
+                    </div>
                 </td>
             </tr>
         @empty
-            <tr><td colspan="6" style="text-align:center;color:var(--muted);padding:40px">No channels found.</td></tr>
+            <tr>
+                <td colspan="6" class="px-4 py-10 text-center text-muted text-sm">No channels found.</td>
+            </tr>
         @endforelse
         </tbody>
     </table>
 </div>
 
-<div class="pagination">{{ $channels->links() }}</div>
+<div class="mt-5">{{ $channels->links() }}</div>
 @endsection

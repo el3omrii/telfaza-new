@@ -17,6 +17,9 @@ return new class extends Migration
             $table->mediumText('description')->nullable();
             $table->string('logo')->nullable();
             $table->string('image')->nullable();
+            $table->string('language')->nullable();
+            $table->string('quality')->nullable();
+            $table->string('epgid')->nullable();
             $table->unsignedBigInteger('views')->default(0);
             $table->unsignedBigInteger('country_id')->nullable();
             $table->timestamps();

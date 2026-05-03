@@ -12,7 +12,7 @@ class SourceController extends Controller
 {
     public function index(): View
     {
-        $sources = Source::with('channel')->orderByDesc('source_id')->paginate(20);
+        $sources = Source::with('channel')->orderByDesc('id')->paginate(20);
 
         return view('sources.index', compact('sources'));
     }
@@ -28,41 +28,42 @@ class SourceController extends Controller
             'type'      => 'required|in:hls,dash,mp4',
             'link'      => 'nullable|url|max:2048',
             'drm'       => 'boolean',
-            'clearkeys' => 'nullable|integer',
+            'clearkeys' => 'nullable|string|max:4000',
         ]);
 
-        $data['channel_id'] = $channel->channel_id;
+        $data['channel_id'] = $channel->id;
         Source::create($data);
 
         return redirect()->route('channels.show', $channel)
                          ->with('success', 'Source added.');
     }
 
-    public function edit(Channel $channel, Source $source): View
+    public function edit(Source $source): View
     {
+        $channel = $source->channel;
         return view('sources.edit', compact('channel', 'source'));
     }
 
-    public function update(Request $request, Channel $channel, Source $source): RedirectResponse
+    public function update(Request $request, Source $source): RedirectResponse
     {
         $data = $request->validate([
             'type'      => 'required|in:hls,dash,mp4',
             'link'      => 'nullable|url|max:2048',
             'drm'       => 'boolean',
-            'clearkeys' => 'nullable|integer',
+            'clearkeys' => 'nullable|string|max:4000',
         ]);
 
         $source->update($data);
 
-        return redirect()->route('channels.show', $channel)
+        return redirect()->route('channels.show', $source->channel)
                          ->with('success', 'Source updated.');
     }
 
-    public function destroy(Channel $channel, Source $source): RedirectResponse
+    public function destroy(Source $source): RedirectResponse
     {
         $source->delete();
 
-        return redirect()->route('channels.show', $channel)
+        return redirect()->route('channels.show', $source->channel)
                          ->with('success', 'Source deleted.');
     }
 }

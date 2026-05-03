@@ -6,6 +6,27 @@
 @source '../**/*.js';
 
 @theme {
-    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
-        'Segoe UI Symbol', 'Noto Color Emoji';
+    --font-sans: 'DM Sans', ui-sans-serif, system-ui, sans-serif;
+    --font-display: 'Syne', sans-serif;
+    --color-bg: #0d0f14;
+    --color-surface: #161a23;
+    --color-border: #252b38;
+    --color-accent: #e8a020;
+    --color-accent2: #3b82f6;
+    --color-muted: #64748b;
+    --radius-default: 10px;
+}
+
+/* @tailwindcss/forms plugin equivalent in CSS-first approach */
+@layer components {
+    input, textarea, select {
+        border-radius: var(--radius-default);
+        border-color: var(--color-border);
+    }
+    
+    input:focus, textarea:focus, select:focus {
+        outline: none;
+        border-color: var(--color-accent);
+        ring: 2px solid var(--color-accent);
+    }
 }

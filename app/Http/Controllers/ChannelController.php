@@ -24,7 +24,7 @@ class ChannelController extends Controller
         }
 
         if ($request->filled('category')) {
-            $query->whereHas('categories', fn ($q) => $q->where('categories.category_id', $request->category));
+            $query->whereHas('categories', fn ($q) => $q->where('categories.id', $request->category));
         }
 
         if ($request->filled('country')) {
@@ -47,6 +47,18 @@ class ChannelController extends Controller
         return view('channels.create', compact('countries', 'categories', 'tags'));
     }
 
+    // ─── Helpers ─────────────────────────────────────────────────────────────────
+
+    private function storeImage($file, string $folder, string $channelName, string $suffix): string
+    {
+        $slug      = str($channelName)->slug();
+        $unique    = substr(md5(uniqid('', true)), 0, 8);
+        $extension = $file->extension();
+        $filename  = "{$slug}-{$suffix}-{$unique}.{$extension}";
+
+        return $file->storeAs($folder, $filename, 'uploads');
+    }
+
     public function store(Request $request): RedirectResponse
     {
         $request->validate([
@@ -55,6 +67,8 @@ class ChannelController extends Controller
             'logo'                => 'nullable|image|mimes:jpeg,png,webp,svg|max:2048',
             'image'               => 'nullable|image|mimes:jpeg,png,webp|max:4096',
             'country_id'          => 'nullable|exists:countries,id',
+            'language'            => 'nullable|string|max:100',
+            'quality'             => 'nullable|in:4K,1080p,720p,480p,360p',
             'categories'          => 'nullable|array',
             'categories.*'        => 'exists:categories,id',
             'tags'                => 'nullable|array',
@@ -64,18 +78,20 @@ class ChannelController extends Controller
             'sources.*.type'      => 'required_with:sources|in:hls,dash,mp4',
             'sources.*.link'      => 'nullable|url|max:2048',
             'sources.*.drm'       => 'nullable|boolean',
-            'sources.*.clearkeys' => 'nullable|integer',
+            'sources.*.clearkeys' => 'nullable|string|max:4000',
         ]);
 
         $channel = Channel::create([
-            'name'       => $request->name,
-            'description'=> $request->description,
-            'country_id' => $request->country_id,
-            'logo'       => $request->hasFile('logo')
-                                ? $request->file('logo')->store('channels/logos', 'uploads')
+            'name'        => $request->name,
+            'description' => $request->description,
+            'country_id'  => $request->country_id,
+            'language'    => $request->language,
+            'quality'     => $request->quality,
+            'logo'        => $request->hasFile('logo')
+                                ? $this->storeImage($request->file('logo'), 'channels/logos', $request->name, 'logo')
                                 : null,
-            'image'      => $request->hasFile('image')
-                                ? $request->file('image')->store('channels/images', 'uploads')
+            'image'       => $request->hasFile('image')
+                                ? $this->storeImage($request->file('image'), 'channels/images', $request->name, 'image')
                                 : null,
         ]);
 
@@ -86,7 +102,7 @@ class ChannelController extends Controller
         if ($request->filled('new_tags')) {
             foreach (array_filter(array_map('trim', explode(',', $request->new_tags))) as $tagName) {
                 $tag      = Tag::firstOrCreate(['name' => $tagName]);
-                $tagIds[] = $tag->tag_id;
+                $tagIds[] = $tag->id;
             }
         }
         $channel->tags()->sync(array_unique($tagIds));
@@ -131,6 +147,8 @@ class ChannelController extends Controller
             'logo'        => 'nullable|image|mimes:jpeg,png,webp,svg|max:2048',
             'image'       => 'nullable|image|mimes:jpeg,png,webp|max:4096',
             'country_id'  => 'nullable|exists:countries,id',
+            'language'    => 'nullable|string|max:100',
+            'quality'     => 'nullable|in:4K,1080p,720p,480p,360p',
             'categories'  => 'nullable|array',
             'categories.*'=> 'exists:categories,id',
             'tags'        => 'nullable|array',
@@ -141,6 +159,8 @@ class ChannelController extends Controller
             'name'        => $request->name,
             'description' => $request->description,
             'country_id'  => $request->country_id,
+            'language'    => $request->language,
+            'quality'     => $request->quality,
         ];
 
         // Replace logo only if a new file was uploaded; delete the old one
@@ -148,7 +168,7 @@ class ChannelController extends Controller
             if ($channel->logo) {
                 Storage::disk('uploads')->delete($channel->logo);
             }
-            $data['logo'] = $request->file('logo')->store('channels/logos', 'uploads');
+            $data['logo'] = $this->storeImage($request->file('logo'), 'channels/logos', $request->name, 'logo');
         }
 
         // Replace image only if a new file was uploaded; delete the old one
@@ -156,7 +176,7 @@ class ChannelController extends Controller
             if ($channel->image) {
                 Storage::disk('uploads')->delete($channel->image);
             }
-            $data['image'] = $request->file('image')->store('channels/images', 'uploads');
+            $data['image'] = $this->storeImage($request->file('image'), 'channels/images', $request->name, 'image');
         }
 
         // Allow explicitly clearing logo/image via hidden checkbox

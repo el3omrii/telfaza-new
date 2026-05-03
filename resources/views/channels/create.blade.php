@@ -2,58 +2,83 @@
 @section('title', 'New Channel')
 
 @section('content')
-<div class="page-header">
+<meta name="csrf-token" content="{{ csrf_token() }}">
+
+<div class="flex items-center justify-between mb-7">
     <div>
-        <div class="page-title">New Channel</div>
-        <div class="page-subtitle">Add a new broadcast channel</div>
+        <h1 class="font-display font-bold text-2xl">New Channel</h1>
+        <p class="text-muted text-sm mt-0.5">Add a new broadcast channel</p>
     </div>
-    <a href="{{ route('channels.index') }}" class="btn btn-secondary">← Back</a>
+    <a href="{{ route('channels.index') }}"
+       class="px-4 py-2 bg-border hover:bg-[#2e3748] text-gray-200 text-sm font-medium rounded-[10px] transition-colors">← Back</a>
 </div>
 
 <form action="{{ route('channels.store') }}" method="POST" id="channelForm" enctype="multipart/form-data">
     @csrf
-    <div style="display:grid;grid-template-columns:2fr 1fr;gap:20px">
+    <div class="grid grid-cols-3 gap-5">
 
-        {{-- ── Left column ── --}}
-        <div style="display:flex;flex-direction:column;gap:16px">
+        {{-- Left: 2 columns --}}
+        <div class="col-span-2 flex flex-col gap-5">
 
-            {{-- Channel info --}}
-            <div class="card">
-                <div class="card-header"><strong>Channel Info</strong></div>
-                <div class="card-body">
-                    <div class="form-group">
-                        <label class="form-label">Name *</label>
-                        <input name="name" class="form-control" value="{{ old('name') }}" required placeholder="e.g. BBC World News">
+            {{-- Channel Info --}}
+            <div class="bg-surface border border-border rounded-[10px] overflow-hidden">
+                <div class="px-5 py-4 border-b border-border font-semibold text-sm">Channel Info</div>
+                <div class="p-5 space-y-4">
+                    <div>
+                        <label class="block text-[0.72rem] font-medium uppercase tracking-wider text-muted mb-1.5">Name *</label>
+                        <input name="name" value="{{ old('name') }}" required placeholder="e.g. BBC World News"
+                               class="w-full px-3.5 py-2.5 bg-bg border border-border rounded-[10px] text-sm text-gray-200 placeholder-muted focus:outline-none focus:border-accent transition-colors">
                     </div>
-                    <div class="form-group">
-                        <label class="form-label">Description</label>
-                        <textarea name="description" class="form-control" rows="3" placeholder="Brief description of the channel…">{{ old('description') }}</textarea>
-                    </div>
-                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
-                        <div class="form-group">
-                            <label class="form-label">Logo <span style="color:var(--muted);font-weight:400;text-transform:none;letter-spacing:0">(jpeg, png, webp, svg — max 2 MB)</span></label>
-                            <label class="file-upload-btn" for="logoInput">
-                                <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-                                <span id="logoLabel">Choose file…</span>
-                            </label>
-                            <input type="file" id="logoInput" name="logo" accept="image/jpeg,image/png,image/webp,image/svg+xml"
-                                   style="display:none" onchange="previewFile(this,'logoPreview','logoLabel')">
-                            <div id="logoPreview" class="img-preview" style="display:none"></div>
+                    <div>
+                        <label class="block text-[0.72rem] font-medium uppercase tracking-wider text-muted mb-1.5">Description</label>
+                        <div class="relative">
+                            <textarea name="description" id="descriptionField" rows="3"
+                                      placeholder="Brief description…"
+                                      class="w-full px-3.5 py-2.5 bg-bg border border-border rounded-[10px] text-sm text-gray-200 placeholder-muted focus:outline-none focus:border-accent transition-colors resize-none">{{ old('description') }}</textarea>
+                            <button type="button"
+                                    id="aiBtn"
+                                    onclick="generateDescription()"
+                                    title="Generate description with AI"
+                                    class="absolute bottom-2.5 right-2.5 flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-all
+                                           bg-[#1a1f2e] hover:bg-[#1e4d8c] border border-accent2/30 hover:border-accent2 text-accent2 hover:text-white shadow-lg">
+                                <svg class="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"/>
+                                    <path d="M9 8h2v8H9zm4 0h2v8h-2z" fill="none"/>
+                                    <path d="M12 2a10 10 0 100 20A10 10 0 0012 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/>
+                                </svg>
+                                <svg id="aiSpinner" class="hidden w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+                                </svg>
+                                <span id="aiBtnText">Generate with AI</span>
+                            </button>
                         </div>
-                        <div class="form-group">
-                            <label class="form-label">Channel Image <span style="color:var(--muted);font-weight:400;text-transform:none;letter-spacing:0">(jpeg, png, webp — max 4 MB)</span></label>
-                            <label class="file-upload-btn" for="imageInput">
-                                <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-                                <span id="imageLabel">Choose file…</span>
-                            </label>
-                            <input type="file" id="imageInput" name="image" accept="image/jpeg,image/png,image/webp"
-                                   style="display:none" onchange="previewFile(this,'imagePreview','imageLabel')">
-                            <div id="imagePreview" class="img-preview" style="display:none"></div>
-                        </div>
+                        <p id="aiError" class="hidden text-xs text-red-400 mt-1.5"></p>
                     </div>
-                    <div class="form-group" style="margin-bottom:0">
-                        <label class="form-label">Country</label>
-                        <select name="country_id" class="form-control">
+                    <div class="grid grid-cols-2 gap-4">
+                        @foreach([['logo','logoInput','logoPreview','logoLabel','image/jpeg,image/png,image/webp,image/svg+xml','Logo','jpeg, png, webp, svg — max 2 MB'],
+                                   ['image','imageInput','imagePreview','imageLabel','image/jpeg,image/png,image/webp','Channel Image','jpeg, png, webp — max 4 MB']] as [$field,$inputId,$previewId,$labelId,$accept,$title,$hint])
+                        <div>
+                            <label class="block text-[0.72rem] font-medium uppercase tracking-wider text-muted mb-1.5">
+                                {{ $title }} <span class="normal-case tracking-normal font-normal text-muted/70">({{ $hint }})</span>
+                            </label>
+                            <label for="{{ $inputId }}"
+                                   class="flex items-center gap-2 w-full px-3.5 py-2.5 bg-bg border border-dashed border-border hover:border-accent text-muted hover:text-accent text-sm rounded-[10px] cursor-pointer transition-colors">
+                                <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>
+                                </svg>
+                                <span id="{{ $labelId }}">Choose file…</span>
+                            </label>
+                            <input type="file" id="{{ $inputId }}" name="{{ $field }}" accept="{{ $accept }}"
+                                   class="hidden" onchange="previewFile(this,'{{ $previewId }}','{{ $labelId }}')">
+                            <div id="{{ $previewId }}" class="hidden mt-2 relative inline-block"></div>
+                        </div>
+                        @endforeach
+                    </div>
+                    <div>
+                        <label class="block text-[0.72rem] font-medium uppercase tracking-wider text-muted mb-1.5">Country</label>
+                        <select name="country_id"
+                                class="w-full px-3.5 py-2.5 bg-bg border border-border rounded-[10px] text-sm text-gray-200 focus:outline-none focus:border-accent transition-colors cursor-pointer">
                             <option value="">— No country —</option>
                             @foreach($countries as $c)
                                 <option value="{{ $c->id }}" {{ old('country_id') == $c->id ? 'selected' : '' }}>
@@ -65,42 +90,63 @@
                 </div>
             </div>
 
-            {{-- ── Inline Sources ── --}}
-            <div class="card">
-                <div class="card-header">
-                    <strong>Sources</strong>
-                    <button type="button" class="btn btn-primary btn-sm" onclick="addSourceRow()">
-                        <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
+            {{-- Inline Sources --}}
+            <div class="bg-surface border border-border rounded-[10px] overflow-hidden">
+                <div class="px-5 py-4 border-b border-border flex items-center justify-between">
+                    <span class="font-semibold text-sm">Sources</span>
+                    <button type="button" onclick="addSourceRow()"
+                            class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-accent hover:bg-yellow-400 text-black text-xs font-medium rounded-lg transition-colors">
+                        <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
                         Add Source
                     </button>
                 </div>
-                <div id="sourceHeader" style="display:none;padding:6px 16px;border-bottom:1px solid var(--border)">
-                    <div class="source-row-label">
-                        <span>Type</span><span>Stream URL</span><span style="text-align:center">DRM</span><span>Clearkeys</span><span></span>
-                    </div>
+                <div id="sourceHeader" class="hidden grid grid-cols-[90px_1fr_60px_110px_34px] gap-2 px-4 py-2 border-b border-border text-[0.68rem] uppercase tracking-wider text-muted">
+                    <span>Type</span><span>Stream URL</span><span class="text-center">DRM</span><span>Clearkeys</span><span></span>
                 </div>
                 <div id="sourcesContainer"></div>
-                <div id="sourcesEmpty" style="padding:24px;text-align:center;color:var(--muted);font-size:.85rem">
+                <div id="sourcesEmpty" class="px-4 py-6 text-center text-muted text-sm">
                     No sources yet — click <strong>Add Source</strong> to stream this channel.
                 </div>
             </div>
-
         </div>
 
-        {{-- ── Right column ── --}}
-        <div style="display:flex;flex-direction:column;gap:16px">
+        {{-- Right column --}}
+        <div class="flex flex-col gap-5">
+
+            {{-- Language --}}
+            <div class="bg-surface border border-border rounded-[10px] overflow-hidden">
+                <div class="px-5 py-4 border-b border-border font-semibold text-sm">Language</div>
+                <div class="p-4">
+                    <input name="language" value="{{ old('language') }}" placeholder="e.g. English, Arabic, French…"
+                           class="w-full px-3.5 py-2.5 bg-bg border border-border rounded-[10px] text-sm text-gray-200 placeholder-muted focus:outline-none focus:border-accent transition-colors">
+                </div>
+            </div>
+
+            {{-- Quality --}}
+            <div class="bg-surface border border-border rounded-[10px] overflow-hidden">
+                <div class="px-5 py-4 border-b border-border font-semibold text-sm">Quality</div>
+                <div class="p-4 flex flex-wrap gap-2">
+                    @foreach(['4K','1080p','720p','480p','360p'] as $q)
+                        <label class="cursor-pointer">
+                            <input type="radio" name="quality" value="{{ $q }}"
+                                   {{ old('quality') === $q ? 'checked' : '' }}
+                                   class="hidden quality-rb">
+                            <span class="quality-label px-3 py-1.5 rounded-lg text-xs font-semibold bg-border text-muted border border-transparent transition-all cursor-pointer">{{ $q }}</span>
+                        </label>
+                    @endforeach
+                </div>
+            </div>
 
             {{-- Categories --}}
-            <div class="card">
-                <div class="card-header"><strong>Categories</strong></div>
-                <div class="card-body" style="display:flex;flex-direction:column;gap:8px;max-height:200px;overflow-y:auto">
+            <div class="bg-surface border border-border rounded-[10px] overflow-hidden">
+                <div class="px-5 py-4 border-b border-border font-semibold text-sm">Categories</div>                <div class="p-4 flex flex-col gap-2 max-h-48 overflow-y-auto">
                     @foreach($categories as $cat)
-                        <label style="display:flex;align-items:center;gap:9px;cursor:pointer;font-size:.875rem">
+                        <label class="flex items-center gap-2.5 cursor-pointer text-sm">
                             <input type="checkbox" name="categories[]" value="{{ $cat->id }}"
-                                {{ in_array($cat->id, old('categories', [])) ? 'checked' : '' }}
-                                style="accent-color:var(--accent);width:15px;height:15px">
+                                   {{ in_array($cat->id, old('categories', [])) ? 'checked' : '' }}
+                                   class="w-4 h-4 rounded accent-accent bg-bg border-border">
                             @if($cat->color)
-                                <span class="color-dot" style="background:{{ $cat->color }}"></span>
+                                <span class="w-2.5 h-2.5 rounded-full shrink-0" style="background:{{ $cat->color }}"></span>
                             @endif
                             {{ $cat->name }}
                         </label>
@@ -109,39 +155,38 @@
             </div>
 
             {{-- Tags --}}
-            <div class="card">
-                <div class="card-header"><strong>Tags</strong></div>
-                <div class="card-body" style="display:flex;flex-direction:column;gap:12px">
-
-                    {{-- Existing tags as toggles --}}
-                    <div id="tagCloud" style="display:flex;flex-wrap:wrap;gap:6px;max-height:160px;overflow-y:auto;min-height:32px">
+            <div class="bg-surface border border-border rounded-[10px] overflow-hidden">
+                <div class="px-5 py-4 border-b border-border font-semibold text-sm">Tags</div>
+                <div class="p-4 flex flex-col gap-3">
+                    <div id="tagCloud" class="flex flex-wrap gap-1.5 max-h-40 overflow-y-auto min-h-8">
                         @foreach($tags as $tag)
-                            <label style="cursor:pointer">
+                            <label class="cursor-pointer">
                                 <input type="checkbox" name="tags[]" value="{{ $tag->id }}"
-                                    {{ in_array($tag->id, old('tags', [])) ? 'checked' : '' }}
-                                    style="display:none" class="tag-cb">
-                                <span class="badge badge-gray tag-label">{{ $tag->name }}</span>
+                                       {{ in_array($tag->id, old('tags', [])) ? 'checked' : '' }}
+                                       class="hidden tag-cb">
+                                <span class="tag-label px-2.5 py-1 rounded-full text-[0.72rem] font-semibold bg-border text-muted border border-transparent transition-all cursor-pointer">{{ $tag->name }}</span>
                             </label>
                         @endforeach
                         @if($tags->isEmpty())
-                            <span id="noTagsHint" style="color:var(--muted);font-size:.8rem">No tags yet — create one below.</span>
+                            <span id="noTagsHint" class="text-muted text-xs">No tags yet — create one below.</span>
                         @endif
                     </div>
-
-                    {{-- Quick-create new tag --}}
-                    <div style="border-top:1px solid var(--border);padding-top:12px">
-                        <div class="form-label" style="margin-bottom:6px">Create new tag</div>
-                        <div style="display:flex;gap:8px">
-                            <input id="newTagInput" class="form-control" placeholder="Tag name…" style="flex:1"
-                                   onkeydown="if(event.key==='Enter'){event.preventDefault();createTag()}">
-                            <button type="button" class="btn btn-secondary" onclick="createTag()" style="white-space:nowrap">+ Add</button>
+                    <div class="border-t border-border pt-3">
+                        <p class="text-[0.72rem] uppercase tracking-wider text-muted mb-1.5">Create new tag</p>
+                        <div class="flex gap-2">
+                            <input id="newTagInput" placeholder="Tag name…"
+                                   onkeydown="if(event.key==='Enter'){event.preventDefault();createTag()}"
+                                   class="flex-1 px-3 py-2 bg-bg border border-border rounded-[10px] text-sm text-gray-200 placeholder-muted focus:outline-none focus:border-accent transition-colors">
+                            <button type="button" onclick="createTag()"
+                                    class="px-3 py-2 bg-border hover:bg-[#2e3748] text-gray-200 text-sm font-medium rounded-[10px] transition-colors whitespace-nowrap">+ Add</button>
                         </div>
-                        <div id="tagFeedback" style="font-size:.75rem;margin-top:5px;min-height:16px"></div>
+                        <div id="tagFeedback" class="text-xs mt-1.5 min-h-4"></div>
                     </div>
                 </div>
             </div>
 
-            <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;padding:12px">
+            <button type="submit"
+                    class="w-full py-3 bg-accent hover:bg-yellow-400 text-black font-display font-bold text-sm rounded-[10px] transition-colors">
                 Create Channel
             </button>
         </div>
@@ -149,187 +194,174 @@
 </form>
 
 @push('styles')
-<meta name="csrf-token" content="{{ csrf_token() }}">
 <style>
-    .tag-cb:checked + .tag-label { background:rgba(232,160,32,.2); color:var(--accent); border:1px solid var(--accent); }
-    .tag-label { border:1px solid transparent; transition:all .15s; }
-
-    /* File upload button */
-    .file-upload-btn {
-        display: inline-flex; align-items: center; gap: 8px;
-        padding: 9px 14px; border-radius: var(--radius);
-        background: var(--bg); border: 1px dashed var(--border);
-        color: var(--muted); font-size: .85rem; cursor: pointer;
-        transition: all .15s; width: 100%;
-    }
-    .file-upload-btn:hover { border-color: var(--accent); color: var(--accent); }
-
-    /* Thumbnail preview */
-    .img-preview { margin-top: 8px; position: relative; display: inline-block; }
-    .img-preview img { max-height: 72px; max-width: 100%; border-radius: 6px; border: 1px solid var(--border); display: block; }
-    .img-preview .clear-btn {
-        position: absolute; top: -6px; right: -6px;
-        background: var(--danger); color: #fff; border: none;
-        border-radius: 50%; width: 18px; height: 18px;
-        font-size: .7rem; cursor: pointer; line-height: 18px; text-align: center;
-    }
-
-    .source-row-label {
-        display: grid;
-        grid-template-columns: 90px 1fr 60px 110px 34px;
-        gap: 8px;
-        font-size: .68rem;
-        text-transform: uppercase;
-        letter-spacing: .07em;
-        color: var(--muted);
-    }
-    .source-row {
-        display: grid;
-        grid-template-columns: 90px 1fr 60px 110px 34px;
-        gap: 8px;
-        align-items: center;
-        padding: 10px 16px;
-        border-bottom: 1px solid var(--border);
-    }
-    .source-row:last-child { border-bottom: none; }
-    .source-row .form-control { margin-bottom: 0; }
-    .drm-check { display:flex; justify-content:center; align-items:center; }
-    .remove-src { background:none; border:none; cursor:pointer; color:var(--muted); padding:4px; transition:color .15s; }
-    .remove-src:hover { color:var(--danger); }
+    .tag-cb:checked + .tag-label { background: rgba(232,160,32,.2); color: #e8a020; border-color: #e8a020; }
+    .quality-rb:checked + .quality-label { background: rgba(232,160,32,.2); color: #e8a020; border-color: #e8a020; }
+    .source-input { width:100%; padding:8px 10px; background:#0d0f14; border:1px solid #252b38; border-radius:8px; color:#e2e8f0; font-size:.8rem; }
+    .source-input:focus { outline:none; border-color:#e8a020; }
+    .source-row { display:grid; grid-template-columns:90px 1fr 60px 110px 34px; gap:8px; align-items:center; padding:10px 16px; border-bottom:1px solid #252b38; }
+    .source-row:last-child { border-bottom:none; }
+    .img-preview-wrap { position:relative; display:inline-block; margin-top:8px; }
+    .img-preview-wrap img { max-height:72px; max-width:100%; border-radius:6px; border:1px solid #252b38; display:block; }
+    .img-clear { position:absolute; top:-6px; right:-6px; background:#ef4444; color:#fff; border:none; border-radius:50%; width:18px; height:18px; font-size:.65rem; cursor:pointer; line-height:18px; text-align:center; }
 </style>
-
 <script>
-    // ── File preview ──────────────────────────────────────────────────────────
-    function previewFile(input, previewId, labelId) {
-        const preview = document.getElementById(previewId);
-        const label   = document.getElementById(labelId);
-        const file    = input.files[0];
+function previewFile(input, previewId, labelId) {
+    const preview = document.getElementById(previewId);
+    const label   = document.getElementById(labelId);
+    const file    = input.files[0];
+    if (!file) { preview.classList.add('hidden'); label.textContent = 'Choose file…'; return; }
+    label.textContent = file.name;
+    const reader = new FileReader();
+    reader.onload = e => {
+        preview.innerHTML = `<div class="img-preview-wrap"><img src="${e.target.result}" alt="preview"><button type="button" class="img-clear" onclick="clearFile('${input.id}','${previewId}','${labelId}')">✕</button></div>`;
+        preview.classList.remove('hidden');
+    };
+    reader.readAsDataURL(file);
+}
+function clearFile(inputId, previewId, labelId) {
+    document.getElementById(inputId).value = '';
+    document.getElementById(previewId).classList.add('hidden');
+    document.getElementById(labelId).textContent = 'Choose file…';
+}
 
-        if (!file) {
-            preview.style.display = 'none';
-            label.textContent = 'Choose file…';
-            return;
+let sourceCount = 0;
+function addSourceRow() {
+    document.getElementById('sourcesEmpty').classList.add('hidden');
+    document.getElementById('sourceHeader').classList.remove('hidden');
+    const i   = sourceCount++;
+    const row = document.createElement('div');
+    row.className = 'source-row';
+    row.id = `src-${i}`;
+    row.innerHTML = `
+        <select name="sources[${i}][type]" class="source-input">
+            <option value="hls">HLS</option>
+            <option value="dash">DASH</option>
+            <option value="mp4">MP4</option>
+        </select>
+        <input name="sources[${i}][link]" class="source-input" placeholder="https://…/stream.m3u8">
+        <div class="flex justify-center">
+            <input type="checkbox" name="sources[${i}][drm]" value="1"
+                   class="w-4 h-4 accent-[#e8a020]" title="DRM protected">
+        </div>
+        <input name="sources[${i}][clearkeys]" type="number" class="source-input" placeholder="Key ID">
+        <button type="button" onclick="removeSource(${i})"
+                class="text-[#64748b] hover:text-red-400 p-1 transition-colors flex items-center justify-center">
+            <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                <path d="M18 6L6 18M6 6l12 12"/>
+            </svg>
+        </button>`;
+    document.getElementById('sourcesContainer').appendChild(row);
+}
+function removeSource(i) {
+    document.getElementById(`src-${i}`)?.remove();
+    if (!document.querySelector('.source-row')) {
+        document.getElementById('sourcesEmpty').classList.remove('hidden');
+        document.getElementById('sourceHeader').classList.add('hidden');
+        sourceCount = 0;
+    }
+}
+
+async function generateDescription() {
+    const name    = document.querySelector('input[name="name"]').value.trim();
+    const lang    = document.querySelector('input[name="language"]')?.value.trim() ?? '';
+    const country = document.querySelector('select[name="country_id"] option:checked')?.textContent.trim() ?? '';
+    const cats    = [...document.querySelectorAll('input[name="categories[]"]:checked')]
+                        .map(el => el.closest('label').textContent.trim()).join(', ');
+
+    if (!name) {
+        const err = document.getElementById('aiError');
+        err.textContent = 'Please enter a channel name first.';
+        err.classList.remove('hidden');
+        setTimeout(() => err.classList.add('hidden'), 3000);
+        return;
+    }
+
+    const btn     = document.getElementById('aiBtn');
+    const spinner = document.getElementById('aiSpinner');
+    const btnText = document.getElementById('aiBtnText');
+    const errEl   = document.getElementById('aiError');
+    const textarea = document.getElementById('descriptionField');
+
+    btn.disabled    = true;
+    spinner.classList.remove('hidden');
+    btnText.textContent = 'Generating…';
+    errEl.classList.add('hidden');
+
+    try {
+        const res = await fetch('{{ route('ai.generate-description') }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+            },
+            body: JSON.stringify({ name, category: cats, language: lang, country }),
+        });
+
+        const data = await res.json();
+
+        if (!res.ok || data.error) {
+            throw new Error(data.error ?? 'Unknown error');
         }
 
-        label.textContent = file.name;
-
-        const reader = new FileReader();
-        reader.onload = e => {
-            preview.innerHTML = `
-                <img src="${e.target.result}" alt="preview">
-                <button type="button" class="clear-btn" title="Remove"
-                    onclick="clearFile('${input.id}','${previewId}','${labelId}')">✕</button>
-            `;
-            preview.style.display = 'inline-block';
-        };
-        reader.readAsDataURL(file);
-    }
-
-    function clearFile(inputId, previewId, labelId) {
-        const input = document.getElementById(inputId);
-        input.value = '';
-        document.getElementById(previewId).style.display = 'none';
-        document.getElementById(labelId).textContent = 'Choose file…';
-    }
-    let sourceCount = 0;
-
-    function addSourceRow() {
-        const container = document.getElementById('sourcesContainer');
-        const empty     = document.getElementById('sourcesEmpty');
-        const header    = document.getElementById('sourceHeader');
-
-        empty.style.display  = 'none';
-        header.style.display = 'block';
-
-        const i   = sourceCount++;
-        const row = document.createElement('div');
-        row.className = 'source-row';
-        row.id = `src-${i}`;
-        row.innerHTML = `
-            <select name="sources[${i}][type]" class="form-control">
-                <option value="hls">HLS</option>
-                <option value="dash">DASH</option>
-                <option value="mp4">MP4</option>
-            </select>
-            <input name="sources[${i}][link]" class="form-control" placeholder="https://…/stream.m3u8">
-            <div class="drm-check">
-                <input type="checkbox" name="sources[${i}][drm]" value="1"
-                    style="accent-color:var(--accent);width:16px;height:16px" title="DRM protected">
-            </div>
-            <input name="sources[${i}][clearkeys]" type="number" class="form-control" placeholder="Key ID">
-            <button type="button" class="remove-src" onclick="removeSource(${i})" title="Remove">
-                <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                    <path d="M18 6L6 18M6 6l12 12"/>
-                </svg>
-            </button>
-        `;
-        container.appendChild(row);
-    }
-
-    function removeSource(i) {
-        const row = document.getElementById(`src-${i}`);
-        if (row) row.remove();
-        const container = document.getElementById('sourcesContainer');
-        if (!container.querySelector('.source-row')) {
-            document.getElementById('sourcesEmpty').style.display = '';
-            document.getElementById('sourceHeader').style.display = 'none';
-            sourceCount = 0;
-        }
-    }
-
-    async function createTag() {
-        const input    = document.getElementById('newTagInput');
-        const feedback = document.getElementById('tagFeedback');
-        const name     = input.value.trim();
-        if (!name) return;
-
-        feedback.style.color = 'var(--muted)';
-        feedback.textContent = 'Creating…';
-
-        try {
-            const res = await fetch('{{ route('tags.quick-create') }}', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                },
-                body: JSON.stringify({ name }),
-            });
-
-            if (!res.ok) throw new Error('Server error');
-            const tag = await res.json();
-
-            // Remove "no tags" hint if present
-            const hint = document.getElementById('noTagsHint');
-            if (hint) hint.remove();
-
-            const existing = document.querySelector(`input.tag-cb[value="${tag.tag_id}"]`);
-            if (existing) {
-                existing.checked = true;
-                feedback.style.color = 'var(--accent)';
-                feedback.textContent = `"${tag.name}" already exists — selected ✓`;
-            } else {
-                const cloud = document.getElementById('tagCloud');
-                const label = document.createElement('label');
-                label.style.cursor = 'pointer';
-                label.innerHTML = `
-                    <input type="checkbox" name="tags[]" value="${tag.tag_id}" checked
-                        style="display:none" class="tag-cb">
-                    <span class="badge badge-gray tag-label" style="background:rgba(232,160,32,.2);color:var(--accent);border:1px solid var(--accent)">${tag.name}</span>
-                `;
-                cloud.appendChild(label);
-                feedback.style.color = 'var(--success)';
-                feedback.textContent = `Tag "${tag.name}" created and selected ✓`;
+        // Typewriter effect
+        textarea.value = '';
+        let i = 0;
+        const text = data.description;
+        const type = () => {
+            if (i < text.length) {
+                textarea.value += text[i++];
+                setTimeout(type, 12);
             }
+        };
+        type();
 
-            input.value = '';
-        } catch (e) {
-            feedback.style.color = 'var(--danger)';
-            feedback.textContent = 'Failed to create tag. Please try again.';
-        }
-
-        setTimeout(() => { feedback.textContent = ''; }, 3500);
+    } catch (err) {
+        errEl.textContent = err.message;
+        errEl.classList.remove('hidden');
+    } finally {
+        btn.disabled    = false;
+        spinner.classList.add('hidden');
+        btnText.textContent = 'Generate with AI';
     }
+}
+async function createTag() {
+    const input    = document.getElementById('newTagInput');
+    const feedback = document.getElementById('tagFeedback');
+    const name     = input.value.trim();
+    if (!name) return;
+    feedback.className = 'text-xs mt-1.5 min-h-4 text-muted';
+    feedback.textContent = 'Creating…';
+    try {
+        const res = await fetch('{{ route('tags.quick-create') }}', {
+            method: 'POST',
+            headers: { 'Content-Type':'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content },
+            body: JSON.stringify({ name }),
+        });
+        if (!res.ok) throw new Error();
+        const tag = await res.json();
+        document.getElementById('noTagsHint')?.remove();
+        const existing = document.querySelector(`.tag-cb[value="${tag.id}"]`);
+        if (existing) {
+            existing.checked = true;
+            feedback.className = 'text-xs mt-1.5 min-h-4 text-accent';
+            feedback.textContent = `"${tag.name}" already exists — selected ✓`;
+        } else {
+            const label = document.createElement('label');
+            label.className = 'cursor-pointer';
+            label.innerHTML = `<input type="checkbox" name="tags[]" value="${tag.id}" checked class="hidden tag-cb">
+                <span class="tag-label px-2.5 py-1 rounded-full text-[0.72rem] font-semibold border border-transparent transition-all cursor-pointer" style="background:rgba(232,160,32,.2);color:#e8a020;border-color:#e8a020">${tag.name}</span>`;
+            document.getElementById('tagCloud').appendChild(label);
+            feedback.className = 'text-xs mt-1.5 min-h-4 text-green-400';
+            feedback.textContent = `Tag "${tag.name}" created and selected ✓`;
+        }
+        input.value = '';
+    } catch {
+        feedback.className = 'text-xs mt-1.5 min-h-4 text-red-400';
+        feedback.textContent = 'Failed to create tag. Please try again.';
+    }
+    setTimeout(() => { feedback.textContent = ''; }, 3500);
+}
 </script>
 @endpush
 @endsection

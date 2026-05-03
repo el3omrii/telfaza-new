@@ -10,42 +10,31 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class Channel extends Model
 {
     protected $fillable = [
-        'name',
-        'description',
-        'logo',
-        'image',
-        'views',
-        'country_id',
+        'name', 'description', 'logo', 'image', 'views', 'country_id', 'language', 'quality',
     ];
- 
-    protected $casts = [
-        'views' => 'integer',
-    ];
- 
-    // ─── Relationships ───────────────────────────────────────────────────────────
- 
+
+    protected $casts = ['views' => 'integer'];
+
     public function country(): BelongsTo
     {
         return $this->belongsTo(Country::class);
     }
- 
+
     public function sources(): HasMany
     {
         return $this->hasMany(Source::class);
     }
- 
+
     public function tags(): BelongsToMany
     {
         return $this->belongsToMany(Tag::class);
     }
- 
+
     public function categories(): BelongsToMany
     {
         return $this->belongsToMany(Category::class);
     }
- 
-    // ─── Helpers ─────────────────────────────────────────────────────────────────
- 
+
     public function incrementViews(): void
     {
         $this->increment('views');
