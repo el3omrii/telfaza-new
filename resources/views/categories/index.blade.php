@@ -2,14 +2,14 @@
 @section('title', 'Categories')
 
 @section('content')
-<div class="flex items-center justify-between mb-7">
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-7">
     <div>
         <h1 class="font-display font-bold text-2xl">Categories</h1>
         <p class="text-muted text-sm mt-0.5">{{ $categories->total() }} categories</p>
     </div>
 </div>
 
-<div class="grid grid-cols-2 gap-6">
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
     {{-- Add form --}}
     <div class="bg-surface border border-border rounded-[10px] overflow-hidden self-start">
         <div class="px-5 py-4 border-b border-border font-semibold text-sm">Add Category</div>
@@ -44,7 +44,7 @@
     </div>
 
     {{-- List --}}
-    <div class="bg-surface border border-border rounded-[10px] overflow-hidden">
+    <div class="bg-surface border border-border rounded-[10px] overflow-hidden"><div class="overflow-x-auto">
         <table class="w-full border-collapse">
             <thead>
                 <tr class="border-b border-border">
@@ -92,5 +92,6 @@
     </div>
 </div>
 
+</div></div>
 <div class="mt-5">{{ $categories->links() }}</div>
 @endsection

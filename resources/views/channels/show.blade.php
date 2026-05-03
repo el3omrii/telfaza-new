@@ -2,7 +2,7 @@
 @section('title', $channel->name)
 
 @section('content')
-<div class="flex items-start justify-between mb-7">
+<div class="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-7">
     <div>
         <h1 class="font-display font-bold text-2xl">{{ $channel->name }}</h1>
         <p class="text-muted text-sm mt-0.5">{{ $channel->country?->flag }} {{ $channel->country?->name }}</p>
@@ -30,9 +30,9 @@
     @endforeach
 </div>
 
-<div class="grid grid-cols-3 gap-5 mb-5">
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-5 mb-5">
     {{-- Details --}}
-    <div class="col-span-2 bg-surface border border-border rounded-[10px] overflow-hidden">
+    <div class="lg:col-span-2 bg-surface border border-border rounded-[10px] overflow-hidden">
         <div class="px-5 py-4 border-b border-border font-semibold text-sm">Details</div>
         <div class="p-5">
             @if($channel->description)
@@ -123,7 +123,7 @@
             + Add Source
         </a>
     </div>
-    <table class="w-full border-collapse">
+    <div class="overflow-x-auto"><table class="w-full border-collapse">
         <thead>
             <tr class="border-b border-border">
                 <th class="px-4 py-3 text-left text-[0.72rem] uppercase tracking-wider text-muted">Type</th>
@@ -152,7 +152,7 @@
                 <td class="px-4 py-3 text-sm">{{ $source->clearkeys ?? '—' }}</td>
                 <td class="px-4 py-3">
                     <div class="flex gap-1.5">
-                        <a href="{{ route('sources.edit',  [$channel, $source]) }}"
+                        <a href="{{ route('sources.edit', $source) }}"
                            class="px-3 py-1.5 bg-border hover:bg-[#2e3748] text-gray-200 text-xs font-medium rounded-lg transition-colors">Edit</a>
                         <form action="{{ route('sources.destroy', $source) }}" method="POST"
                               onsubmit="return confirm('Delete source?')">
@@ -166,6 +166,6 @@
             <tr><td colspan="5" class="px-4 py-8 text-center text-muted text-sm">No sources yet.</td></tr>
         @endforelse
         </tbody>
-    </table>
+    </table></div>
 </div>
 @endsection

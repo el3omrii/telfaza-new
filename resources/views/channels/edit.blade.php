@@ -2,7 +2,7 @@
 @section('title', 'Edit ' . $channel->name)
 
 @section('content')
-<div class="flex items-center justify-between mb-7">
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-7">
     <div>
         <h1 class="font-display font-bold text-2xl">Edit Channel</h1>
         <p class="text-muted text-sm mt-0.5">{{ $channel->name }}</p>
@@ -13,10 +13,10 @@
 
 <form action="{{ route('channels.update', $channel) }}" method="POST" enctype="multipart/form-data">
     @csrf @method('PUT')
-    <div class="grid grid-cols-3 gap-5">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
 
         {{-- Left: 2 columns --}}
-        <div class="col-span-2 bg-surface border border-border rounded-[10px] overflow-hidden">
+        <div class="lg:col-span-2 bg-surface border border-border rounded-[10px] overflow-hidden">
             <div class="px-5 py-4 border-b border-border font-semibold text-sm">Channel Info</div>
             <div class="p-5 space-y-4">
                 <div>
@@ -26,10 +26,28 @@
                 </div>
                 <div>
                     <label class="block text-[0.72rem] font-medium uppercase tracking-wider text-muted mb-1.5">Description</label>
-                    <textarea name="description" rows="4"
-                              class="w-full px-3.5 py-2.5 bg-bg border border-border rounded-[10px] text-sm text-gray-200 focus:outline-none focus:border-accent transition-colors resize-none">{{ old('description', $channel->description) }}</textarea>
+                    <div class="relative">
+                        <textarea name="description" id="descriptionField" rows="4"
+                                  class="w-full px-3.5 py-2.5 bg-bg border border-border rounded-[10px] text-sm text-gray-200 focus:outline-none focus:border-accent transition-colors resize-none">{{ old('description', $channel->description) }}</textarea>
+                        <button type="button"
+                                id="aiBtn"
+                                onclick="generateDescription()"
+                                title="Generate description with AI"
+                                class="absolute bottom-2.5 right-2.5 flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-all
+                                       bg-[#1a1f2e] hover:bg-[#1e4d8c] border border-accent2/30 hover:border-accent2 text-accent2 hover:text-white shadow-lg">
+                            <svg class="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M12 2a10 10 0 100 20A10 10 0 0012 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/>
+                            </svg>
+                            <svg id="aiSpinner" class="hidden w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+                            </svg>
+                            <span id="aiBtnText">Generate with AI</span>
+                        </button>
+                    </div>
+                    <p id="aiError" class="hidden text-xs text-red-400 mt-1.5"></p>
                 </div>
-                <div class="grid grid-cols-2 gap-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     {{-- Logo --}}
                     <div>
                         <label class="block text-[0.72rem] font-medium uppercase tracking-wider text-muted mb-1.5">
@@ -170,6 +188,7 @@
 </form>
 
 @push('styles')
+<meta name="csrf-token" content="{{ csrf_token() }}">
 <style>
     .tag-cb:checked + .tag-label { background: rgba(232,160,32,.2); color: #e8a020; border-color: #e8a020; }
     .quality-rb:checked + .quality-label { background: rgba(232,160,32,.2); color: #e8a020; border-color: #e8a020; }
@@ -178,6 +197,61 @@
     .img-clear { position:absolute; top:-6px; right:-6px; background:#ef4444; color:#fff; border:none; border-radius:50%; width:18px; height:18px; font-size:.65rem; cursor:pointer; line-height:18px; text-align:center; }
 </style>
 <script>
+async function generateDescription() {
+    const name    = document.querySelector('input[name="name"]').value.trim();
+    const lang    = document.querySelector('input[name="language"]')?.value.trim() ?? '';
+    const country = document.querySelector('select[name="country_id"] option:checked')?.textContent.trim() ?? '';
+    const cats    = [...document.querySelectorAll('input[name="categories[]"]:checked')]
+                        .map(el => el.closest('label').textContent.trim()).join(', ');
+
+    if (!name) {
+        const err = document.getElementById('aiError');
+        err.textContent = 'Please enter a channel name first.';
+        err.classList.remove('hidden');
+        setTimeout(() => err.classList.add('hidden'), 3000);
+        return;
+    }
+
+    const btn      = document.getElementById('aiBtn');
+    const spinner  = document.getElementById('aiSpinner');
+    const btnText  = document.getElementById('aiBtnText');
+    const errEl    = document.getElementById('aiError');
+    const textarea = document.getElementById('descriptionField');
+
+    btn.disabled = true;
+    spinner.classList.remove('hidden');
+    btnText.textContent = 'Generating…';
+    errEl.classList.add('hidden');
+
+    try {
+        const res = await fetch('{{ route('ai.generate-description') }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+            },
+            body: JSON.stringify({ name, category: cats, language: lang, country }),
+        });
+
+        const data = await res.json();
+        if (!res.ok || data.error) throw new Error(data.error ?? 'Unknown error');
+
+        textarea.value = '';
+        let i = 0;
+        const text = data.description;
+        const type = () => { if (i < text.length) { textarea.value += text[i++]; setTimeout(type, 12); } };
+        type();
+
+    } catch (err) {
+        errEl.textContent = err.message;
+        errEl.classList.remove('hidden');
+    } finally {
+        btn.disabled = false;
+        spinner.classList.add('hidden');
+        btnText.textContent = 'Generate with AI';
+    }
+}
+
 function previewFile(input, previewId, labelId) {
     const preview = document.getElementById(previewId);
     const label   = document.getElementById(labelId);

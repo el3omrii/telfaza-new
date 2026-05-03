@@ -2,7 +2,7 @@
 @section('title', $category->name)
 
 @section('content')
-<div class="flex items-start justify-between mb-7">
+<div class="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-7">
     <div class="flex items-center gap-2">
         @if($category->color)
             <span class="w-3.5 h-3.5 rounded-full shrink-0 mt-1" style="background:{{ $category->color }}"></span>
@@ -25,7 +25,7 @@
         <span class="font-semibold text-sm">Channels in this category</span>
         <span class="px-2 py-0.5 rounded-full text-[0.72rem] font-semibold bg-accent2/15 text-accent2">{{ $channels->total() }}</span>
     </div>
-    <table class="w-full border-collapse">
+    <div class="overflow-x-auto"><table class="w-full border-collapse">
         <thead>
             <tr class="border-b border-border">
                 <th class="px-4 py-3 text-left text-[0.72rem] uppercase tracking-wider text-muted">Channel</th>
@@ -51,5 +51,6 @@
         </tbody>
     </table>
 </div>
+</table></div></div>
 <div class="mt-5">{{ $channels->links() }}</div>
 @endsection

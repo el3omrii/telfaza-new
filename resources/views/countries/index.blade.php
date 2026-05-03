@@ -2,14 +2,14 @@
 @section('title', 'Countries')
 
 @section('content')
-<div class="flex items-center justify-between mb-7">
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-7">
     <div>
         <h1 class="font-display font-bold text-2xl">Countries</h1>
         <p class="text-muted text-sm mt-0.5">{{ $countries->total() }} countries</p>
     </div>
 </div>
 
-<div class="grid grid-cols-[320px_1fr] gap-6">
+<div class="grid grid-cols-1 lg:grid-cols-[320px_1fr] gap-6">
     <div class="bg-surface border border-border rounded-[10px] overflow-hidden self-start">
         <div class="px-5 py-4 border-b border-border font-semibold text-sm">Add Country</div>
         <div class="p-5">
@@ -33,7 +33,7 @@
         </div>
     </div>
 
-    <div class="bg-surface border border-border rounded-[10px] overflow-hidden">
+    <div class="bg-surface border border-border rounded-[10px] overflow-hidden"><div class="overflow-x-auto">
         <table class="w-full border-collapse">
             <thead>
                 <tr class="border-b border-border">
@@ -46,9 +46,7 @@
             <tbody>
             @forelse($countries as $country)
                 <tr class="border-b border-border last:border-0 hover:bg-white/[.02] transition-colors">
-                    <td class="px-4 py-3">
-                        <img src="//flagcdn.com/{{ strtolower($country->flag) }}.svg" alt="{{ $country->name }}" class="w-8 h-8 rounded-full">
-                    </td>
+                    <td class="px-4 py-3 text-2xl">{{ $country->flag }}</td>
                     <td class="px-4 py-3 font-medium text-sm">{{ $country->name }}</td>
                     <td class="px-4 py-3">
                         <span class="px-2 py-0.5 rounded-full text-[0.72rem] font-semibold bg-accent2/15 text-accent2">{{ $country->channels_count }}</span>
@@ -73,6 +71,7 @@
     </div>
 </div>
 
+</div></div>
 <div class="mt-5">{{ $countries->links() }}</div>
 
 {{-- Edit modal --}}

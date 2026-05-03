@@ -2,7 +2,7 @@
 @section('title', 'Channels')
 
 @section('content')
-<div class="flex items-start justify-between mb-7">
+<div class="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-7">
     <div>
         <h1 class="font-display font-bold text-2xl">Channels</h1>
         <p class="text-muted text-sm mt-0.5">{{ $channels->total() }} channels total</p>
@@ -40,6 +40,7 @@
 
 {{-- Table --}}
 <div class="bg-surface border border-border rounded-[10px] overflow-hidden">
+    <div class="overflow-x-auto">
     <table class="w-full border-collapse">
         <thead>
             <tr class="border-b border-border">
@@ -98,5 +99,6 @@
     </table>
 </div>
 
+</div>
 <div class="mt-5">{{ $channels->links() }}</div>
 @endsection

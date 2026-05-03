@@ -2,7 +2,7 @@
 @section('title', 'Profile')
 
 @section('content')
-<div class="flex items-start justify-between mb-7">
+<div class="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-7">
     <div>
         <h1 class="font-display font-bold text-2xl">Profile</h1>
         <p class="text-muted text-sm mt-0.5">Manage your account information and security</p>

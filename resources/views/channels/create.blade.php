@@ -4,7 +4,7 @@
 @section('content')
 <meta name="csrf-token" content="{{ csrf_token() }}">
 
-<div class="flex items-center justify-between mb-7">
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-7">
     <div>
         <h1 class="font-display font-bold text-2xl">New Channel</h1>
         <p class="text-muted text-sm mt-0.5">Add a new broadcast channel</p>
@@ -15,10 +15,10 @@
 
 <form action="{{ route('channels.store') }}" method="POST" id="channelForm" enctype="multipart/form-data">
     @csrf
-    <div class="grid grid-cols-3 gap-5">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
 
         {{-- Left: 2 columns --}}
-        <div class="col-span-2 flex flex-col gap-5">
+        <div class="lg:col-span-2 flex flex-col gap-5">
 
             {{-- Channel Info --}}
             <div class="bg-surface border border-border rounded-[10px] overflow-hidden">
@@ -55,7 +55,7 @@
                         </div>
                         <p id="aiError" class="hidden text-xs text-red-400 mt-1.5"></p>
                     </div>
-                    <div class="grid grid-cols-2 gap-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         @foreach([['logo','logoInput','logoPreview','logoLabel','image/jpeg,image/png,image/webp,image/svg+xml','Logo','jpeg, png, webp, svg — max 2 MB'],
                                    ['image','imageInput','imagePreview','imageLabel','image/jpeg,image/png,image/webp','Channel Image','jpeg, png, webp — max 4 MB']] as [$field,$inputId,$previewId,$labelId,$accept,$title,$hint])
                         <div>
@@ -325,7 +325,6 @@ async function generateDescription() {
         btnText.textContent = 'Generate with AI';
     }
 }
-async function createTag() {
     const input    = document.getElementById('newTagInput');
     const feedback = document.getElementById('tagFeedback');
     const name     = input.value.trim();

@@ -2,7 +2,7 @@
 @section('title', 'Add Source')
 
 @section('content')
-<div class="flex items-center justify-between mb-7">
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-7">
     <div>
         <h1 class="font-display font-bold text-2xl">Add Source</h1>
         <p class="text-muted text-sm mt-0.5">For channel: <span class="text-accent">{{ $channel->name }}</span></p>
@@ -11,7 +11,7 @@
        class="px-4 py-2 bg-border hover:bg-[#2e3748] text-gray-200 text-sm font-medium rounded-[10px] transition-colors">← Back</a>
 </div>
 
-<div class="grid grid-cols-2 gap-6">
+<div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
 
     {{-- ── Form ── --}}
     <div class="bg-surface border border-border rounded-[10px] overflow-hidden self-start">
@@ -228,7 +228,7 @@ function buildConfig(type, drmOn, ckRaw) {
                     // Convert hex to base64url as required by ClearKey spec
                     ...Object.fromEntries(Object.entries(keys).map(([kid, key]) => [hexToBase64url(kid), hexToBase64url(key)]))
                 }
-            };
+            }
         }
     }
 
