@@ -58,7 +58,7 @@ class TagController extends Controller
         $tag = Tag::firstOrCreate(['name' => trim($data['name'])]);
 
         return response()->json([
-            'tag_id' => $tag->tag_id,
+            'tag_id' => $tag->id,
             'name'   => $tag->name,
         ]);
     }
