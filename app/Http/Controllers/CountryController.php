@@ -31,7 +31,7 @@ class CountryController extends Controller
     public function update(Request $request, Country $country): RedirectResponse
     {
         $data = $request->validate([
-            'name' => 'required|string|max:255|unique:countries,name,' . $country->country_id . ',country_id',
+            'name' => 'required|string|max:255|unique:countries,name,' . $country->id . ',id',
             'flag' => 'nullable|string|max:10',
         ]);
 
