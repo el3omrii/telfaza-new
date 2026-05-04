@@ -128,7 +128,7 @@
                     </div>
                     <div>
                         <label class="relative inline-flex cursor-pointer items-center gap-3 text-muted text-sm">
-                            <input type="checkbox" name="featured" value="1" {{ old('featured') ? 'checked' : '' }} class="peer sr-only" />
+                            <input type="checkbox" name="featured" value="1" {{ old('featured', $channel->featured) ? 'checked' : '' }} class="peer sr-only" />
                             <div class="peer h-7 w-12 rounded-full bg-slate-300 ring-offset-1 transition-colors duration-200 peer-checked:bg-accent peer-focus:ring-2 peer-focus:ring-yellow-400"></div>
                             <span class="dot absolute top-1 left-1 h-5 w-5 rounded-full bg-white transition-transform duration-200 ease-in-out peer-checked:translate-x-5"></span>
                             Featured ?
