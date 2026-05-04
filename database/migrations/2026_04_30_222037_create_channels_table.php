@@ -20,6 +20,7 @@ return new class extends Migration
             $table->string('language')->nullable();
             $table->string('quality')->nullable();
             $table->string('epgid')->nullable();
+            $table->boolean('featured')->default(false);
             $table->unsignedBigInteger('views')->default(0);
             $table->unsignedBigInteger('country_id')->nullable();
             $table->timestamps();

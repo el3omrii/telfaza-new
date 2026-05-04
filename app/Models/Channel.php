@@ -10,10 +10,10 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class Channel extends Model
 {
     protected $fillable = [
-        'name', 'description', 'logo', 'image', 'views', 'country_id', 'language', 'quality',
+        'name', 'description', 'logo', 'image', 'views', 'epgid', 'featured', 'country_id', 'language', 'quality',
     ];
 
-    protected $casts = ['views' => 'integer'];
+    protected $casts = ['views' => 'integer', 'featured' => 'boolean'];
 
     public function country(): BelongsTo
     {

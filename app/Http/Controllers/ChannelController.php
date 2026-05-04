@@ -68,6 +68,8 @@ class ChannelController extends Controller
             'image'               => 'nullable|image|mimes:jpeg,png,webp|max:4096',
             'country_id'          => 'nullable|exists:countries,id',
             'language'            => 'nullable|string|max:100',
+            'epgid'               => 'nullable|string|max:10',
+            'featured'            => 'nullable|boolean',
             'quality'             => 'nullable|in:4K,1080p,720p,480p,360p',
             'categories'          => 'nullable|array',
             'categories.*'        => 'exists:categories,id',
@@ -86,7 +88,9 @@ class ChannelController extends Controller
             'description' => $request->description,
             'country_id'  => $request->country_id,
             'language'    => $request->language,
+            'epgid'       => $request->epgid,
             'quality'     => $request->quality,
+            'featured'    => $request->featured,
             'logo'        => $request->hasFile('logo')
                                 ? $this->storeImage($request->file('logo'), 'channels/logos', $request->name, 'logo')
                                 : null,
@@ -148,7 +152,9 @@ class ChannelController extends Controller
             'image'       => 'nullable|image|mimes:jpeg,png,webp|max:4096',
             'country_id'  => 'nullable|exists:countries,id',
             'language'    => 'nullable|string|max:100',
+            'epgid'       => 'nullable|string|max:10',
             'quality'     => 'nullable|in:4K,1080p,720p,480p,360p',
+            'featured'    => 'nullable|boolean',
             'categories'  => 'nullable|array',
             'categories.*'=> 'exists:categories,id',
             'tags'        => 'nullable|array',
@@ -160,7 +166,9 @@ class ChannelController extends Controller
             'description' => $request->description,
             'country_id'  => $request->country_id,
             'language'    => $request->language,
+            'epgid'       => $request->epgid,
             'quality'     => $request->quality,
+            'featured'    => $request->featured,
         ];
 
         // Replace logo only if a new file was uploaded; delete the old one
