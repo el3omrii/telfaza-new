@@ -90,7 +90,7 @@ class ChannelController extends Controller
             'language'    => $request->language,
             'epgid'       => $request->epgid,
             'quality'     => $request->quality,
-            'featured'    => $request->featured,
+            'featured'    => $request->boolean('featured'),
             'logo'        => $request->hasFile('logo')
                                 ? $this->storeImage($request->file('logo'), 'channels/logos', $request->name, 'logo')
                                 : null,
@@ -168,7 +168,7 @@ class ChannelController extends Controller
             'language'    => $request->language,
             'epgid'       => $request->epgid,
             'quality'     => $request->quality,
-            'featured'    => $request->featured,
+            'featured'    => $request->boolean('featured'),
         ];
 
         // Replace logo only if a new file was uploaded; delete the old one

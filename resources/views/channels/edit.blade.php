@@ -113,6 +113,29 @@
 
         {{-- Right --}}
         <div class="flex flex-col gap-5">
+             {{-- Language andEPG --}}
+            <div class="bg-surface border border-border rounded-[10px] overflow-hidden">
+                <div class="px-5 py-4 border-b border-border font-semibold text-sm">Language and EPG</div>
+                <div class="p-4">
+                    <input name="language" value="{{ old('language', $channel->language) }}" placeholder="e.g. English, Arabic, French…"
+                           class="w-full px-3.5 py-2.5 bg-bg border border-border rounded-[10px] text-sm text-gray-200 placeholder-muted focus:outline-none focus:border-accent transition-colors">
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 px-4 pb-2 items-end">
+                    <div>
+                        <label class="block text-[0.72rem] font-medium uppercase tracking-wider text-muted mb-1.5">EPG ID</label>
+                        <input name="epgid" value="{{ old('epgid', $channel->epgid) }}" placeholder="e.g. EPG ID"
+                           class="w-full px-3.5 py-2.5 bg-bg border border-border rounded-[10px] text-sm text-gray-200 placeholder-muted focus:outline-none focus:border-accent transition-colors">
+                    </div>
+                    <div>
+                        <label class="relative inline-flex cursor-pointer items-center gap-3 text-muted text-sm">
+                            <input type="checkbox" name="featured" value="1" {{ old('featured') ? 'checked' : '' }} class="peer sr-only" />
+                            <div class="peer h-7 w-12 rounded-full bg-slate-300 ring-offset-1 transition-colors duration-200 peer-checked:bg-accent peer-focus:ring-2 peer-focus:ring-yellow-400"></div>
+                            <span class="dot absolute top-1 left-1 h-5 w-5 rounded-full bg-white transition-transform duration-200 ease-in-out peer-checked:translate-x-5"></span>
+                            Featured ?
+                        </label>           
+                    </div>
+                </div>
+            </div>
             {{-- Language --}}
             <div class="bg-surface border border-border rounded-[10px] overflow-hidden">
                 <div class="px-5 py-4 border-b border-border font-semibold text-sm">Language</div>
