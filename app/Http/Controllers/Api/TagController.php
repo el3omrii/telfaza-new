@@ -60,12 +60,28 @@ class TagController extends Controller
         }
 
         $channels = $query->orderBy($sort, $order)
-            ->paginate($request->integer('per_page', 24))
-            ->withQueryString();
+    ->paginate($request->integer('per_page', 24))
+    ->withQueryString();
 
-        return response()->json([
-            'tag'      => $tag,
-            'channels' => $channels,
-        ]);
+return response()->json([
+    'tag'      => $tag,
+    'channels' => $channels->items(), // Just the data array
+    'meta'     => [
+        'pagination' => [
+            'current_page' => $channels->currentPage(),
+            'per_page'     => $channels->perPage(),
+            'total'        => $channels->total(),
+            'last_page'    => $channels->lastPage(),
+            'from'         => $channels->firstItem(),
+            'to'           => $channels->lastItem(),
+        ],
+    ],
+    'links'    => [
+        'first' => $channels->url(1),
+        'last'  => $channels->url($channels->lastPage()),
+        'prev'  => $channels->previousPageUrl(),
+        'next'  => $channels->nextPageUrl(),
+    ],
+]);
     }
 }
