@@ -66,7 +66,7 @@ class TagController extends Controller
 return response()->json([
     'tag'      => $tag,
     'channels' => [
-        $channels->items(), // Just the data array
+        'data' =>$channels->items(), // Just the data array
         'meta'     => [
             'current_page' => $channels->currentPage(),
             'per_page'     => $channels->perPage(),
