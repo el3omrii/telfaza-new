@@ -65,20 +65,22 @@ class TagController extends Controller
 
 return response()->json([
     'tag'      => $tag,
-    'channels' => $channels->items(), // Just the data array
-    'meta'     => [
-        'current_page' => $channels->currentPage(),
-        'per_page'     => $channels->perPage(),
-        'total'        => $channels->total(),
-        'last_page'    => $channels->lastPage(),
-        'from'         => $channels->firstItem(),
-        'to'           => $channels->lastItem(),
-    ],
-    'links'    => [
-        'first' => $channels->url(1),
-        'last'  => $channels->url($channels->lastPage()),
-        'prev'  => $channels->previousPageUrl(),
-        'next'  => $channels->nextPageUrl(),
+    'channels' => [
+        $channels->items(), // Just the data array
+        'meta'     => [
+            'current_page' => $channels->currentPage(),
+            'per_page'     => $channels->perPage(),
+            'total'        => $channels->total(),
+            'last_page'    => $channels->lastPage(),
+            'from'         => $channels->firstItem(),
+            'to'           => $channels->lastItem(),
+        ],
+        'links'    => [
+            'first' => $channels->url(1),
+            'last'  => $channels->url($channels->lastPage()),
+            'prev'  => $channels->previousPageUrl(),
+            'next'  => $channels->nextPageUrl(),
+        ],
     ],
 ]);
     }
