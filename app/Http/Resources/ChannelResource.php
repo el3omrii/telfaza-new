@@ -29,9 +29,9 @@ class ChannelResource extends JsonResource
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
             'sources_count' => $this->sources_count,
-            /*'country' => new CountryResource($this->whenLoaded('country')),
-            'categories' => CategoryResource::collection($this->whenLoaded('categories')),
-            'tags' => TagResource::collection($this->whenLoaded('tags')),*/
+            'country' => $this->whenLoaded('country'),
+            'categories' => $this->whenLoaded('categories'),
+            'tags' => $this->whenLoaded('tags'),
         ];
     }
 }
