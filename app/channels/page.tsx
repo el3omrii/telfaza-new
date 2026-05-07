@@ -1,0 +1,80 @@
+import type { Metadata } from 'next'
+import { getChannels, getFiltersMeta, getCountries, getCategories } from '@/lib/api'
+import { paramsToFilters } from '@/lib/utils'
+import { ChannelGrid } from '@/components/channel/ChannelGrid'
+import { FilterBar } from '@/components/ui/FilterBar'
+import { Pagination } from '@/components/ui/Pagination'
+import { CountrySelect } from '@/components/ui/CountrySelect'
+
+export const metadata: Metadata = { title: 'Channels' }
+
+interface Props {
+  searchParams: Record<string, string | string[] | undefined>
+}
+
+export default async function ChannelsPage({ searchParams }: Props) {
+  const filters = paramsToFilters(searchParams)
+
+  const [result, filtersMeta, countries, categories] = await Promise.all([
+    getChannels(filters),
+    getFiltersMeta(),
+    getCountries(),
+    getCategories(),
+  ])
+
+  return (
+    <div className="mx-auto max-w-screen-2xl">
+      {/* Header */}
+      <div className="border-b border-white/[0.07] px-5 py-8">
+        <h1 className="font-head text-3xl font-extrabold tracking-tight">All Channels</h1>
+        <p className="mt-1 text-sm text-zinc-500">
+          Browse and filter {result.meta.total.toLocaleString()} channels
+        </p>
+      </div>
+
+      {/* Filters row 1 — sort + quality */}
+      <FilterBar total={result.meta.total} />
+
+      {/* Filters row 2 — country, category, language */}
+      <div className="flex flex-wrap items-center gap-3 border-b border-white/[0.07] px-5 py-3">
+        <CountrySelect countries={countries} />
+        
+
+        {/* Language */}
+        <LanguageSelect languages={filtersMeta.languages} currentValue={searchParams.language as string | undefined} />
+      </div>
+
+      {/* Grid */}
+      <div className="px-5 py-6">
+        <ChannelGrid channels={result.data} />
+        <Pagination meta={result.meta} />
+      </div>
+    </div>
+  )
+}
+
+// ── Inline select helpers (server components that pre-select from searchParams) ──
+
+function LanguageSelect({
+  languages,
+  currentValue,
+}: {
+  languages: string[]
+  currentValue?: string
+}) {
+  // Note: the onChange routing logic is handled in the FilterBar client component.
+  // These server-rendered selects hand off to client-side navigation via form or
+  // a lightweight client wrapper — shown here as a placeholder.
+  return (
+    <select
+      name="language"
+      defaultValue={currentValue ?? ''}
+      className="rounded-lg border border-white/[0.07] bg-zinc-900 px-3 py-1.5 text-xs text-zinc-400 focus:outline-none"
+    >
+      <option value="">All Languages</option>
+      {languages.map(l => (
+        <option key={l} value={l}>{l}</option>
+      ))}
+    </select>
+  )
+}

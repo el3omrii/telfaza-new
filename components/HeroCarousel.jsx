@@ -151,7 +151,7 @@ export default function HeroCarousel() {
   };
 
   return (
-    <section className="relative overflow-hidden" style={{ height: "100svh", minHeight: 560 }}>
+    <section className="relative overflow-hidden" style={{ height: "80svh", minHeight: 560 }}>
       {/* ── Background image ── */}
       <div className="absolute inset-0" style={imgStyle}>
         <img

@@ -1,38 +1,43 @@
 import type { ChannelFilters, SortField, SortOrder, Quality } from '@/types'
-import type { ParsedUrlQuery } from 'querystring'
 
+/** Format view count: 84320 → "84.3K" */
 export function fmtViews(n: number): string {
   if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`
-  if (n >= 1_000)     return `${(n / 1_000).toFixed(1)}K`
+  if (n >= 1_000) return `${(n / 1_000).toFixed(1)}K`
   return String(n)
 }
 
-/** Convert Next.js query object → ChannelFilters */
-export function queryToFilters(q: ParsedUrlQuery): ChannelFilters {
-  return {
-    search:   str(q.search),
-    country:  num(q.country),
-    language: str(q.language),
-    quality:  q.quality as Quality | undefined,
-    featured: q.featured === '1' ? true : undefined,
-    sort:     q.sort as SortField | undefined,
-    order:    q.order as SortOrder | undefined,
-    per_page: num(q.per_page) ?? 24,
-    page:     num(q.page) ?? 1,
-    category: arr(q.category),
-    tag:      arr(q.tag),
+/** Build a URLSearchParams string from ChannelFilters (for client-side navigation) */
+export function filtersToParams(filters: ChannelFilters): URLSearchParams {
+  const p = new URLSearchParams()
+  for (const [key, val] of Object.entries(filters)) {
+    if (val === undefined || val === null || val === '') continue
+    if (Array.isArray(val)) {
+      val.forEach(v => p.append(`${key}[]`, String(v)))
+    } else {
+      p.set(key, String(val))
+    }
   }
+  return p
 }
 
-/** Convert filters → plain object for router.push / href */
-export function filtersToQuery(f: ChannelFilters): Record<string, string | string[]> {
-  const out: Record<string, string | string[]> = {}
-  for (const [k, v] of Object.entries(f)) {
-    if (v === undefined || v === null || v === '') continue
-    if (Array.isArray(v)) out[k] = v.map(String)
-    else out[k] = String(v)
+/** Parse searchParams (from Next.js page props) into a ChannelFilters object */
+export function paramsToFilters(
+  sp: Record<string, string | string[] | undefined>
+): ChannelFilters {
+  return {
+    search:   str(sp.search),
+    country:  num(sp.country),
+    language: str(sp.language),
+    quality:  sp.quality as Quality | undefined,
+    featured: sp.featured === '1' ? true : undefined,
+    sort:     sp.sort as SortField | undefined,
+    order:    sp.order as SortOrder | undefined,
+    per_page: num(sp.per_page),
+    page:     num(sp.page),
+    category: arr(sp.category),
+    tag:      arr(sp.tag),
   }
-  return out
 }
 
 function str(v: unknown): string | undefined {
@@ -46,4 +51,12 @@ function arr(v: unknown): number[] | number | undefined {
   if (Array.isArray(v)) return v.map(Number).filter(Boolean)
   if (typeof v === 'string' && v) return Number(v) || undefined
   return undefined
+}
+
+/** Merge an existing filter object with partial updates */
+export function mergeFilters(
+  base: ChannelFilters,
+  updates: Partial<ChannelFilters>
+): ChannelFilters {
+  return { ...base, ...updates, page: 1 }  // reset page on any filter change
 }

@@ -12,6 +12,10 @@
   --font-mono: var(--font-geist-mono);
 }
 
+@theme {
+  --bg-gradient-fade-dark: linear-gradient(to bottom, transparent 0%, rgba(10,10,15,0.75) 30%, rgba(10,10,15,0.97) 100%);
+}
+
 @media (prefers-color-scheme: dark) {
   :root {
     --background: #0a0a0a;

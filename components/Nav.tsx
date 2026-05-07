@@ -82,12 +82,12 @@ function Navbar({ menuOpen, setMenuOpen }: {menuOpen: boolean, setMenuOpen: Reac
 
       {/* Logo */}
       <div className="font-black text-2xl tracking-widest select-none" style={{ fontFamily: "system-ui, sans-serif" }}>
-        <span className="text-white">Anime</span>
+        <span className="text-white">Telfaza</span>
         <span
           className="px-1.5 py-0.5 rounded-md text-[#e8490f]"
           style={{ background: "rgba(232,73,15,0.15)", border: "1px solid rgba(232,73,15,0.3)" }}
         >
-          KAI
+          LIVE
         </span>
       </div>
 
@@ -156,7 +156,7 @@ function Navbar({ menuOpen, setMenuOpen }: {menuOpen: boolean, setMenuOpen: Reac
             en
           </button>
           <button className="px-3 py-1.5 text-xs font-bold text-white/40 hover:text-white hover:bg-white/5 transition-colors">
-            jp
+            ar
           </button>
         </div>
       </div>
