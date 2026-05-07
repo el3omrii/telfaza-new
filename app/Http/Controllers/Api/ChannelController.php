@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\Channel;
 use App\Models\Category;
 use App\Models\Country;
+use App\Http\Resources\PaginatedResource;
+use App\Http\Resources\ChannelResource;
 use App\Services\ViewingTracker;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -24,7 +26,7 @@ class ChannelController extends Controller
     //   sort        string         views|name|created_at  (default: views)
     //   order       string         desc|asc               (default: desc)
     //   per_page    int            1-100                  (default: 24)
-    public function index(Request $request): JsonResponse
+    public function index(Request $request): PaginatedResource
     {
         $request->validate([
             'search'   => 'nullable|string|max:255',
@@ -80,7 +82,7 @@ class ChannelController extends Controller
 
         $channels = $query->paginate($request->integer('per_page', 24))->withQueryString();
 
-        return response()->json($channels);
+        return new PaginatedResource($channels, ChannelResource::class);
     }
 
     // ─── GET /api/channels/{channel} ─────────────────────────────────────────
