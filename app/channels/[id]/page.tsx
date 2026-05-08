@@ -1,0 +1,228 @@
+import type { Metadata } from 'next'
+import Link from 'next/link'
+import { notFound } from 'next/navigation'
+import { getChannel, getChannels, storageUrl } from '@/lib/api'
+import ClientChannelPlayer from '@/components/channel/ClientChannelPlayer'
+import { fmtViews } from '@/lib/utils'
+
+
+interface Props {
+  params: { id: string }
+}
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  try {
+    const ch = await getChannel(params.id)
+    return { title: ch.name, description: ch.description ?? undefined }
+  } catch {
+    return { title: 'Channel not found' }
+  }
+}
+
+export default async function ChannelDetailPage({ params }: Props) {
+  const resolvedParams = await params
+  let channel
+  try {
+    channel = await getChannel(resolvedParams.id)
+  } catch {
+    notFound()
+  }
+
+  // Related: same first category, different channel
+  const related = channel.categories?.[0]
+    ? await getChannels({ category: channel.categories[0].id, per_page: 6, sort: 'views' })
+        .then(r => r.data.filter(c => c.id !== channel.id).slice(0, 5))
+    : []
+
+  const logo = storageUrl(channel.logo)
+
+  return (
+    <div className="mx-auto max-w-screen-2xl">
+      {/* ── Hero header ── */}
+      <div className="border-b border-white/[0.07] bg-zinc-900 px-5 py-8">
+        <div className="grid grid-cols-[auto_1fr_auto] items-start gap-6">
+          {/* Logo */}
+          <div className="flex h-[72px] w-[72px] items-center justify-center overflow-hidden rounded-2xl border border-white/10 bg-zinc-800">
+            {logo ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={logo} alt={channel.name} className="h-full w-full object-cover" />
+            ) : (
+              <span className="font-head text-xl font-black text-zinc-400">
+                {channel.name.slice(0, 3).toUpperCase()}
+              </span>
+            )}
+          </div>
+
+          {/* Info */}
+          <div>
+            <h1 className="font-head mb-2 text-3xl font-extrabold tracking-tight">
+              {channel.name}
+            </h1>
+            <div className="mb-3 flex flex-wrap gap-1.5">
+              {channel.featured && (
+                <Badge variant="accent">✦ Featured</Badge>
+              )}
+              {channel.quality && (
+                <Badge variant="teal">{channel.quality}</Badge>
+              )}
+              {channel.country && (
+                <Badge variant="muted">
+                  {channel.country.name}
+                </Badge>
+              )}
+              {channel.language && (
+                <Badge variant="muted">{channel.language}</Badge>
+              )}
+              {channel.epgid && (
+                <Badge variant="muted">EPG: {channel.epgid}</Badge>
+              )}
+            </div>
+            {channel.description && (
+              <p className="max-w-xl text-sm font-light leading-relaxed text-zinc-400">
+                {channel.description}
+              </p>
+            )}
+          </div>
+
+          {/* Stats */}
+          <div className="flex flex-col items-end gap-3">
+            <div className="text-right">
+              <div className="font-head text-2xl font-bold text-lime-400">
+                {fmtViews(channel.views)}
+              </div>
+              <div className="flex items-center justify-end gap-1 text-xs text-zinc-500">
+                 total views
+              </div>
+            </div>
+            <div className="text-right">
+              <div className="font-head text-2xl font-bold text-red-400">
+                —
+              </div>
+              <div className="text-xs text-zinc-500">watching now</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* ── Main layout ── */}
+      <div className="grid grid-cols-1 lg:grid-cols-[1fr_280px]">
+        {/* Left — player + meta */}
+        <div className="border-r border-white/[0.07]">
+          <ClientChannelPlayer channel={channel} />
+
+          {/* Categories & Tags */}
+          <div className="space-y-5 px-5 py-6">
+            {channel.categories && channel.categories.length > 0 && (
+              <div>
+                <p className="mb-2 text-[11px] uppercase tracking-widest text-zinc-500">
+                  Categories
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {channel.categories.map(cat => (
+                    <Link
+                      key={cat.id}
+                      href={`/categories/${cat.id}`}
+                      className="rounded-lg border px-3 py-1.5 text-xs transition-all hover:opacity-80"
+                      style={{
+                        background: `${cat.color}18`,
+                        color: cat.color,
+                        borderColor: `${cat.color}40`,
+                      }}
+                    >
+                      {cat.name}
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {channel.tags && channel.tags.length > 0 && (
+              <div>
+                <p className="mb-2 text-[11px] uppercase tracking-widest text-zinc-500">Tags</p>
+                <div className="flex flex-wrap gap-2">
+                  {channel.tags.map(tag => (
+                    <Link
+                      key={tag.id}
+                      href={`/tags/${tag.id}`}
+                      className="rounded-full border border-white/[0.07] bg-zinc-900 px-3 py-1 text-xs text-zinc-400 transition-all hover:border-teal-400/30 hover:text-teal-400"
+                    >
+                      #{tag.name}
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Right sidebar */}
+        <aside className="px-5 py-6">
+          {/* Country */}
+          {channel.country && (
+            <div className="mb-6">
+              <p className="mb-2 text-[11px] uppercase tracking-widest text-zinc-500">Country</p>
+              <Link
+                href={`/countries/${channel.country.id}`}
+                className="inline-flex items-center gap-2 rounded-lg border border-white/[0.07] bg-zinc-900 px-3 py-2 text-sm transition-all hover:border-white/15"
+              >
+                {channel.country.name}
+                {channel.country.channels_count != null && (
+                  <span className="text-xs text-zinc-500">
+                    · {channel.country.channels_count} ch
+                  </span>
+                )}
+              </Link>
+            </div>
+          )}
+
+          {/* Related channels */}
+          {related.length > 0 && (
+            <div>
+              <p className="mb-3 text-[11px] uppercase tracking-widest text-zinc-500">
+                Related Channels
+              </p>
+              <div className="space-y-2">
+                {related.map(ch => (
+                  <Link
+                    key={ch.id}
+                    href={`/channels/${ch.id}`}
+                    className="flex items-center gap-3 rounded-lg p-2 transition-all hover:bg-zinc-800"
+                  >
+                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-white/[0.07] bg-zinc-800 font-head text-[10px] font-black text-zinc-300">
+                      {ch.name.slice(0, 3).toUpperCase()}
+                    </div>
+                    <div className="min-w-0">
+                      <p className="truncate text-xs font-medium text-zinc-100">{ch.name}</p>
+                      <p className="text-[11px] text-zinc-500">{fmtViews(ch.views)} views</p>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          )}
+        </aside>
+      </div>
+    </div>
+  )
+}
+
+// ── Badge helper ──
+function Badge({
+  variant,
+  children,
+}: {
+  variant: 'accent' | 'teal' | 'muted'
+  children: React.ReactNode
+}) {
+  const cls = {
+    accent: 'bg-lime-400/10 text-lime-400 border-lime-400/20',
+    teal:   'bg-teal-400/10 text-teal-400 border-teal-400/20',
+    muted:  'bg-zinc-800 text-zinc-400 border-white/[0.07]',
+  }[variant]
+
+  return (
+    <span className={`rounded border px-2 py-0.5 text-[10px] font-medium ${cls}`}>
+      {children}
+    </span>
+  )
+}
