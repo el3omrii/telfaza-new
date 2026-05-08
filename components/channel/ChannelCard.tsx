@@ -62,7 +62,7 @@ const Icon = {
             {channel.country?.flag} {channel.country?.name}
           </span>
           <span className="flex items-center gap-1 text-[11px] text-zinc-500">
-            <Icon.Eye size={10} />
+            <Icon.Eye />
             {fmtViews(channel.views)}
           </span>
         </div>

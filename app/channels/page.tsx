@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { Suspense } from 'react'
 import { getChannels, getFiltersMeta, getCountries, getCategories } from '@/lib/api'
 import { paramsToFilters } from '@/lib/utils'
 import { ChannelGrid } from '@/components/channel/ChannelGrid'
@@ -33,21 +34,27 @@ export default async function ChannelsPage({ searchParams }: Props) {
       </div>
 
       {/* Filters row 1 — sort + quality */}
-      <FilterBar total={result.meta.total} />
+      <Suspense fallback={<div className="h-12 border-b border-white/[0.07] px-5 py-3" />}>
+        <FilterBar total={result.meta.total} />
+      </Suspense>
 
       {/* Filters row 2 — country, category, language */}
-      <div className="flex flex-wrap items-center gap-3 border-b border-white/[0.07] px-5 py-3">
-        <CountrySelect countries={countries} />
-        
+      <Suspense fallback={<div className="flex gap-3 border-b border-white/[0.07] px-5 py-3 h-10" />}>
+        <div className="flex flex-wrap items-center gap-3 border-b border-white/[0.07] px-5 py-3">
+          <CountrySelect countries={countries} />
+          
 
-        {/* Language */}
-        <LanguageSelect languages={filtersMeta.languages} currentValue={searchParams.language as string | undefined} />
-      </div>
+          {/* Language */}
+          <LanguageSelect languages={filtersMeta.languages} currentValue={searchParams.language as string | undefined} />
+        </div>
+      </Suspense>
 
       {/* Grid */}
       <div className="px-5 py-6">
         <ChannelGrid channels={result.data} />
-        <Pagination meta={result.meta} />
+        <Suspense fallback={<div className="h-12" />}>
+          <Pagination meta={result.meta} />
+        </Suspense>
       </div>
     </div>
   )
