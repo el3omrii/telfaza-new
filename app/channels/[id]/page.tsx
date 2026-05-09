@@ -11,8 +11,9 @@ interface Props {
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { id } = await params
   try {
-    const ch = await getChannel(params.id)
+    const ch = await getChannel(id)
     return { title: ch.name, description: ch.description ?? undefined }
   } catch {
     return { title: 'Channel not found' }
@@ -20,10 +21,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function ChannelDetailPage({ params }: Props) {
-  const resolvedParams = await params
+  const { id } = await params
   let channel
   try {
-    channel = await getChannel(resolvedParams.id)
+    channel = await getChannel(id)
   } catch {
     notFound()
   }
@@ -37,7 +38,7 @@ export default async function ChannelDetailPage({ params }: Props) {
   const logo = storageUrl(channel.logo)
 
   return (
-    <div className="mx-auto max-w-screen-2xl">
+    <main className="max-w-7xl w-full mx-auto md:mt-16 px-6 md:px-12">
       {/* ── Hero header ── */}
       <div className="border-b border-white/[0.07] bg-zinc-900 px-5 py-8">
         <div className="grid grid-cols-[auto_1fr_auto] items-start gap-6">
@@ -202,7 +203,7 @@ export default async function ChannelDetailPage({ params }: Props) {
           )}
         </aside>
       </div>
-    </div>
+    </main>
   )
 }
 

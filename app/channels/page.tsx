@@ -24,7 +24,7 @@ export default async function ChannelsPage({ searchParams }: Props) {
   ])
 
   return (
-    <div className="mx-auto max-w-screen-2xl">
+    <main className="max-w-7xl w-full mx-auto md:mt-16 px-6 md:px-12">
       {/* Header */}
       <div className="border-b border-white/[0.07] px-5 py-8">
         <h1 className="font-head text-3xl font-extrabold tracking-tight">All Channels</h1>
@@ -56,7 +56,7 @@ export default async function ChannelsPage({ searchParams }: Props) {
           <Pagination meta={result.meta} />
         </Suspense>
       </div>
-    </div>
+    </main>
   )
 }
 

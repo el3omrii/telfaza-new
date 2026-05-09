@@ -1,5 +1,6 @@
 'use client'
 import { useState, useRef, useEffect } from 'react';
+import { storageUrl } from '@/lib';
 import {
   MediaController,
   MediaControlBar,
@@ -50,28 +51,30 @@ export default function ChannelPlayer({ channel }) {
 
   return (
     <div className="relative overflow-hidden rounded-3xl bg-black shadow-xl w-full">
-      <MediaController className="w-full h-full bg-black">
-        <ShakaVideo
-          ref={videoRef}
-          slot="media"
-          
-          poster={channel.image}
-          crossOrigin="anonymous"
-          className="w-full h-full object-cover bg-black"
-        />
+      <div className="w-full aspect-video">
+        <MediaController className="w-full h-full bg-black">
+          <ShakaVideo
+            ref={videoRef}
+            slot="media"
+            
+            poster={storageUrl(channel.image)}
+            crossOrigin="anonymous"
+            className="w-full h-full object-cover bg-black"
+          />
 
-        <MediaLoadingIndicator slot="centered-chrome"></MediaLoadingIndicator>
+          <MediaLoadingIndicator slot="centered-chrome"></MediaLoadingIndicator>
 
-        <MediaControlBar>
-          <MediaPlayButton></MediaPlayButton>
-          <MediaLiveButton></MediaLiveButton>
-          <MediaVolumeRange></MediaVolumeRange>
-          <span className="flex-grow"></span>
-          <MediaRenditionMenu hidden anchor="auto"></MediaRenditionMenu>
-          <MediaRenditionMenuButton></MediaRenditionMenuButton>
-          <MediaFullscreenButton></MediaFullscreenButton>
-        </MediaControlBar>
-      </MediaController>
+          <MediaControlBar>
+            <MediaPlayButton></MediaPlayButton>
+            <MediaLiveButton></MediaLiveButton>
+            <MediaVolumeRange></MediaVolumeRange>
+            <span className="flex-grow"></span>
+            <MediaRenditionMenu hidden anchor="auto"></MediaRenditionMenu>
+            <MediaRenditionMenuButton></MediaRenditionMenuButton>
+            <MediaFullscreenButton></MediaFullscreenButton>
+          </MediaControlBar>
+        </MediaController>
+      </div>
 
       {error && (
         <div className="absolute inset-0 flex items-center justify-center bg-black/80 text-red-400 p-4 text-center">

@@ -30,7 +30,8 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col" style={{ background: "#0a0a0f" }}>
         <Nav />
-        {children}</body>
+        {children}
+      </body>
     </html>
   );
 }
