@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Category;
+use App\Http\Resources\PaginatedResource;
+use App\Http\Resources\CategoryResource;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -63,9 +65,6 @@ class CategoryController extends Controller
             ->paginate($request->integer('per_page', 24))
             ->withQueryString();
 
-        return response()->json([
-            'category' => $category,
-            'channels' => $channels,
-        ]);
+        return new PaginatedResource($channels, CategoryResource::class);
     }
 }
