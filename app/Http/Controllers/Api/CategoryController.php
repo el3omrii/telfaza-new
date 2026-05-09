@@ -31,7 +31,7 @@ class CategoryController extends Controller
 
     // ─── GET /api/categories/{category}/channels ─────────────────────────────
     // Query params: sort, order, per_page (same contract as /api/channels)
-    public function channels(Request $request, Category $category): PaginaedResource
+    public function channels(Request $request, Category $category): PaginatedResource
     {
         $request->validate([
             'sort'     => 'nullable|in:views,name,created_at',
