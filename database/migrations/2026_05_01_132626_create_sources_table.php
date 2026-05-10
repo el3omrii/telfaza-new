@@ -16,7 +16,7 @@ return new class extends Migration
             $table->enum('type', ['hls', 'dash', 'embed'])->default('hls');
             $table->string('link')->nullable();
             $table->boolean('drm')->default(false);
-            $table->text('clearkeys')->nullable();
+            $table->json('clearkeys')->nullable();
             $table->foreignId('channel_id')->constrained()->cascadeOnDelete();
             $table->timestamps();
  

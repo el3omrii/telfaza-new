@@ -14,15 +14,27 @@ class PaginatedResource extends ResourceCollection
         parent::__construct($resource);
         $this->collects = $collects;
     }
+
     /**
      * Transform the resource into an array.
      *
      * @return array<string, mixed>
      */
-    public function toArray($request)
+    public function toArray(Request $request): array
+    {
+        return $this->collects 
+            ? $this->collection->map(fn($item) => new $this->collects($item))->all()
+            : $this->collection->toArray();
+    }
+
+    /**
+     * Get additional data that should be returned with the resource array.
+     *
+     * @return array<string, mixed>
+     */
+    public function with(Request $request): array
     {
         return [
-            'data' => $this->collects ? $this->collection->map(fn($item) => new $this->collects($item)) : $this->collection,
             'links' => [
                 'first' => $this->resource->url(1),
                 'last' => $this->resource->url($this->resource->lastPage()),

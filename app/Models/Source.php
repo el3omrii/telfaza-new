@@ -17,6 +17,7 @@ class Source extends Model
  
     protected $casts = [
         'drm'       => 'boolean',
+        'clearkeys' => 'array',
     ];
  
     public function channel(): BelongsTo
