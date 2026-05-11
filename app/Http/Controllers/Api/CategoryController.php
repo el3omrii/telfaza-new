@@ -32,7 +32,7 @@ class CategoryController extends Controller
 
     // ─── GET /api/categories/{category}/channels ─────────────────────────────
     // Query params: sort, order, per_page (same contract as /api/channels)
-    public function channels(Request $request, Category $category): PaginatedResource
+    public function channels(Request $request, Category $category): JsonResponse
     {
         $request->validate([
             'sort'     => 'nullable|in:views,name,created_at',
@@ -67,7 +67,7 @@ class CategoryController extends Controller
             ->withQueryString();
         $channels = new PaginatedResource($channels, ChannelResource::class);
         // Resolve the full paginated structure (data + meta + links)
-        $channelsData = $$channels->toResponse(request())->getData(true);
+        $channelsData = $channels->toResponse(request())->getData(true);
         return response()->json([
             "category" => $category,
             "channels" => $channelsData
