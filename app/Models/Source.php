@@ -36,7 +36,7 @@ class Source extends Model
         if (!$this->clearkeys) return '—';
         $formatted = [];
         foreach ($this->clearkeys as $kid => $key) {
-            $formatted[] = $kid . ':' . $this->base64urlToHex($key);
+            $formatted[] = $this->base64urlToHex($kid) . ':' . $this->base64urlToHex($key);
         }
         return implode('<br>', $formatted);
     }

@@ -43,7 +43,7 @@ class SourceController extends Controller
             'clearkeys' => 'nullable|string|max:4000',
         ]);
 
-        // Process clearkeys: parse string, convert hex keys to base64url
+        // Process clearkeys: parse string, convert hex kid and key to base64url
         $clearkeysArray = [];
         if (!empty($data['clearkeys'])) {
             $lines = explode("\n", trim($data['clearkeys']));
@@ -75,7 +75,7 @@ class SourceController extends Controller
         $clearkeysString = '';
         if ($source->clearkeys) {
             foreach ($source->clearkeys as $kid => $key) {
-                $clearkeysString .= $this->hexToBase64url($kid) . ':' . $this->base64urlToHex($key) . "\n";
+                $clearkeysString .= $this->base64urlToHex($kid) . ':' . $this->base64urlToHex($key) . "\n";
             }
         }
 
