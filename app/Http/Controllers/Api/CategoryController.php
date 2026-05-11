@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Category;
 use App\Http\Resources\PaginatedResource;
 use App\Http\Resources\CategoryResource;
+use App\Http\Resources\ChannelResource;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -67,7 +68,7 @@ class CategoryController extends Controller
 
         return response()->json([
             "category" => $category,
-            "channels" => new PaginatedResource($channels, CategoryResource::class)
+            "channels" => new PaginatedResource($channels, ChannelResource::class)
         ]);
     }
 }
