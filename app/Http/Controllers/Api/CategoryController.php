@@ -66,10 +66,11 @@ class CategoryController extends Controller
             ->paginate($request->integer('per_page', 24))
             ->withQueryString();
         $channels = new PaginatedResource($channels, ChannelResource::class);
-        return $channels;
+        // Resolve the full paginated structure (data + meta + links)
+        $channelsData = $paginatedResource->toResponse(request())->getData(true);
         return response()->json([
             "category" => $category,
-            "channels" => new PaginatedResource($channels, ChannelResource::class)
+            "channels" => $channelsData
         ]);
     }
 }
