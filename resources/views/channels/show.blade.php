@@ -149,7 +149,9 @@
                         <span class="px-2 py-0.5 rounded-full text-[0.72rem] font-semibold bg-border text-muted">No</span>
                     @endif
                 </td>
-                <td class="px-4 py-3 text-sm">{{ $source->clearkeys ?? '—' }}</td>
+                <td class="px-4 py-3 max-w-xs">
+                    <code class="text-xs text-muted truncate block">{!! $source->clearkeys_formatted ?? '—' !!}</code>
+                </td>
                 <td class="px-4 py-3">
                     <div class="flex gap-1.5">
                         <a href="{{ route('sources.edit', $source) }}"
