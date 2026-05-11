@@ -24,4 +24,20 @@ class Source extends Model
     {
         return $this->belongsTo(Channel::class);
     }
+
+    private function base64urlToHex($b64url) {
+        $b64 = str_replace(['-', '_'], ['+', '/'], $b64url);
+        while (strlen($b64) % 4 !== 0) $b64 .= '=';
+        $bytes = base64_decode($b64);
+        return bin2hex($bytes);
+    }
+
+    public function getClearkeysFormattedAttribute() {
+        if (!$this->clearkeys) return '—';
+        $formatted = [];
+        foreach ($this->clearkeys as $kid => $key) {
+            $formatted[] = $kid . ':' . $this->base64urlToHex($key);
+        }
+        return implode('<br>', $formatted);
+    }
 }

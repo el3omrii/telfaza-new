@@ -42,7 +42,7 @@
                         <span class="px-2 py-0.5 rounded-full text-[0.72rem] font-semibold bg-border text-muted">No</span>
                     @endif
                 </td>
-                <td class="px-4 py-3 text-sm">{{ $source->getRawOriginal('clearkeys') ?? '—' }}</td>
+                <td class="px-4 py-3 text-sm">{!! $source->clearkeys_formatted !!}</td>
                 <td class="px-4 py-3">
                     <div class="flex gap-1.5">
                         <a href="{{ route('channels.sources.create', $source->channel) }}"

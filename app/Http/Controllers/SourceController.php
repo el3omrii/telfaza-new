@@ -10,6 +10,18 @@ use Illuminate\View\View;
 
 class SourceController extends Controller
 {
+    private function hexToBase64url($hex) {
+        $bytes = hex2bin($hex);
+        $b64 = base64_encode($bytes);
+        return str_replace(['+', '/'], ['-', '_'], rtrim($b64, '='));
+    }
+
+    private function base64urlToHex($b64url) {
+        $b64 = str_replace(['-', '_'], ['+', '/'], $b64url);
+        while (strlen($b64) % 4 !== 0) $b64 .= '=';
+        $bytes = base64_decode($b64);
+        return bin2hex($bytes);
+    }
     public function index(): View
     {
         $sources = Source::with('channel')->orderByDesc('id')->paginate(20);
@@ -31,6 +43,23 @@ class SourceController extends Controller
             'clearkeys' => 'nullable|string|max:4000',
         ]);
 
+        // Process clearkeys: parse string, convert hex keys to base64url
+        $clearkeysArray = [];
+        if (!empty($data['clearkeys'])) {
+            $lines = explode("\n", trim($data['clearkeys']));
+            foreach ($lines as $line) {
+                $line = trim($line);
+                if (empty($line)) continue;
+                [$kid, $key] = explode(':', $line, 2);
+                $kid = trim($kid);
+                $key = trim($key);
+                if ($kid && $key) {
+                    $clearkeysArray[$kid] = $this->hexToBase64url($key);
+                }
+            }
+        }
+        $data['clearkeys'] = $clearkeysArray;
+
         $data['channel_id'] = $channel->id;
         Source::create($data);
 
@@ -41,7 +70,16 @@ class SourceController extends Controller
     public function edit(Source $source): View
     {
         $channel = $source->channel;
-        return view('sources.edit', compact('channel', 'source'));
+
+        // Prepare clearkeys as string in hex format for the form
+        $clearkeysString = '';
+        if ($source->clearkeys) {
+            foreach ($source->clearkeys as $kid => $key) {
+                $clearkeysString .= $kid . ':' . $this->base64urlToHex($key) . "\n";
+            }
+        }
+
+        return view('sources.edit', compact('channel', 'source', 'clearkeysString'));
     }
 
     public function update(Request $request, Source $source): RedirectResponse
@@ -52,6 +90,23 @@ class SourceController extends Controller
             'drm'       => 'boolean',
             'clearkeys' => 'nullable|string|max:4000',
         ]);
+
+        // Process clearkeys: parse string, convert hex keys to base64url
+        $clearkeysArray = [];
+        if (!empty($data['clearkeys'])) {
+            $lines = explode("\n", trim($data['clearkeys']));
+            foreach ($lines as $line) {
+                $line = trim($line);
+                if (empty($line)) continue;
+                [$kid, $key] = explode(':', $line, 2);
+                $kid = trim($kid);
+                $key = trim($key);
+                if ($kid && $key) {
+                    $clearkeysArray[$kid] = $this->hexToBase64url($key);
+                }
+            }
+        }
+        $data['clearkeys'] = $clearkeysArray;
 
         $source->update($data);
 

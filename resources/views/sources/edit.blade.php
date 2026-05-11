@@ -60,7 +60,7 @@
                             </p>
                             <textarea name="clearkeys" id="clearkeysInput" rows="4"
                                       placeholder="abc123:def456&#10;ghi789:jkl012"
-                                      class="w-full px-3 py-2 bg-surface border border-border rounded-lg text-xs font-mono text-gray-200 placeholder-muted focus:outline-none focus:border-accent transition-colors resize-none">{{ old('clearkeys', $source->getRawOriginal('clearkeys')) }}</textarea>
+                                      class="w-full px-3 py-2 bg-surface border border-border rounded-lg text-xs font-mono text-gray-200 placeholder-muted focus:outline-none focus:border-accent transition-colors resize-none">{{ old('clearkeys', $clearkeysString) }}</textarea>
                             <p class="text-[0.65rem] text-muted mt-1.5">Each line: <code class="text-accent">keyId:key</code> (hex strings)</p>
                         </div>
                     </div>
