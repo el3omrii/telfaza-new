@@ -54,7 +54,7 @@ class SourceController extends Controller
                 $kid = trim($kid);
                 $key = trim($key);
                 if ($kid && $key) {
-                    $clearkeysArray[$kid] = $this->hexToBase64url($key);
+                    $clearkeysArray[$this->hexToBase64url($kid)] = $this->hexToBase64url($key);
                 }
             }
         }
@@ -75,7 +75,7 @@ class SourceController extends Controller
         $clearkeysString = '';
         if ($source->clearkeys) {
             foreach ($source->clearkeys as $kid => $key) {
-                $clearkeysString .= $kid . ':' . $this->base64urlToHex($key) . "\n";
+                $clearkeysString .= $this->hexToBase64url($kid) . ':' . $this->base64urlToHex($key) . "\n";
             }
         }
 
@@ -102,7 +102,7 @@ class SourceController extends Controller
                 $kid = trim($kid);
                 $key = trim($key);
                 if ($kid && $key) {
-                    $clearkeysArray[$kid] = $this->hexToBase64url($key);
+                    $this->$clearkeysArray[$this->hexToBase64url($kid)] = $this->hexToBase64url($key);
                 }
             }
         }
