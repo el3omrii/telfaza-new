@@ -9,7 +9,7 @@ interface Props {
 }
 
 export function ChannelCard({ channel }: Props) {
-  const logo = storageUrl(channel.logo)
+  const logo = storageUrl(channel.image)
    /* ─── icons ────────────────────────────────────────────────────────── */
 const Icon = {
   Eye: () => (

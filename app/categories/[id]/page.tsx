@@ -46,7 +46,7 @@ export default async function CategoryPage({ params, searchParams }: Props) {
   const tags = Array.from(tagMap.values())
 
   return (
-    <div className="mx-auto max-w-screen-2xl">
+    <main className="max-w-7xl w-full mx-auto md:mt-16 px-6 md:px-12">
       {/* Header */}
       <div className="border-b border-white/[0.07] px-5 py-8">
         <div className="flex items-end gap-4">
@@ -87,6 +87,6 @@ export default async function CategoryPage({ params, searchParams }: Props) {
         <ChannelGrid channels={channels.data} />
         <Pagination meta={channels.meta} />
       </div>
-    </div>
+    </main>
   )
 }

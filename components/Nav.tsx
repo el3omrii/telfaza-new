@@ -132,12 +132,12 @@ function Navbar({ menuOpen, setMenuOpen }: {menuOpen: boolean, setMenuOpen: Reac
 
       {/* Actions */}
       <div className="hidden sm:flex items-center gap-1.5">
-        <button
+        <Link href="/browse"
           className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-sm text-white/60 hover:text-white transition-colors font-semibold"
           style={{ background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.1)" }}
         >
           <Icon.Filter /><span className="text-xs tracking-wide">FILTER</span>
-        </button>
+        </Link>
         {[<Icon.Users />, <Icon.Shuffle />].map((ic, i) => (
           <button
             key={i}

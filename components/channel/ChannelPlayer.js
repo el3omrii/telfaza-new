@@ -6,39 +6,31 @@ import {
   MediaControlBar,
   MediaLoadingIndicator,
   MediaLiveButton,
+  MediaMuteButton,
   MediaVolumeRange,
   MediaPlayButton,
   MediaFullscreenButton,
 } from 'media-chrome/react';
 import { MediaRenditionMenu, MediaRenditionMenuButton } from 'media-chrome/react/menu';
 import ShakaVideo from 'shaka-video-element/react';
-function parseClearKeys(clearKeysStr) {
-  if (!clearKeysStr || typeof clearKeysStr !== 'string') return {};
-  
-  return clearKeysStr.split(',').reduce((acc, pair) => {
-    const [keyId, key] = pair.trim().split(':');
-    if (keyId && key) {
-      acc[keyId.trim()] = key.trim();
-    }
-    return acc;
-  }, {});
-}
+
 export default function ChannelPlayer({ channel }) {
   const [error, setError] = useState('');
+  const [mediaHeight, setMediaHeight] = useState('');
   const { sources: [{ link, drm, clearkeys }] } = channel
   const videoRef = useRef(null);
-
 
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
     console.log(clearkeys)
+
     // Configure DRM if needed
     if (drm && clearkeys && video.api) {
       try {
         video.api.configure({
           drm: {
-            clearKeys: parseClearKeys(clearkeys)
+            clearKeys: clearkeys
           }
         });
       } catch (err) {
@@ -47,6 +39,21 @@ export default function ChannelPlayer({ channel }) {
     }
 
     video.src = link;
+
+    const handleResize = () => {
+      if (video) {
+        setMediaHeight(`${Math.min(video.videoWidth, video.videoHeight)}P`);
+      }
+    };
+
+    if (video) {
+      video.addEventListener('resize', handleResize);
+      handleResize();
+    }
+
+    return () => {
+      video?.removeEventListener('resize', handleResize);
+    };
   }, [channel]);
 
   return (
@@ -64,14 +71,20 @@ export default function ChannelPlayer({ channel }) {
 
           <MediaLoadingIndicator slot="centered-chrome"></MediaLoadingIndicator>
 
-          <MediaControlBar>
-            <MediaPlayButton></MediaPlayButton>
-            <MediaLiveButton></MediaLiveButton>
-            <MediaVolumeRange></MediaVolumeRange>
-            <span className="flex-grow"></span>
+          <MediaControlBar className="bg-black/75 p-1 mx-4 m-2 rounded-full">
+            <MediaPlayButton className="media-control"></MediaPlayButton>
+            <MediaLiveButton className="media-control"></MediaLiveButton>
+            <MediaMuteButton className="media-control"></MediaMuteButton>
+            <MediaVolumeRange className="media-control"></MediaVolumeRange>
+            <div className="flex-grow flex items-center justify-center gap-2">
+              <img src={storageUrl(channel.logo)} alt={channel.name} className="w-12 object-cover rounded-xl" />
+              <span className="text-sm text-muted">{channel.name}</span>
+            </div>
+            <MediaRenditionMenuButton className="media-control">
+                <span slot="icon" className="text-[#58BEC9] border border-[#58BEC9] py-1 px-2 rounded-md bg-green-950/50 text-sm">{mediaHeight}</span>
+            </MediaRenditionMenuButton>
             <MediaRenditionMenu hidden anchor="auto"></MediaRenditionMenu>
-            <MediaRenditionMenuButton></MediaRenditionMenuButton>
-            <MediaFullscreenButton></MediaFullscreenButton>
+            <MediaFullscreenButton className="media-control"></MediaFullscreenButton>
           </MediaControlBar>
         </MediaController>
       </div>
