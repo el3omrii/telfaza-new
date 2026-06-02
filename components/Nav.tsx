@@ -8,6 +8,7 @@ const NAV_LINKS = [
     { href: '/',           label: 'Home'       },
     { href: '/channels',   label: 'Channels'   },
     { href: '/categories', label: 'Categories' },
+    { href: '/countries',  label: 'Countries' },
     { href: '/tags',       label: 'Tags'       },
 ];
 
