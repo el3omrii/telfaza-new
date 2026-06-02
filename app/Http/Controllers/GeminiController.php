@@ -32,13 +32,14 @@ class GeminiController extends Controller
 
         $response = Http::withHeaders(['Content-Type' => 'application/json'])
             ->timeout(15)
-            ->post("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={$apiKey}", [
+            ->post("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={$apiKey}", [
                 'contents' => [[
                     'parts' => [['text' => $prompt]],
                 ]],
                 'generationConfig' => [
                     'temperature'     => 0.7,
-                    'maxOutputTokens' => 150,
+                    //'maxOutputTokens' => 300,
+				    'responseMimeType' => 'text/plain',
                 ],
             ]);
 
@@ -63,7 +64,7 @@ class GeminiController extends Controller
             $country  ? "Country: {$country}"   : null,
         ])->filter()->implode(', ');
 
-        return <<<PROMPT
+        /*return <<<PROMPT
         Write a concise, engaging description for a TV/streaming channel with the following details:
         Channel name: {$name}
         {$context}
@@ -76,6 +77,11 @@ class GeminiController extends Controller
         - Plain text only, no markdown or bullet points
 
         Return only the description text, nothing else.
-        PROMPT;
+        PROMPT;*/
+		return "Write a concise, brief, professional description for a TV channel. "
+         . "Details: {$name}" . ($context ? " ({$context})" : "") . ". "
+		 . "Start with channel history, satellite, frequency " 
+         . "Focus on content and audience. Use keywords like live and online. "
+         . "Plain text only. Return only the description.";
     }
 }

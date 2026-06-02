@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Str;
 
 class Channel extends Model
 {
@@ -38,5 +39,27 @@ class Channel extends Model
     public function incrementViews(): void
     {
         $this->increment('views');
+    }
+
+    protected static function booted(): void
+    {
+        static::creating(function ($channel) {
+            if (empty($channel->slug)) {
+                $channel->slug = self::generateUniqueSlug($channel->name);
+            }
+        });
+    }
+
+    public static function generateUniqueSlug(string $name): string
+    {
+        $base = Str::slug($name);
+        $slug = $base;
+        $counter = 2;
+
+        while (static::where('slug', $slug)->exists()) {
+            $slug = $base . '-' . $counter++;
+        }
+
+        return $slug;
     }
 }

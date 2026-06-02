@@ -155,6 +155,8 @@
 @push('styles')
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/shaka-player/4.10.6/controls.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/shaka-player/4.10.6/shaka-player.compiled.js"></script>
+<!-- In your HTML <head> -->
+<meta name="referrer" content="no-referrer">
 
 <script>
 let shakaPlayer = null;
@@ -165,8 +167,140 @@ async function initShaka() {
         log('⚠ Browser does not support Shaka Player', 'warn');
         return;
     }
+	// 1. Force Shaka Player to map the lowercase 'application/x-mpegurl' directly to HLS
+shaka.media.ManifestParser.registerParserByMime('application/x-mpegURL', shaka.hls.HlsParser);
+shaka.media.ManifestParser.registerParserByMime('application/vnd.apple.mpegurl', shaka.hls.HlsParser);
     shakaPlayer = new shaka.Player();
     await shakaPlayer.attach(document.getElementById('shakaVideo'));
+	/**
+ * Fixes URL resolution for /saudia_tv/ streams that redirect to external hosts.
+ * Rewrites relative URLs in manifests to use the manifest's actual (redirected) base URL.
+ * 
+ * @param {shaka.Player} player - Initialized Shaka Player instance
+ */
+function setupSaudiaTvUrlFix(player) {
+  const networkingEngine = player.getNetworkingEngine();
+  
+  networkingEngine.registerResponseFilter((type, response) => {
+    // Only process HLS manifest responses
+    if (type !== shaka.net.NetworkingEngine.RequestType.MANIFEST) {
+      return Promise.resolve();
+    }
+    
+    const originalUri = response.originalUri || '';
+    
+    // 🔒 Only activate for /saudia_tv/ endpoint
+    if (!originalUri.includes('/saudia_tv/')) {
+      return Promise.resolve();
+    }
+    
+    const manifestUri = response.uri; // Final URL after redirects
+    if (!manifestUri) {
+      return Promise.resolve();
+    }
+    
+    try {
+      const manifestUrl = new URL(manifestUri);
+      const originalUrl = new URL(originalUri);
+      
+      // Skip if no redirect occurred (same origin)
+      if (manifestUrl.origin === originalUrl.origin) {
+        return Promise.resolve();
+      }
+      
+      // Calculate base path: directory containing the manifest
+      const manifestPath = manifestUrl.pathname;
+      const basePath = manifestPath.substring(0, manifestPath.lastIndexOf('/') + 1);
+      
+      // Convert binary response to text
+      let manifestText = shaka.util.StringUtils.fromUTF8(response.data);
+      
+      // Rewrite relative URLs in manifest
+      const modifiedLines = manifestText.split('\n').map(line => {
+        const trimmed = line.trim();
+        
+        // Skip comments, tags, empty lines
+        if (!trimmed || trimmed.startsWith('#')) {
+          return line;
+        }
+        
+        // Detect relative URLs: no protocol, no leading slash
+        if (!trimmed.match(/^https?:\/\//i) && !trimmed.startsWith('/')) {
+          // Prepend manifest's actual origin + base path
+          return manifestUrl.origin + basePath + trimmed;
+        }
+        
+        return line;
+      });
+      
+      // Update response with fixed manifest
+      const fixedText = modifiedLines.join('\n');
+      response.data = shaka.util.StringUtils.toUTF8(fixedText);
+      
+      console.debug('[SaudiaTV Fix] Rewrote manifest URLs for:', manifestUri);
+      
+    } catch (err) {
+      console.warn('[SaudiaTV Fix] Failed to rewrite manifest:', err);
+      // Don't break playback - let original response pass through
+    }
+    
+    return Promise.resolve();
+  });
+}
+	
+	let capturedToken = null;
+const TOKEN_PARAM = 'token';
+
+// 1️⃣ ResponseFilter: Extract token from FINAL URL after redirect
+// Signature: (type, response, context)
+shakaPlayer.getNetworkingEngine().registerResponseFilter((type, response, context) => {
+  console.log('📡 ResponseFilter:', { type, uri: response.uri });
+  
+  if (type === shaka.net.NetworkingEngine.RequestType.MANIFEST) {
+    const finalUrl = response.uri; // ✅ Use response.uri, NOT request.uris
+    if (!finalUrl) return;
+
+    try {
+      const url = new URL(finalUrl);
+      const token = url.searchParams.get('token');
+      const tokenPath = url.searchParams.get('token_path');
+      const expires = url.searchParams.get('expires');
+      const match = finalUrl.match(new RegExp(`[?&]${TOKEN_PARAM}=(.+)`));
+      capturedToken = match ? match[1] : null;
+    } catch (e) {
+      console.log(e);
+    }
+    
+    if (capturedToken) {
+      console.log('✅ Token captured:', capturedToken);
+      shakaPlayer._debugToken = capturedToken; // For console inspection
+    }
+  }
+});
+
+// 2️⃣ RequestFilter: Inject token into outgoing requests
+// Signature: (type, request, context) - this one DOES get request
+shakaPlayer.getNetworkingEngine().registerRequestFilter((type, request, context) => {
+  if (!capturedToken || capturedToken.trim() === '') return;
+  if (type === shaka.net.NetworkingEngine.RequestType.LICENSE) return;
+	if (type === shaka.net.NetworkingEngine.RequestType.SEGMENT) return;
+
+  console.log('✏️  RequestFilter:', { type, uris: request.uris });
+  
+  for (let i = 0; i < request.uris.length; i++) {
+    if (request.uris[i].includes(`${TOKEN_PARAM}=`)) continue;
+
+    try {
+      const url = new URL(request.uris[i]);
+      url.searchParams.set(TOKEN_PARAM, capturedToken);
+      request.uris[i] = request.uris[i] + `?token=${capturedToken}`;
+    } catch (e) {
+      const sep = request.uris[i].includes('?') ? '&' : '?';
+      request.uris[i] = `${request.uris[i]}${sep}${TOKEN_PARAM}=${capturedToken}`;
+    }
+  }
+});
+	setupSaudiaTvUrlFix(shakaPlayer);
 
     shakaPlayer.addEventListener('error', e => {
         const err = e.detail;
@@ -218,7 +352,7 @@ async function testSource() {
 }
 
 function buildConfig(type, drmOn, ckRaw) {
-    const config = { streaming: { bufferingGoal: 30, rebufferingGoal: 2 } };
+    const config = { streaming: { bufferingGoal: 30, rebufferingGoal: 2, preferNativeHls: false } };
 
     if (type === 'hls') {
         config.manifest = { hls: { ignoreTextStreamFailures: true } };
