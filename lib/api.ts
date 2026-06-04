@@ -1,5 +1,5 @@
 import type {
-  Channel, Category, Tag, Country,
+  Slide, Channel, Category, Tag, Country,
   Paginated, SearchResults, ChannelFilters, FiltersMeta,
 } from '@/types'
 
@@ -41,6 +41,12 @@ export function storageUrl(path: string | null | undefined): string | null {
   if (path.startsWith('http')) return path
   return `${STORAGE}/${path}`
 }
+
+// ── Slides ────────────────────────────────────────────────────────────────
+
+export const getSlides = () =>
+  get<Slide[]>('/slides')
+
 
 // ── Channels ──────────────────────────────────────────────────────────────────
 

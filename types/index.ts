@@ -1,3 +1,15 @@
+export interface Slide {
+  id: number
+  title: string
+  type: string
+  genre: string[]
+  description: string
+  rating: string
+  release: string
+  quality: string
+  image: string
+  accent: string
+}
 export interface Country {
   id: number
   name: string
