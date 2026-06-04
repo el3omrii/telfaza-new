@@ -20,7 +20,7 @@ export default async function CategoriesPage() {
         {categories.map(cat => (
           <Link
             key={cat.id}
-            href={`/categories/${cat.id}`}
+            href={`/categories/${cat.slug}`}
             className="group relative overflow-hidden rounded-xl border border-white/[0.07] bg-zinc-900 p-5 transition-all duration-150 hover:-translate-y-0.5 hover:border-white/15"
           >
             {/* Color accent bar */}

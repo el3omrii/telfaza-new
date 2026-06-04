@@ -43,7 +43,7 @@ export default async function TagsPage() {
             .map(tag => (
               <Link
                 key={tag.id}
-                href={`/tags/${tag.id}`}
+                href={`/tags/${tag.slug}`}
                 className="rounded-xl border border-white/[0.07] bg-zinc-900 p-4 transition-all hover:-translate-y-0.5 hover:border-white/15"
               >
                 <p className="font-head mb-1 text-sm font-bold text-teal-400">#{tag.name}</p>
@@ -59,7 +59,7 @@ export default async function TagsPage() {
 function TagChip({ tag, fontSize }: { tag: Tag; fontSize: string }) {
   return (
     <Link
-      href={`/tags/${tag.id}`}
+      href={`/tags/${tag.slug}`}
       style={{ fontSize }}
       className="flex items-center gap-1.5 rounded-full border border-white/[0.07] bg-zinc-900 px-3 py-1.5 text-zinc-400 transition-all hover:border-teal-400/30 hover:text-teal-400"
     >

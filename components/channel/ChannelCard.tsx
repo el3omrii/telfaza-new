@@ -20,7 +20,7 @@ const Icon = {
 }
   return (
     <Link
-      href={`/channels/${channel.id}`}
+      href={`/channels/${channel.slug}`}
       className="group relative flex flex-col overflow-hidden rounded-xl border border-white/[0.07] bg-zinc-900 transition-all duration-150 hover:-translate-y-0.5 hover:border-white/[0.12]"
     >
       {/* Thumbnail */}

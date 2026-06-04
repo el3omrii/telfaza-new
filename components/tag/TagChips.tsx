@@ -13,12 +13,12 @@ export function TagChips({ tags }: Props) {
   const searchParams = useSearchParams()
   const currentTag = searchParams.get('tag')
 
-  function toggle(id: number) {
+  function toggle(slug: string) {
     const params = new URLSearchParams(searchParams.toString())
-    if (currentTag === String(id)) {
+    if (currentTag === String(slug)) {
       params.delete('tag')
     } else {
-      params.set('tag', String(id))
+      params.set('tag', String(slug))
     }
     params.delete('page')
     router.push(`${pathname}?${params.toString()}`)
@@ -29,7 +29,7 @@ export function TagChips({ tags }: Props) {
       {tags.map(tag => (
         <button
           key={tag.id}
-          onClick={() => toggle(tag.id)}
+          onClick={() => toggle(tag.slug)}
           className={`rounded-full border px-3 py-1 text-xs transition-all ${
             currentTag === String(tag.id)
               ? 'border-teal-400/30 bg-teal-400/10 text-teal-400'

@@ -13,6 +13,7 @@ export interface Slide {
 export interface Country {
   id: number
   name: string
+  slug: string
   flag: string
   channels_count?: number
 }
@@ -20,6 +21,7 @@ export interface Country {
 export interface Category {
   id: number
   name: string
+  slug: string
   description: string | null
   color: string
   channels_count?: number
@@ -28,6 +30,7 @@ export interface Category {
 export interface Tag {
   id: number
   name: string
+  slug: string
   channels_count?: number
 }
 
@@ -42,6 +45,7 @@ export interface Source {
 export interface Channel {
   id: number
   name: string
+  slug: string
   description: string | null
   logo: string | null
   image: string | null

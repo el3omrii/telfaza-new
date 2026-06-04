@@ -65,8 +65,8 @@ export const getWatchingNow = () =>
 export const getFiltersMeta = () =>
   get<FiltersMeta>('/channels/filters/meta')
 
-export const getChannel = (id: number | string) =>
-  get<Channel>(`/channels/${id}`)
+export const getChannel = (slug: string | string) =>
+  get<Channel>(`/channels/${slug}`)
 
 export const trackChannel = (id: number | string) =>
   post<{ viewers: number }>(`/channels/${id}/track`)
@@ -76,8 +76,8 @@ export const trackChannel = (id: number | string) =>
 export const getCategories = () =>
   get<Category[]>('/categories')
 
-export const getCategory = (id: number | string) =>
-  get<Category>(`/categories/${id}`)
+export const getCategory = (slug: number | string) =>
+  get<Category>(`/categories/${slug}`)
 
 export const getCategoryChannels = (
   id: number | string,
