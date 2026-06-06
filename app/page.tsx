@@ -1,4 +1,5 @@
 import Link from "next/link"
+import { Suspense } from "react";
 import { getFeaturedChannels, getCountries } from '@/lib/api'
 
 import HeroCarousel from "../components/HeroCarousel";
@@ -11,7 +12,9 @@ export default async function Home() {
 
   return (
     <div>
-      <HeroCarousel />
+      <Suspense fallback={<div className="h-[560px] bg-slate-900 animate-pulse" />}>
+        <HeroCarousel />
+      </Suspense>
       {/* ── Featured ── */}
       <main className="max-w-7xl mx-auto px-6 md:px-12">
         <section className="mt-8">

@@ -61,27 +61,27 @@ export default async function CountryPage({ params, searchParams }: Props) {
               {country.name}
             </h1>            
             <p className="mt-1 text-sm text-zinc-500">
-              {channels.total.toLocaleString()} channels
+              {channels.meta.total.toLocaleString()} channels
             </p>
           </div>
         </div>
       </div>
 
       {/* Filters */}
-      <FilterBar total={channels.total} />
+      <FilterBar total={channels.meta.total} />
 
-      {/* Tag quick filters */}
+      {/* Tag quick filters }
       {tags.length > 0 && (
         <div className="flex flex-wrap items-center gap-2 border-b border-white/[0.07] px-5 py-3">
           <span className="text-[11px] uppercase tracking-wide text-zinc-500">Tags:</span>
           <TagChips tags={tags} />
         </div>
-      )}
+      )*/}
 
       {/* Grid */}
       <div className="px-5 py-6">
         <ChannelGrid channels={channels.data} />
-        <Pagination meta={channels} />
+        <Pagination meta={channels.meta} />
       </div>
     </main>
   )
