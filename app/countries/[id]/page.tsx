@@ -40,7 +40,7 @@ export default async function CountryPage({ params, searchParams }: Props) {
   const { country, channels } = data
   const logo = "https://flagcdn.com/"+country.flag.toLowerCase()+".svg"
   // Collect unique tags from channel results for quick-filter chips
-  const tagMap = new Map<number, { id: number; name: string }>()
+  const tagMap = new Map<number, { id: number; name: string; slug: string }>()
   channels.data.forEach(ch =>
     ch.tags?.forEach(t => tagMap.set(t.id, t))
   )
@@ -70,13 +70,13 @@ export default async function CountryPage({ params, searchParams }: Props) {
       {/* Filters */}
       <FilterBar total={channels.meta.total} />
 
-      {/* Tag quick filters }
+      {/* Tag quick filters */}
       {tags.length > 0 && (
         <div className="flex flex-wrap items-center gap-2 border-b border-white/[0.07] px-5 py-3">
           <span className="text-[11px] uppercase tracking-wide text-zinc-500">Tags:</span>
           <TagChips tags={tags} />
         </div>
-      )*/}
+      )}
 
       {/* Grid */}
       <div className="px-5 py-6">

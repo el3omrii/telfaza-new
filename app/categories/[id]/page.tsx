@@ -39,7 +39,7 @@ export default async function CategoryPage({ params, searchParams }: Props) {
   const { category, channels } = data
 
   // Collect unique tags from channel results for quick-filter chips
-  const tagMap = new Map<number, { id: number; name: string }>()
+  const tagMap = new Map<number, { id: number; name: string; slug: string }>()
   channels.data.forEach(ch =>
     ch.tags?.forEach(t => tagMap.set(t.id, t))
   )
