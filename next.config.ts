@@ -4,11 +4,14 @@ const nextConfig: NextConfig = {
   images: {
     remotePatterns: [
       {
-        // Allow images from your Laravel storage (adjust hostname as needed)
+        // Votre stockage Laravel via variable d'environnement
         protocol: 'https',
-        hostname: 'admin.telfazalive.com',
-        port: '',
-        pathname: '/uploads/**',
+        hostname: process.env.NEXT_PUBLIC_STORAGE_URL || "", 
+      },
+      {
+        // Le domaine spécifique qui causait l'erreur
+        protocol: 'https',
+        hostname: 'cdn.telfazalive.com',
       },
       {
         // Allow images from your Laravel storage (adjust hostname as needed)

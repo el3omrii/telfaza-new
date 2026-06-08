@@ -21,6 +21,7 @@ function qs(params: Record<string, unknown>): string {
 
 async function get<T>(path: string): Promise<T> {
   const res = await fetch(`${API}${path}`, {
+    next: { revalidate: 60 },
     headers: { Accept: 'application/json' },
   })
   if (!res.ok) throw new Error(`API ${res.status}: ${path}`)
