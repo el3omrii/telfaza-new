@@ -34,6 +34,37 @@ export function CountrySelect({ countries }: { countries: Country[] }) {
   )
 }
 
+export function LanguageSelect({ languages }: { languages: string[] }) {
+  const router = useRouter()
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
+  const current = searchParams.get('language') ?? ''
+
+  function onChange(e: React.ChangeEvent<HTMLSelectElement>) {
+    const params = new URLSearchParams(searchParams.toString())
+    if (e.target.value) {
+      params.set('language', e.target.value)
+    } else {
+      params.delete('language')
+    }
+    params.delete('page')
+    router.push(`${pathname}?${params.toString()}`)
+  }
+
+  return (
+    <select
+      value={current}
+      onChange={onChange}
+      className="rounded-lg border border-white/[0.07] bg-zinc-900 px-3 py-1.5 text-xs text-zinc-400 focus:outline-none"
+    >
+      <option value="">All Languages</option>
+      {languages.map(lang => (
+        <option key={lang} value={lang}>{lang}</option>
+      ))}
+    </select>
+  )
+}
+
 export function CategorySelect({ categories }: { categories: Category[] }) {
   const router = useRouter()
   const pathname = usePathname()

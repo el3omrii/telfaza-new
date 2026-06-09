@@ -5,7 +5,7 @@ import { paramsToFilters } from '@/lib/utils'
 import { ChannelGrid } from '@/components/channel/ChannelGrid'
 import { FilterBar } from '@/components/ui/FilterBar'
 import { Pagination } from '@/components/ui/Pagination'
-import { CountrySelect } from '@/components/ui/CountrySelect'
+import { CountrySelect, LanguageSelect } from '@/components/ui/CountrySelect'
 
 export const metadata: Metadata = { title: 'Channels' }
 
@@ -14,7 +14,10 @@ interface Props {
 }
 
 export default async function ChannelsPage({ searchParams }: Props) {
-  const filters = paramsToFilters(searchParams)
+  const [resolvedSearchParams] = await Promise.all([
+    searchParams
+  ])
+  const filters = paramsToFilters(resolvedSearchParams)
 
   const [result, filtersMeta, countries, categories] = await Promise.all([
     getChannels(filters),
@@ -39,13 +42,13 @@ export default async function ChannelsPage({ searchParams }: Props) {
       </Suspense>
 
       {/* Filters row 2 — country, category, language */}
-      <Suspense fallback={<div className="flex gap-3 border-b border-white/[0.07] px-5 py-3 h-10" />}>
+      <Suspense fallback={<div className="flex gap-3 border-b border-white/[0.07] px-5 py-3 h-10 animate-pulse" />}>
         <div className="flex flex-wrap items-center gap-3 border-b border-white/[0.07] px-5 py-3">
           <CountrySelect countries={countries} />
           
 
           {/* Language */}
-          <LanguageSelect languages={filtersMeta.languages} currentValue={searchParams.language as string | undefined} />
+          <LanguageSelect languages={filtersMeta.languages} />{/*currentValue={resolvedSearchParams.language as string | undefined} />*/}
         </div>
       </Suspense>
 
@@ -61,7 +64,7 @@ export default async function ChannelsPage({ searchParams }: Props) {
 }
 
 // ── Inline select helpers (server components that pre-select from searchParams) ──
-
+{/*
 function LanguageSelect({
   languages,
   currentValue,
@@ -85,3 +88,4 @@ function LanguageSelect({
     </select>
   )
 }
+  */}

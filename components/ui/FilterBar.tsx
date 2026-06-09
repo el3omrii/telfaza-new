@@ -43,7 +43,7 @@ export function FilterBar({ total }: Props) {
 
   return (
     <div
-      className={`flex flex-wrap items-center gap-2 border-b border-white/[0.07] px-5 py-3 transition-opacity ${isPending ? 'opacity-50' : ''}`}
+      className={`flex flex-wrap items-center gap-2 border-b border-white/[0.07] px-5 py-3 transition-opacity ${isPending ? 'opacity-50 animate-pulse' : ''}`}
     >
       {/* Sort */}
       <span className="text-[11px] uppercase tracking-wide text-zinc-500">Sort:</span>
