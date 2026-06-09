@@ -69,9 +69,7 @@ export default function ChannelPlayer({ channel }) {
           <ShakaVideo
             ref={videoRef}
             slot="media"
-            
             poster={storageUrl(channel.image)}
-            crossOrigin="anonymous"
             className="w-full h-full object-cover bg-black"
           />
 
