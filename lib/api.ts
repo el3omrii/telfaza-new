@@ -8,6 +8,10 @@ export const STORAGE = process.env.NEXT_PUBLIC_STORAGE_URL ?? 'http://localhost:
 
 // ── helpers ───────────────────────────────────────────────────────────────────
 
+function cacheTags(...tags: Array<string | undefined>): string[] {
+  return tags.filter((tag): tag is string => Boolean(tag))
+}
+
 function qs(params: Record<string, unknown>): string {
   const p = new URLSearchParams()
   for (const [k, v] of Object.entries(params)) {
@@ -19,9 +23,17 @@ function qs(params: Record<string, unknown>): string {
   return s ? `?${s}` : ''
 }
 
-async function get<T>(path: string): Promise<T> {
+async function get<T>(path: string, tags: string[] = [], revalidate?: number): Promise<T> {
+  const next: { tags?: string[]; revalidate?: number } | undefined =
+    tags.length > 0 || revalidate !== undefined
+      ? {
+          ...(tags.length > 0 ? { tags } : {}),
+          ...(revalidate !== undefined ? { revalidate } : {}),
+        }
+      : undefined
+
   const res = await fetch(`${API}${path}`, {
-    next: { revalidate: 60 },
+    next,
     headers: { Accept: 'application/json' },
   })
   if (!res.ok) throw new Error(`API ${res.status}: ${path}`)
@@ -46,28 +58,31 @@ export function storageUrl(path: string | null | undefined): string | null {
 // ── Slides ────────────────────────────────────────────────────────────────
 
 export const getSlides = () =>
-  get<Slide[]>('/slides')
+  get<Slide[]>('/slides', [], 60)
 
 
 // ── Channels ──────────────────────────────────────────────────────────────────
 
 export const getChannels = (f: ChannelFilters = {}) =>
-  get<Paginated<Channel>>(`/channels${qs(f as Record<string, unknown>)}`)
+  get<Paginated<Channel>>(
+    `/channels${qs(f as Record<string, unknown>)}`,
+    cacheTags('channels')
+  )
 
 export const getFeaturedChannels = () =>
-  get<Channel[]>('/channels/featured')
+  get<Channel[]>('/channels/featured', cacheTags('channels', 'channels:featured'))
 
 export const getTrendingChannels = () =>
-  get<Channel[]>('/channels/trending')
+  get<Channel[]>('/channels/trending', cacheTags('channels', 'channels:trending'))
 
 export const getWatchingNow = () =>
-  get<Channel[]>('/channels/watching-now')
+  get<Channel[]>('/channels/watching-now', cacheTags('channels', 'channels:watching-now'))
 
 export const getFiltersMeta = () =>
-  get<FiltersMeta>('/channels/filters/meta')
+  get<FiltersMeta>('/channels/filters/meta', cacheTags('channels', 'channels:filters-meta'))
 
 export const getChannel = (slug: string | string) =>
-  get<Channel>(`/channels/${slug}`)
+  get<Channel>(`/channels/${slug}`, cacheTags('channels', `channel:${slug}`))
 
 export const trackChannel = (id: number | string) =>
   post<{ viewers: number }>(`/channels/${id}/track`)
@@ -75,46 +90,55 @@ export const trackChannel = (id: number | string) =>
 // ── Categories ────────────────────────────────────────────────────────────────
 
 export const getCategories = () =>
-  get<Category[]>('/categories')
+  get<Category[]>('/categories', cacheTags('categories'))
 
 export const getCategory = (slug: number | string) =>
-  get<Category>(`/categories/${slug}`)
+  get<Category>(`/categories/${slug}`, cacheTags('categories', `category:${slug}`))
 
 export const getCategoryChannels = (
   id: number | string,
   filters: Omit<ChannelFilters, 'category'> = {}
 ) => get<{ category: Category; channels: Paginated<Channel> }>(
-  `/categories/${id}/channels${qs(filters as Record<string, unknown>)}`
+  `/categories/${id}/channels${qs(filters as Record<string, unknown>)}`,
+  cacheTags('categories', 'channels', `category:${id}`, `category:${id}:channels`)
 )
 
 // ── Tags ──────────────────────────────────────────────────────────────────────
 
 export const getTags = () =>
-  get<Tag[]>('/tags')
+  get<Tag[]>('/tags', cacheTags('tags'))
 
 export const getTag = (id: number | string) =>
-  get<Tag>(`/tags/${id}`)
+  get<Tag>(`/tags/${id}`, cacheTags('tags', `tag:${id}`))
 
 export const getTagChannels = (
   id: number | string,
   filters: Omit<ChannelFilters, 'tag'> = {}
 ) => get<{ tag: Tag; channels: Paginated<Channel> }>(
-  `/tags/${id}/channels${qs(filters as Record<string, unknown>)}`
+  `/tags/${id}/channels${qs(filters as Record<string, unknown>)}`,
+  cacheTags('tags', 'channels', `tag:${id}`, `tag:${id}:channels`)
 )
 
 // ── Countries ─────────────────────────────────────────────────────────────────
 
 export const getCountries = () =>
-  get<Country[]>('/countries')
+  get<Country[]>('/countries', cacheTags('countries'))
 
 export const getCountryChannels = (
   id: number | string,
   filters: Omit<ChannelFilters, 'country'> = {}
 ) => get<{ country: Country; channels: Paginated<Channel> }>(
-  `/countries/${id}/channels${qs(filters as Record<string, unknown>)}`
+  `/countries/${id}/channels${qs(filters as Record<string, unknown>)}`,
+  cacheTags('countries', 'channels', `country:${id}:channels`)
 )
 
 // ── Search ────────────────────────────────────────────────────────────────────
 
 export const searchAll = (q: string, perPage = 10) =>
-  get<SearchResults>(`/search?q=${encodeURIComponent(q)}&per_page=${perPage}`)
+  fetch(`${API}/search?q=${encodeURIComponent(q)}&per_page=${perPage}`, {
+    cache: 'no-store',
+    headers: { Accept: 'application/json' },
+  }).then(res => {
+    if (!res.ok) throw new Error(`API ${res.status}: /search`)
+    return res.json() as Promise<SearchResults>
+  })

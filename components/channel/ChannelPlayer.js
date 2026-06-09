@@ -53,6 +53,12 @@ export default function ChannelPlayer({ channel }) {
 
     return () => {
       video?.removeEventListener('resize', handleResize);
+      try {
+        video.src = '';
+        video.api?.unload?.();
+      } catch (err) {
+        console.error('Failed to cleanup channel player', err);
+      }
     };
   }, [channel]);
 

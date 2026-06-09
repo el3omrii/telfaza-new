@@ -6,6 +6,18 @@ export function fmtViews(n: number): string {
   if (n >= 1_000) return `${(n / 1_000).toFixed(1)}K`
   return String(n)
 }
+/** convert hex colors to rgb and add opacity */
+export function hexToRgba(hex: string, opacity: number) {
+  // Remove the # if present
+  const cleanHex = hex.replace('#', '');
+  
+  // Parse RGB values
+  const r = parseInt(cleanHex.substring(0, 2), 16);
+  const g = parseInt(cleanHex.substring(2, 4), 16);
+  const b = parseInt(cleanHex.substring(4, 6), 16);
+  
+  return `rgba(${r}, ${g}, ${b}, ${opacity})`;
+}
 
 /** Build a URLSearchParams string from ChannelFilters (for client-side navigation) */
 export function filtersToParams(filters: ChannelFilters): URLSearchParams {

@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { storageUrl } from "@/lib/api";
+import { hexToRgba } from "@/lib/utils";
 
 /* ─── icons ────────────────────────────────────────────────────────── */
 const Icon = {
@@ -34,6 +35,23 @@ export default function HeroCarouselClient({ slides }) {
   const [idx, setIdx] = useState(0);
   const [phase, setPhase] = useState("in");
   const timerRef = useRef(null);
+  const preloadedLogosRef = useRef(new Set());
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    slides.forEach((slide) => {
+      const logo = slide?.channel?.logo;
+      if (!logo) return;
+
+      const logoUrl = storageUrl(logo);
+      if (preloadedLogosRef.current.has(logoUrl)) return;
+
+      preloadedLogosRef.current.add(logoUrl);
+      const preloader = new window.Image();
+      preloader.src = logoUrl;
+    });
+  }, [slides]);
 
   const transition = useCallback(
     (nextIdx) => {
@@ -115,21 +133,28 @@ export default function HeroCarouselClient({ slides }) {
       {/* ── Content ── */}
       <div className="relative z-10 h-full flex flex-col justify-end pb-10 px-6 md:px-12 lg:px-20" style={{ maxWidth: 700 }}>
         <div style={contentStyle}>
-          <div className="flex flex-wrap items-center gap-2 mb-3">
-            {slide.cc > 0 && (
-              <span className="px-2 py-0.5 rounded-md text-[11px] font-bold" style={{ background: "rgba(33,150,243,0.2)", color: "#60a5fa", border: "1px solid rgba(33,150,243,0.3)", fontFamily: "system-ui, sans-serif" }}>
-                <Image src={storageUrl(slide.channel.logo)} width={100} height={40} className="" />
-              </span>
-            )}
-            {slide.ep > 0 && (
-              <span className="px-2 py-0.5 rounded-md text-xs font-bold" style={{ background: "rgba(76,175,80,0.2)", color: "#4ade80", border: "1px solid rgba(76,175,80,0.3)", fontFamily: "system-ui, sans-serif" }}>
+          <div className="flex flex-wrap items-end gap-2 mb-3">
+            <span className="px-2">
+              <Image
+                key={slide.channel.logo}
+                src={storageUrl(slide.channel.logo)}
+                alt={slide.channel.slug}
+                width={100}
+                height={40}
+                priority
+                className="max-h-[70px] w-auto rounded-md"
+              />
+            </span>
+          
+            {slide.type && (
+              <span className="px-2 py-0.5 rounded-md text-xs font-bold" style={{ background: hexToRgba(slide.accent, 0.3), backgroundOpacity: "0.3", color: slide.accent, border: "1px solid rgba(76,175,80,0.3)", fontFamily: "system-ui, sans-serif" }}>
                 {slide.type}
               </span>
             )}
-            <span className="text-xs font-bold" style={{ color: "rgba(255,255,255,0.5)", fontFamily: "system-ui, sans-serif" }}>
+            {/*<span className="px-2 py-0.5 rounded-md text-xs font-bold" style={{ background: "rgba(76,175,80,0.2)", color: "#4ade80", border: "1px solid rgba(76,175,80,0.3)", fontFamily: "system-ui, sans-serif" }}>
               {slide.type}
-            </span>
-            <span style={{ color: "rgba(255,255,255,0.25)", fontSize: 10 }}>•</span>
+            </span>*/}
+            
             <span className="text-xs" style={{ color: "rgba(255,255,255,0.45)", fontFamily: "system-ui, sans-serif" }}>
               {slide.genres.join(", ")}
             </span>
