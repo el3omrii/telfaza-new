@@ -38,7 +38,7 @@ export default async function TagPage({ params, searchParams }: Props) {
   console.log(channels)
 
   return (
-    <div className="mx-auto max-w-screen-2xl">
+    <main className="max-w-7xl w-full mx-auto md:mt-16 px-6 md:px-12">
       {/* Header */}
       <div className="border-b border-white/[0.07] px-5 py-8">
         <div className="flex items-baseline gap-3">
@@ -58,6 +58,6 @@ export default async function TagPage({ params, searchParams }: Props) {
         <ChannelGrid channels={channels.data} />
         <Pagination meta={channels.meta} />
       </div>
-    </div>
+    </main>
   )
 }
