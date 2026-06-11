@@ -18,7 +18,7 @@ export default async function Home() {
       {/* ── Featured ── */}
       <main className="max-w-7xl mx-auto px-6 md:px-16 lg:px-24 xl:px-32">
         <section className="mt-8">
-          <SectionHead title="✦ Featured Channels" href="/channels?featured=1" />
+          <SectionHead title="✦ Featured Channels" href="/channels" />
           <ChannelGrid channels={featured} />
         </section>
 

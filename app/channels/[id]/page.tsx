@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import Image from 'next/image'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { getChannel, getChannels, storageUrl } from '@/lib/api'
@@ -36,6 +37,7 @@ export default async function ChannelDetailPage({ params }: Props) {
     : []
 
   const logo = storageUrl(channel.logo)
+  const flag = "https://flagcdn.com/"+channel.country?.flag.toLowerCase()+".svg"
 
   return (
     <main className="max-w-7xl w-full mx-auto md:mt-16 px-6 md:px-12">
@@ -46,7 +48,7 @@ export default async function ChannelDetailPage({ params }: Props) {
           <div className="flex h-[72px] w-[72px] items-center justify-center overflow-hidden rounded-2xl border border-white/10 bg-zinc-800">
             {logo ? (
               // eslint-disable-next-line @next/next/no-img-element
-              <img src={logo} alt={channel.name} className="h-full w-full object-cover" />
+              <img src={logo} alt={channel.name} className="h-full w-full object-contain" />
             ) : (
               <span className="font-head text-xl font-black text-zinc-400">
                 {channel.name.slice(0, 3).toUpperCase()}
@@ -74,15 +76,8 @@ export default async function ChannelDetailPage({ params }: Props) {
               {channel.language && (
                 <Badge variant="muted">{channel.language}</Badge>
               )}
-              {channel.epgid && (
-                <Badge variant="muted">EPG: {channel.epgid}</Badge>
-              )}
             </div>
-            {channel.description && (
-              <p className="max-w-xl text-sm font-light leading-relaxed text-zinc-400">
-                {channel.description}
-              </p>
-            )}
+            
           </div>
 
           {/* Stats */}
@@ -110,7 +105,12 @@ export default async function ChannelDetailPage({ params }: Props) {
         {/* Left — player + meta */}
         <div className="border-r border-white/[0.07]">
           <ClientChannelPlayer channel={channel} />
-
+          {/* Description */}
+          {channel.description && (
+              <p className="max-w-xl text-sm font-light leading-relaxed text-zinc-400">
+                {channel.description}
+              </p>
+            )}
           {/* Categories & Tags */}
           <div className="space-y-5 px-5 py-6">
             {channel.categories && channel.categories.length > 0 && (
@@ -136,6 +136,32 @@ export default async function ChannelDetailPage({ params }: Props) {
                 </div>
               </div>
             )}
+            <div>
+                <p className="mb-2 text-[11px] uppercase tracking-widest text-zinc-500">
+                  Language
+                </p>
+                    <Link
+                      href=""
+                      className="rounded-lg border border-gray-500 px-3 py-1.5 text-zinc-400 text-xs transition-all hover:opacity-80"
+                    >
+                      {channel.language}
+                  </Link>
+              </div>
+
+            <div>
+                <p className="mb-2 text-[11px] uppercase tracking-widest text-zinc-500">
+                  Country
+                </p>
+                <div className="flex">
+                    <Link
+                      href={`/countries/${channel.country?.slug}`}
+                      className="flex flex-row gap-2 items-center rounded-lg border border-gray-500 bg-zinc-900 px-3 py-1.5 text-zinc-400 text-xs transition-all hover:opacity-80"
+                    >
+                      <img src={flag} alt={channel.country?.name} className="rounded-md w-6 h-6" />
+                      {channel.country?.name}
+                    </Link>
+                </div>
+              </div>
 
             {channel.tags && channel.tags.length > 0 && (
               <div>
@@ -158,23 +184,6 @@ export default async function ChannelDetailPage({ params }: Props) {
 
         {/* Right sidebar */}
         <aside className="px-5 py-6">
-          {/* Country */}
-          {channel.country && (
-            <div className="mb-6">
-              <p className="mb-2 text-[11px] uppercase tracking-widest text-zinc-500">Country</p>
-              <Link
-                href={`/countries/${channel.country.id}`}
-                className="inline-flex items-center gap-2 rounded-lg border border-white/[0.07] bg-zinc-900 px-3 py-2 text-sm transition-all hover:border-white/15"
-              >
-                {channel.country.name}
-                {channel.country.channels_count != null && (
-                  <span className="text-xs text-zinc-500">
-                    · {channel.country.channels_count} ch
-                  </span>
-                )}
-              </Link>
-            </div>
-          )}
 
           {/* Related channels */}
           {related.length > 0 && (
@@ -186,11 +195,11 @@ export default async function ChannelDetailPage({ params }: Props) {
                 {related.map(ch => (
                   <Link
                     key={ch.id}
-                    href={`/channels/${ch.id}`}
+                    href={`/channels/${ch.slug}`}
                     className="flex items-center gap-3 rounded-lg p-2 transition-all hover:bg-zinc-800"
                   >
-                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-white/[0.07] bg-zinc-800 font-head text-[10px] font-black text-zinc-300">
-                      {ch.name.slice(0, 3).toUpperCase()}
+                    <div className="relative w-16 h-12 rounded-lg border border-white/25">
+                      <Image src={storageUrl(ch.image) || "not found"} alt={ch.name} fill className="object-cover rounded-lg"/>
                     </div>
                     <div className="min-w-0">
                       <p className="truncate text-xs font-medium text-zinc-100">{ch.name}</p>
