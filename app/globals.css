@@ -46,7 +46,16 @@ body {
 }
 
 #nprogress .spinner {
-  display: none;
+  display: block;
+}
+
+#nprogress .spinner-icon {
+  width: 18px;
+  height: 18px;
+  border-top-color: #e8490f;
+  border-left-color: #e8490f;
+  border-width: 2px;
+  box-shadow: 0 0 10px rgba(232, 73, 15, 0.3);
 }
 
 .media-control {

@@ -17,7 +17,7 @@ export default function NavigationProgress() {
   const startedAtRef = useRef<number | null>(null);
 
   useEffect(() => {
-    NProgress.configure({ showSpinner: false, minimum: 0.08, trickleSpeed: 140 });
+    NProgress.configure({ showSpinner: true, minimum: 0.08, trickleSpeed: 140 });
   }, []);
 
   useEffect(() => {

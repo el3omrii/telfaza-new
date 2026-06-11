@@ -8,7 +8,7 @@ export default async function CategoriesPage() {
   const categories = await getCategories()
 
   return (
-    <main className="max-w-7xl w-full mx-auto md:mt-16 px-6 md:px-12">
+    <main className="max-w-7xl w-full mx-auto md:mt-16 px-6 md:px-16 lg:px-24 xl:px-32">
       <div className="border-b border-white/[0.07] px-5 py-8">
         <h1 className="font-head text-3xl font-extrabold tracking-tight">Categories</h1>
         <p className="mt-1 text-sm text-zinc-500">

@@ -5,7 +5,16 @@ export default function Footer() {
     <div className='text-gray-500/80 pt-8 px-6 md:px-16 lg:px-24 xl:px-32'>
             <div className='flex flex-wrap justify-between gap-12 md:gap-6'>
                 <div className='max-w-80'>
-                    <img src="https://raw.githubusercontent.com/prebuiltui/prebuiltui/main/assets/dummyLogo/dummyLogoColored.svg" alt="logo" className='mb-4 h-8 md:h-9' />
+                    {/* Logo */}
+                    <div className="font-black text-2xl tracking-widest select-none" style={{ fontFamily: "system-ui, sans-serif" }}>
+                        <span className="text-white">Telfaza</span>
+                        <span
+                        className="px-1.5 py-0.5 rounded-md text-[#e8490f]"
+                        style={{ background: "rgba(232,73,15,0.15)", border: "1px solid rgba(232,73,15,0.3)" }}
+                        >
+                        LIVE
+                        </span>
+                  </div>
                     <p className='text-sm'>
                         Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text
                     </p>
@@ -50,22 +59,8 @@ export default function Footer() {
                         <li><a href="#">Accessibility</a></li>
                     </ul>
                 </div>
-
-                <div className='max-w-80'>
-                    <p className='text-lg text-gray-800'>STAY UPDATED</p>
-                    <p className='mt-3 text-sm'>
-                        Subscribe to our newsletter for inspiration and special offers.
-                    </p>
-                    <div className='flex items-center mt-4'>
-                        <input type="text" className='bg-white rounded-l border border-gray-300 h-9 px-3 outline-none' placeholder='Your email' />
-                        <button className='flex items-center justify-center bg-black h-9 w-9 aspect-square rounded-r'>
-                            {/* Arrow icon */}
-                            <svg className="w-4 h-4 text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24"><path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 12H5m14 0-4 4m4-4-4-4" /></svg>
-                        </button>
-                    </div>
-                </div>
             </div>
-            <hr className='border-gray-300 mt-8' />
+            <hr className='border-neutral-500 mt-8' />
             <div className='flex flex-col md:flex-row gap-2 items-center justify-between py-5'>
                 <p>© {new Date().getFullYear()} <a href="https://prebuiltui.com">PrebuiltUI</a>. All rights reserved.</p>
                 <ul className='flex items-center gap-4'>
