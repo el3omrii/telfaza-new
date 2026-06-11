@@ -59,8 +59,22 @@ body {
   box-shadow: 0 0 10px rgba(232, 73, 15, 0.3);
 }
 
+@keyframes heroProgress {
+  from {
+    width: 0%;
+  }
+
+  to {
+    width: 100%;
+  }
+}
+
+.animate-hero-progress {
+  animation: heroProgress 7s linear infinite;
+}
+
 .media-control {
-  @apply bg-transparent transition mx-2
+  @apply bg-transparent transition mx-2 h-6 md:h-12 w-auto 
 }
 .media-control:hover {
   @apply bg-transparent scale-125

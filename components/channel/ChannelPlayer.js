@@ -79,13 +79,13 @@ export default function ChannelPlayer({ channel }) {
             <MediaPlayButton className="media-control"></MediaPlayButton>
             <MediaLiveButton className="media-control"></MediaLiveButton>
             <MediaMuteButton className="media-control"></MediaMuteButton>
-            <MediaVolumeRange className="media-control"></MediaVolumeRange>
+            <MediaVolumeRange className="media-control hidden md:block"></MediaVolumeRange>
             <div className="flex-grow flex items-center justify-center gap-2">
-              <img src={storageUrl(channel.logo)} alt={channel.name} className="w-12 object-cover rounded-xl" />
-              <span className="text-sm text-muted">{channel.name}</span>
+              <img src={storageUrl(channel.logo)} alt={channel.name} className="w-6 md:w-12 object-cover rounded-xl" />
+              <span className="truncate text-xs sm:text-sm text-muted">{channel.name}</span>
             </div>
             <MediaRenditionMenuButton className="media-control">
-                <span slot="icon" className="text-[#58BEC9] border border-[#58BEC9] py-1 px-2 rounded-md bg-green-950/50 text-sm">{mediaHeight}</span>
+                <span slot="icon" className="text-[#58BEC9] border border-[#58BEC9] py-1 px-2 rounded-md bg-green-950/50 text-xs sm:text-base">{mediaHeight}</span>
             </MediaRenditionMenuButton>
             <MediaRenditionMenu hidden anchor="auto"></MediaRenditionMenu>
             <MediaFullscreenButton className="media-control"></MediaFullscreenButton>
