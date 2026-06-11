@@ -4,7 +4,7 @@ import { getFeaturedChannels, getCountries } from '@/lib/api'
 import { buildMetadata } from '@/lib/seo'
 
 import HeroCarousel from "../components/HeroCarousel";
-import { ChannelGrid } from '@/components/channel/ChannelGrid'
+import { FeaturedChannelsSlider } from '@/components/channel/FeaturedChannelsSlider'
 import { CountryGrid } from '@/components/country/CountryGrid'
 
 export const metadata = buildMetadata({
@@ -26,7 +26,7 @@ export default async function Home() {
       <main className="max-w-7xl mx-auto px-6 md:px-16 lg:px-24 xl:px-32">
         <section className="mt-8">
           <SectionHead title="✦ Featured Channels" href="/channels" />
-          <ChannelGrid channels={featured} />
+          <FeaturedChannelsSlider channels={featured} />
         </section>
 
         {/* ── Countries ── */}
