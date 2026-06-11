@@ -65,7 +65,7 @@ export default function ChannelPlayer({ channel }) {
   return (
     <div className="relative overflow-hidden rounded-3xl bg-black shadow-xl w-full">
       <div className="w-full aspect-video">
-        <MediaController className="w-full h-full bg-black">
+        <MediaController className="w-full h-full bg-black" autohide="-1">
           <ShakaVideo
             ref={videoRef}
             slot="media"
@@ -77,10 +77,10 @@ export default function ChannelPlayer({ channel }) {
 
           <MediaControlBar className="bg-black/75 p-1 mx-4 m-2 rounded-full">
             <MediaPlayButton className="media-control"></MediaPlayButton>
-            <MediaLiveButton className="media-control"></MediaLiveButton>
+            <MediaLiveButton className="media-control scale-80 sm:scale-100"></MediaLiveButton>
             <MediaMuteButton className="media-control"></MediaMuteButton>
             <MediaVolumeRange className="media-control hidden md:block"></MediaVolumeRange>
-            <div className="flex-grow flex items-center justify-center gap-2">
+            <div className="flex items-center justify-center gap-2 truncate">
               <img src={storageUrl(channel.logo)} alt={channel.name} className="w-6 md:w-12 object-cover rounded-xl" />
               <span className="truncate text-xs sm:text-sm text-muted">{channel.name}</span>
             </div>

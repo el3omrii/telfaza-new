@@ -107,7 +107,7 @@ export default function HeroCarouselClient({ slides }) {
 
   return (
     <section
-      className="relative pt-16 min-h-[36rem] overflow-hidden sm:min-h-[42rem] lg:min-h-[80svh]"
+      className="relative pt-16 min-h-[34rem] overflow-hidden sm:min-h-[42rem] lg:min-h-[70svh]"
       style={accentStyles}
     >
       {/* ── Background image ── */}
@@ -127,7 +127,7 @@ export default function HeroCarouselClient({ slides }) {
         <div className="absolute inset-0 bg-[linear-gradient(to_bottom,rgba(10,10,15,0.56)_0%,transparent_24%)]" />
         <div className="absolute inset-0 bg-[linear-gradient(to_right,var(--hero-accent)_0%,transparent_35%)] opacity-20" />
       </div>
-      <div className="relative z-10 mx-auto flex h-full max-w-7xl flex-row justify-end gap-8 px-5 py-6 sm:px-6 sm:py-8 md:px-10 lg:px-12 xl:px-16">
+      <div className="relative z-10 mx-auto flex h-full max-w-7xl flex-row justify-end gap-2 sm:gap-8 px-2 py-3 sm:px-6 sm:py-8 md:px-10 lg:px-12 xl:px-16">
         {/* ── Content ── */}
         <div
           className={`flex w-full max-w-3xl flex-col gap-4 transition-[opacity,transform] duration-500 ease-out ${
@@ -135,15 +135,16 @@ export default function HeroCarouselClient({ slides }) {
           }`}
         >
           <div className="flex flex-wrap items-center gap-2 sm:gap-3">
-            <span className="inline-flex shrink-0 items-center rounded-md bg-white/5 px-2 py-1">
+            <span className="relative inline-flex h-10 w-[100px] shrink-0 items-center justify-center overflow-hidden rounded-md bg-white/5 px-2 sm:h-12 sm:w-[120px] lg:h-14 lg:w-[140px]">
               <Image
                 key={slide.channel.logo}
                 src={storageUrl(slide.channel.logo)}
                 alt={slide.channel.slug}
-                width={100}
-                height={40}
-                priority
-                className="h-auto max-h-10 w-auto rounded-md sm:max-h-12 lg:max-h-14"
+                fill
+                sizes="(min-width: 1024px) 140px, (min-width: 640px) 120px, 100px"
+                priority={idx === 0}
+                unoptimized
+                className="rounded-md object-contain"
               />
             </span>
 
@@ -158,7 +159,7 @@ export default function HeroCarouselClient({ slides }) {
             </span>
           </div>
 
-          <h1 className="max-w-2xl text-balance text-[clamp(2.4rem,9vw,5rem)] font-black leading-[0.92] tracking-[0.04em] text-white drop-shadow-[0_2px_40px_rgba(0,0,0,0.9)]">
+          <h1 className="max-w-2xl text-balance text-[clamp(2.4rem,7vw,4rem)] leading-10 sm:leading-15 md:leading-20 text-white font-black line-clamp-2 md:line-clamp-none drop-shadow-md">
             {slide.title}
           </h1>
 
@@ -172,8 +173,8 @@ export default function HeroCarouselClient({ slides }) {
               { label: "Release", value: slide.release },
               { label: "Quality", value: slide.quality },
             ].map(({ label, value }) => (
-              <div key={label} className="min-w-[60px] rounded-xl border border-white/10 bg-white/8 px-2 py-1 sm:px-4 sm:py-3 backdrop-blur-md">
-                <p className="text-xs sm:text-base font-bold uppercase sm:tracking-[0.1em] text-white/40">
+              <div key={label} className="max-w-[60px] sm:max-w-[92px] md:max-w-[128px] rounded-md sm:rounded-xl border border-white/10 bg-white/8 px-2 py-1 sm:px-4 sm:py-3 backdrop-blur-md">
+                <p className="text-tiny sm:text-base font-bold uppercase md:tracking-[0.1em] text-white/40">
                   {label}
                 </p>
                 <p className="mt-1 text-xs font-bold text-white sm:text-base">
@@ -183,12 +184,12 @@ export default function HeroCarouselClient({ slides }) {
             ))}
           </div>
 
-          <div className="flex flex-wrap items-center gap-3 pt-1">
-            <Link href={`/channels/${slide.channel.slug}`} className="inline-flex items-center gap-2.5 rounded-xl bg-[var(--hero-accent)] px-6 py-3 text-sm font-bold uppercase tracking-[0.08em] text-white shadow-[0_0_28px_var(--hero-accent-shadow)] transition hover:brightness-110 active:scale-[0.98] sm:px-7 sm:py-3.5">
+          <div className="flex flex-wrap items-center gap-1.5 sm:gap-3 pt-1">
+            <Link href={`/channels/${slide.channel.slug}`} className="inline-flex items-center gap-2.5 rounded-xl bg-[var(--hero-accent)] px-2 sm:px-6 py-3 sm:py-6 text-sm font-bold uppercase tracking-[0.08em] text-white shadow-[0_0_28px_var(--hero-accent-shadow)] transition hover:brightness-110 active:scale-[0.98] sm:px-7 sm:py-3.5">
               <Icon.Play />
               WATCH NOW
             </Link>
-            <button className="rounded-xl border border-white/10 bg-white/8 p-3.5 text-white/60 backdrop-blur-md transition-colors hover:text-white">
+            <button className="rounded-xl border border-white/10 bg-white/8 p-3.5 sm:p-6 text-white/60 backdrop-blur-md transition-colors hover:text-white">
               <Icon.Bookmark />
             </button>
           </div>
@@ -196,7 +197,7 @@ export default function HeroCarouselClient({ slides }) {
 
         {/* ── Poster ── */}
         <div
-          className={`relative z-10 w-full max-w-[240px] self-start transition-[opacity,transform] duration-500 ease-out sm:max-w-[280px] md:max-w-xs lg:self-center lg:pb-12 ${
+          className={`relative z-10 w-full max-w-[180px] transition-[opacity,transform] duration-500 ease-out sm:max-w-[280px] md:max-w-xs lg:self-center lg:pb-12 ${
             phase === "in" ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0"
           }`}
         >
