@@ -1,9 +1,13 @@
-import type { Metadata } from 'next'
 import Link from 'next/link'
 import { getCountries } from '@/lib/api'
 import { CountryGrid } from '@/components/country/CountryGrid'
+import { buildMetadata } from '@/lib/seo'
 
-export const metadata: Metadata = { title: 'Countries' }
+export const metadata = buildMetadata({
+  title: 'Countries',
+  description: 'Browse live TV channels by country and region.',
+  path: '/countries',
+})
 
 export default async function CountriesPage() {
   const countries = await getCountries()

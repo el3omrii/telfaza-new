@@ -6,6 +6,7 @@ import { ChannelGrid } from '@/components/channel/ChannelGrid'
 import { FilterBar } from '@/components/ui/FilterBar'
 import { Pagination } from '@/components/ui/Pagination'
 import { TagChips } from '@/components/tag/TagChips'
+import { buildMetadata } from '@/lib/seo'
 
 interface Props {
   params: { id: string }
@@ -16,9 +17,17 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id } = await params
   try {
     const { category } = await getCategoryChannels(id)
-    return { title: category.name }
+    return buildMetadata({
+      title: category.name,
+      description: category.description ?? `Browse live channels in ${category.name}.`,
+      path: `/categories/${category.slug}`,
+    })
   } catch {
-    return { title: 'Category' }
+    return buildMetadata({
+      title: 'Category',
+      description: 'Browse channels by category.',
+      path: '/categories',
+    })
   }
 }
 

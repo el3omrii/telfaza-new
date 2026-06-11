@@ -7,6 +7,7 @@ import { FilterBar } from '@/components/ui/FilterBar'
 import { Pagination } from '@/components/ui/Pagination'
 import { TagChips } from '@/components/tag/TagChips'
 import Image from 'next/image'
+import { buildMetadata } from '@/lib/seo'
 
 interface Props {
   params: { id: string }
@@ -17,9 +18,17 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id } = await params
   try {
     const { country } = await getCountryChannels(id)
-    return { title: country.name }
+    return buildMetadata({
+      title: country.name,
+      description: `Browse live channels from ${country.name}.`,
+      path: `/countries/${country.slug}`,
+    })
   } catch {
-    return { title: 'Country' }
+    return buildMetadata({
+      title: 'Country',
+      description: 'Browse channels by country.',
+      path: '/countries',
+    })
   }
 }
 

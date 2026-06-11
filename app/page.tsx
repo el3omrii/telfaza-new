@@ -1,10 +1,17 @@
 import Link from "next/link"
 import { Suspense } from "react";
 import { getFeaturedChannels, getCountries } from '@/lib/api'
+import { buildMetadata } from '@/lib/seo'
 
 import HeroCarousel from "../components/HeroCarousel";
 import { ChannelGrid } from '@/components/channel/ChannelGrid'
 import { CountryGrid } from '@/components/country/CountryGrid'
+
+export const metadata = buildMetadata({
+  title: 'Home',
+  description: 'Watch live TV channels and discover featured stations, countries, categories, and tags.',
+  path: '/',
+})
 
 export default async function Home() {
   const featured = await getFeaturedChannels()

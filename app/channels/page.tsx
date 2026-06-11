@@ -1,4 +1,3 @@
-import type { Metadata } from 'next'
 import { Suspense } from 'react'
 import { getChannels, getFiltersMeta, getCountries, getCategories } from '@/lib/api'
 import { paramsToFilters } from '@/lib/utils'
@@ -6,8 +5,13 @@ import { ChannelGrid } from '@/components/channel/ChannelGrid'
 import { FilterBar } from '@/components/ui/FilterBar'
 import { Pagination } from '@/components/ui/Pagination'
 import { CountrySelect, LanguageSelect } from '@/components/ui/CountrySelect'
+import { buildMetadata } from '@/lib/seo'
 
-export const metadata: Metadata = { title: 'Channels' }
+export const metadata = buildMetadata({
+  title: 'Channels',
+  description: 'Browse and filter every live TV channel available on Telfaza LIVE.',
+  path: '/channels',
+})
 
 interface Props {
   searchParams: Record<string, string | string[] | undefined>

@@ -5,6 +5,7 @@ import { notFound } from 'next/navigation'
 import { getChannel, getChannels, storageUrl } from '@/lib/api'
 import ClientChannelPlayer from '@/components/channel/ClientChannelPlayer'
 import { fmtViews } from '@/lib/utils'
+import { buildMetadata } from '@/lib/seo'
 
 
 interface Props {
@@ -15,9 +16,17 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id } = await params
   try {
     const ch = await getChannel(id)
-    return { title: ch.name, description: ch.description ?? undefined }
+    return buildMetadata({
+      title: ch.name,
+      description: ch.description ?? `Watch ${ch.name} live on Telfaza LIVE.`,
+      path: `/channels/${ch.slug}`,
+    })
   } catch {
-    return { title: 'Channel not found' }
+    return buildMetadata({
+      title: 'Channel not found',
+      description: 'The requested channel could not be found.',
+      path: '/channels',
+    })
   }
 }
 

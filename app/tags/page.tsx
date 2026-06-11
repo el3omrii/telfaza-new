@@ -1,9 +1,13 @@
-import type { Metadata } from 'next'
 import Link from 'next/link'
 import { getTags } from '@/lib/api'
 import type { Tag } from '@/types'
+import { buildMetadata } from '@/lib/seo'
 
-export const metadata: Metadata = { title: 'Tags' }
+export const metadata = buildMetadata({
+  title: 'Tags',
+  description: 'Browse live TV channels by tag and see what topics are most popular.',
+  path: '/tags',
+})
 
 export default async function TagsPage() {
   const tags = await getTags()

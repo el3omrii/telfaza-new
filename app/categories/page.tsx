@@ -1,8 +1,12 @@
-import type { Metadata } from 'next'
 import Link from 'next/link'
 import { getCategories } from '@/lib/api'
+import { buildMetadata } from '@/lib/seo'
 
-export const metadata: Metadata = { title: 'Categories' }
+export const metadata = buildMetadata({
+  title: 'Categories',
+  description: 'Explore live TV channels grouped by genre and category.',
+  path: '/categories',
+})
 
 export default async function CategoriesPage() {
   const categories = await getCategories()
