@@ -80,7 +80,7 @@ export default function ChannelPlayer({ channel }) {
             <MediaLiveButton className="media-control scale-80 sm:scale-100"></MediaLiveButton>
             <MediaMuteButton className="media-control"></MediaMuteButton>
             <MediaVolumeRange className="media-control hidden md:block"></MediaVolumeRange>
-            <div className="flex items-center justify-center gap-2 truncate">
+            <div className="flex items-center justify-center gap-2 truncate md:flex-grow">
               <img src={storageUrl(channel.logo)} alt={channel.name} className="w-6 md:w-12 object-cover rounded-xl" />
               <span className="truncate text-xs sm:text-sm text-muted">{channel.name}</span>
             </div>

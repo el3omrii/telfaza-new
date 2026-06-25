@@ -49,12 +49,12 @@ export default async function ChannelDetailPage({ params }: Props) {
   const flag = "https://flagcdn.com/"+channel.country?.flag.toLowerCase()+".svg"
 
   return (
-    <main className="max-w-7xl w-full mx-auto md:mt-16 px-6 md:px-12">
+    <main className="max-w-7xl w-full mx-auto mt-8 md:mt-16 px-6 md:px-12">
       {/* ── Hero header ── */}
       <div className="border-b border-white/[0.07] bg-zinc-900 px-5 py-8">
-        <div className="grid grid-cols-[auto_1fr_auto] items-start gap-6">
+        <div className="grid grid-cols-[1fr_auto] md:grid-cols-[auto_1fr_auto] items-start gap-2 md:gap-6">
           {/* Logo */}
-          <div className="flex h-[72px] w-[72px] items-center justify-center overflow-hidden rounded-2xl border border-white/10 bg-zinc-800">
+          <div className="flex h-18 w-18 md:h-24 md:w-24 items-center justify-center overflow-hidden rounded-2xl border border-white/10 bg-zinc-800">
             {logo ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img src={logo} alt={channel.name} className="h-full w-full object-contain" />
@@ -67,7 +67,7 @@ export default async function ChannelDetailPage({ params }: Props) {
 
           {/* Info */}
           <div>
-            <h1 className="font-head mb-2 text-3xl font-extrabold tracking-tight">
+            <h1 className="font-head mb-2 text-lg md:text-xl lg:text-3xl font-extrabold tracking-tight text-white">
               {channel.name}
             </h1>
             <div className="mb-3 flex flex-wrap gap-1.5">
@@ -90,7 +90,7 @@ export default async function ChannelDetailPage({ params }: Props) {
           </div>
 
           {/* Stats */}
-          <div className="flex flex-col items-end gap-3">
+          <div className="flex flex-col md: flex-row items-end gap-3">
             <div className="text-right">
               <div className="font-head text-2xl font-bold text-lime-400">
                 {fmtViews(channel.views)}
@@ -179,7 +179,7 @@ export default async function ChannelDetailPage({ params }: Props) {
                   {channel.tags.map(tag => (
                     <Link
                       key={tag.id}
-                      href={`/tags/${tag.id}`}
+                      href={`/tags/${tag.slug}`}
                       className="rounded-full border border-white/[0.07] bg-zinc-900 px-3 py-1 text-xs text-zinc-400 transition-all hover:border-teal-400/30 hover:text-teal-400"
                     >
                       #{tag.name}

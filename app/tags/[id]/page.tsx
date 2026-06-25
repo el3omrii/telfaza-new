@@ -44,7 +44,6 @@ export default async function TagPage({ params, searchParams }: Props) {
   }
 
   const { tag, channels } = data
-  console.log(channels)
 
   return (
     <main className="max-w-7xl w-full mx-auto md:mt-16 px-6 md:px-12">

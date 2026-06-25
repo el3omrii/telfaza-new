@@ -75,7 +75,7 @@ body {
 }
 
 .media-control {
-  @apply bg-transparent transition mx-2 h-6 md:h-12 w-auto 
+  @apply bg-transparent transition mx-1 md:mx-2 h-6 md:h-12 w-auto 
 }
 .media-control:hover {
   @apply bg-transparent scale-125

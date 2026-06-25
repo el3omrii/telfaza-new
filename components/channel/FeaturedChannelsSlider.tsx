@@ -46,8 +46,8 @@ export function FeaturedChannelsSlider({ channels }: Props) {
       syncState(slider);
     },
     slides: {
-      perView: 1.15,
-      spacing: 12,
+      perView: 1.8,
+      spacing: 6,
     },
     breakpoints: {
       "(min-width: 640px)": {

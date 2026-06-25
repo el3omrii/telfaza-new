@@ -107,7 +107,7 @@ export default function HeroCarouselClient({ slides }) {
 
   return (
     <section
-      className="relative pt-16 min-h-[34rem] overflow-hidden sm:min-h-[42rem] lg:min-h-[70svh]"
+      className="relative pt-16 overflow-hidden sm:min-h-[60svh] lg:min-h-[70svh]"
       style={accentStyles}
     >
       {/* ── Background image ── */}
@@ -127,14 +127,14 @@ export default function HeroCarouselClient({ slides }) {
         <div className="absolute inset-0 bg-[linear-gradient(to_bottom,rgba(10,10,15,0.56)_0%,transparent_24%)]" />
         <div className="absolute inset-0 bg-[linear-gradient(to_right,var(--hero-accent)_0%,transparent_35%)] opacity-20" />
       </div>
-      <div className="relative z-10 mx-auto flex h-full max-w-7xl flex-row justify-end gap-2 sm:gap-8 px-2 py-3 sm:px-6 sm:py-8 md:px-10 lg:px-12 xl:px-16">
+      <div className="relative z-10 mx-auto grid h-full max-w-7xl grid-cols-[5fr_2fr] items-center gap-2 px-2 py-3 sm:gap-8 sm:px-6 sm:py-8 md:flex md:justify-end md:px-10 lg:px-12 xl:px-16">
         {/* ── Content ── */}
         <div
-          className={`flex w-full max-w-3xl flex-col gap-4 transition-[opacity,transform] duration-500 ease-out ${
+          className={`flex min-w-0 w-full max-w-3xl flex-col gap-4 transition-[opacity,transform] duration-500 ease-out ${
             phase === "in" ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0"
           }`}
         >
-          <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+          <div className="flex flex-wrap items-center gap-2 md:gap-4">
             <span className="relative inline-flex h-10 w-[100px] shrink-0 items-center justify-center overflow-hidden rounded-md bg-white/5 px-2 sm:h-12 sm:w-[120px] lg:h-14 lg:w-[140px]">
               <Image
                 key={slide.channel.logo}
@@ -184,7 +184,7 @@ export default function HeroCarouselClient({ slides }) {
             ))}
           </div>
 
-          <div className="flex flex-wrap items-center gap-1.5 sm:gap-3 pt-1">
+          <div className="flex flex-wrap items-center gap-1.5 sm:gap-3 pt-1 mb-8">
             <Link href={`/channels/${slide.channel.slug}`} className="inline-flex items-center gap-2.5 rounded-xl bg-[var(--hero-accent)] px-2 sm:px-6 py-3 sm:py-6 text-sm font-bold uppercase tracking-[0.08em] text-white shadow-[0_0_28px_var(--hero-accent-shadow)] transition hover:brightness-110 active:scale-[0.98] sm:px-7 sm:py-3.5">
               <Icon.Play />
               WATCH NOW
@@ -197,7 +197,7 @@ export default function HeroCarouselClient({ slides }) {
 
         {/* ── Poster ── */}
         <div
-          className={`relative z-10 w-full max-w-[180px] transition-[opacity,transform] duration-500 ease-out sm:max-w-[280px] md:max-w-xs lg:self-center lg:pb-12 ${
+          className={`relative z-10 min-w-0 w-full transition-[opacity,transform] duration-500 ease-out sm:max-w-[280px] md:max-w-xs lg:self-center lg:pb-12 ${
             phase === "in" ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0"
           }`}
         >

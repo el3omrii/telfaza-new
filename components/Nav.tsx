@@ -207,7 +207,7 @@ function MobileMenu({ open, onClose }: {open: boolean, onClose: () => void}) {
           <Icon.Search />
           <input
             className="bg-transparent text-sm text-white placeholder-white/40 outline-none flex-1"
-            placeholder="Search anime..."
+            placeholder="Search channels..."
           />
         </div>
       </div>
