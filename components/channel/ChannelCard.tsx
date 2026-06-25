@@ -10,11 +10,13 @@ interface Props {
 
 export function ChannelCard({ channel }: Props) {
   const logo = storageUrl(channel.image)
+  const flag = `https://flagcdn.com/${channel.country?.flag.toLowerCase()}.svg`
    /* ─── icons ────────────────────────────────────────────────────────── */
 const Icon = {
   Eye: () => (
-    <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
-      <polygon points="5 3 19 12 5 21 5 3" />
+    <svg className="w-5 h-5" viewBox="0 0 24 24" stroke="currentColor"
+       stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"/><circle cx="12" cy="12" r="3"/>
     </svg>
   ),
 }
@@ -58,8 +60,10 @@ const Icon = {
       <div className="px-3 py-2.5">
         <p className="truncate text-sm font-medium text-zinc-100">{channel.name}</p>
         <div className="mt-1 flex items-center justify-between">
-          <span className="text-[11px] text-zinc-500">
-            {channel.country?.flag} {channel.country?.name}
+          <span className="flex text-[11px] text-zinc-500 truncate gap-2">
+            {channel.country?.flag &&
+            <img src={flag} alt={channel.country?.name} className="w-4 h-4 object-fit" />
+            } {channel.country?.name}
           </span>
           <span className="flex items-center gap-1 text-[11px] text-zinc-500">
             <Icon.Eye />
