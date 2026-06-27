@@ -15,11 +15,19 @@ use App\Http\Controllers\Api\ChannelController;
 use App\Http\Controllers\Api\CountryController;
 use App\Http\Controllers\Api\SearchController;
 use App\Http\Controllers\Api\TagController;
+use App\Http\Controllers\Api\SliderController;
 use Illuminate\Support\Facades\Route;
 
+
+Route::domain(env('APP_API_DOMAIN'))->group(function () {
 // ─── Global search ────────────────────────────────────────────────────────────
 // GET /api/search?q=bbc
 Route::get('/search', SearchController::class);
+
+// ─── Slides ────────────────────────────────────────────────────────────────
+
+// GET  /api/slides
+Route::get('/slides', [SliderController::class, 'index']);
 
 // ─── Channels ────────────────────────────────────────────────────────────────
 
@@ -42,8 +50,8 @@ Route::get('/channels/trending',      [ChannelController::class, 'trending']);
 Route::get('/channels/watching-now',  [ChannelController::class, 'watchingNow']);
 Route::get('/channels/filters/meta',  [ChannelController::class, 'filtersMeta']);
 
-// GET  /api/channels/{id}         — full channel detail (increments views)
-Route::get('/channels/{channel}',    [ChannelController::class, 'show']);
+// GET  /api/channels/{slug}         — full channel detail (increments views)
+Route::get('/channels/{channel:slug}',    [ChannelController::class, 'show']);
 
 // POST /api/channels/{id}/track   — heartbeat for live viewer count (Redis)
 Route::post('/channels/{channel}/track', [ChannelController::class, 'track']);
@@ -54,11 +62,11 @@ Route::post('/channels/{channel}/track', [ChannelController::class, 'track']);
 Route::get('/categories', [CategoryController::class, 'index']);
 
 // GET  /api/categories/{id}       — single category metadata
-Route::get('/categories/{category}', [CategoryController::class, 'show']);
+Route::get('/categories/{category:slug}', [CategoryController::class, 'show']);
 
 // GET  /api/categories/{id}/channels
 //      Same filter/sort/per_page params as /api/channels (country, quality, search)
-Route::get('/categories/{category}/channels', [CategoryController::class, 'channels']);
+Route::get('/categories/{category:slug}/channels', [CategoryController::class, 'channels']);
 
 // ─── Tags ─────────────────────────────────────────────────────────────────────
 
@@ -66,11 +74,11 @@ Route::get('/categories/{category}/channels', [CategoryController::class, 'chann
 Route::get('/tags', [TagController::class, 'index']);
 
 // GET  /api/tags/{id}             — single tag metadata
-Route::get('/tags/{tag}', [TagController::class, 'show']);
+Route::get('/tags/{tag:slug}', [TagController::class, 'show']);
 
 // GET  /api/tags/{id}/channels
 //      Same filter/sort/per_page params as /api/channels (country, quality, search)
-Route::get('/tags/{tag}/channels', [TagController::class, 'channels']);
+Route::get('/tags/{tag:slug}/channels', [TagController::class, 'channels']);
 
 // ─── Countries ───────────────────────────────────────────────────────────────
 
@@ -79,7 +87,7 @@ Route::get('/countries', [CountryController::class, 'index']);
 
 // GET  /api/countries/{id}/channels
 //      ?category=1  &quality=1080p  &sort=views  &order=desc  &per_page=24
-Route::get('/countries/{country}/channels', [CountryController::class, 'channels']);
+Route::get('/countries/{country:slug}/channels', [CountryController::class, 'channels']);
 
 Route::get('/watching-now', function (ViewingTracker $tracker) {
     $watchingNow = $tracker->getWatchingNow();
@@ -96,4 +104,5 @@ Route::get('/watching-now', function (ViewingTracker $tracker) {
         ->values();
     
     return response()->json($channels);
+});
 });

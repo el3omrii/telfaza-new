@@ -34,7 +34,7 @@ class PaginatedResource extends ResourceCollection
      */
     public function with(Request $request): array
     {
-        return [
+        return [];/*[
             'links' => [
                 'first' => $this->resource->url(1),
                 'last' => $this->resource->url($this->resource->lastPage()),
@@ -50,6 +50,6 @@ class PaginatedResource extends ResourceCollection
                 'total' => $this->resource->total(),
                 'path' => $this->resource->path(),
             ],
-        ];
+        ];*/
     }
 }

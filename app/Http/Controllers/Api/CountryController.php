@@ -4,6 +4,9 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Country;
+use App\Http\Resources\PaginatedResource;
+use App\Http\Resources\CountryResource;
+use App\Http\Resources\ChannelResource;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -49,9 +52,13 @@ class CountryController extends Controller
             ->paginate($request->integer('per_page', 24))
             ->withQueryString();
 
+		  $channels = new PaginatedResource($channels, ChannelResource::class);
+        // Resolve the full paginated structure (data + meta + links)
+        $channelsData = $channels->toResponse(request())->getData(true);
+
         return response()->json([
             'country'  => $country,
-            'channels' => $channels,
+            'channels' => $channelsData,
         ]);
     }
 }

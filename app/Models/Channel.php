@@ -7,14 +7,18 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Str;
+use App\Traits\ClearsNextjsCache;
 
 class Channel extends Model
 {
+	use ClearsNextjsCache;
     protected $fillable = [
-        'name', 'description', 'logo', 'image', 'views', 'epgid', 'featured', 'country_id', 'language', 'quality',
+        'name', 'slug', 'description', 'logo', 'image', 'views', 'epgid', 'featured', 'country_id', 'language', 'quality',
     ];
 
     protected $casts = ['views' => 'integer', 'featured' => 'boolean'];
+
+	protected $hidden = ['epgid'];
 
     public function country(): BelongsTo
     {

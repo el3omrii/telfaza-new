@@ -107,6 +107,9 @@ class SourceController extends Controller
             }
         }
         $data['clearkeys'] = $clearkeysArray;
+		// if drm is not checked, it's not posted so we enforce the false state
+		if (empty($data['drm']))
+			$data['drm'] = false;
 
         $source->update($data);
 
