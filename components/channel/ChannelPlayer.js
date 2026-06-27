@@ -23,7 +23,6 @@ export default function ChannelPlayer({ channel }) {
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
-    console.log(clearkeys)
 
     // Configure DRM if needed
     if (drm && clearkeys && video.api) {
@@ -54,7 +53,7 @@ export default function ChannelPlayer({ channel }) {
     return () => {
       video?.removeEventListener('resize', handleResize);
       try {
-        video.src = '';
+        //video.src = '';
         video.api?.unload?.();
       } catch (err) {
         console.error('Failed to cleanup channel player', err);
@@ -81,7 +80,7 @@ export default function ChannelPlayer({ channel }) {
             <MediaMuteButton className="media-control"></MediaMuteButton>
             <MediaVolumeRange className="media-control hidden md:block"></MediaVolumeRange>
             <div className="flex items-center justify-center gap-2 truncate md:flex-grow">
-              <img src={storageUrl(channel.logo)} alt={channel.name} className="w-6 md:w-12 object-cover rounded-xl" />
+              <img src={storageUrl(channel.logo)} alt={channel.name} className="w-6 md:w-12 max-h-[50px] object-cover rounded-xl" />
               <span className="truncate text-xs sm:text-sm text-muted">{channel.name}</span>
             </div>
             <MediaRenditionMenuButton className="media-control">

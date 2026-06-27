@@ -51,13 +51,13 @@ export function FeaturedChannelsSlider({ channels }: Props) {
     },
     breakpoints: {
       "(min-width: 640px)": {
-        slides: { perView: 2.1, spacing: 14 },
+        slides: { perView: 3.1, spacing: 12 },
       },
       "(min-width: 1024px)": {
-        slides: { perView: 3.05, spacing: 16 },
+        slides: { perView: 4.05, spacing: 14 },
       },
       "(min-width: 1280px)": {
-        slides: { perView: 4.05, spacing: 18 },
+        slides: { perView: 5.05, spacing: 16 },
       },
     },
   });

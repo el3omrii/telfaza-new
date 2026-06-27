@@ -62,7 +62,17 @@ export default function Footer() {
             </div>
             <hr className='border-neutral-500 mt-8' />
             <div className='flex flex-col md:flex-row gap-2 items-center justify-between py-5'>
-                <p>© {new Date().getFullYear()} <a href="https://prebuiltui.com">PrebuiltUI</a>. All rights reserved.</p>
+                <p>© {new Date().getFullYear()} <a href="https://telfazalive.com">
+                <span className="font-bold text-lg tracking-wide select-none" style={{ fontFamily: "system-ui, sans-serif" }}>
+                        <span className="text-white">Telfaza</span>
+                        <span
+                        className="px-1.5 py-0.5 rounded-md text-[#e8490f]"
+                        style={{ background: "rgba(232,73,15,0.15)", border: "1px solid rgba(232,73,15,0.3)" }}
+                        >
+                        LIVE
+                        </span>
+                  </span>
+                </a>. Free arabic TV.</p>
                 <ul className='flex items-center gap-4'>
                     <li><a href="#">Privacy</a></li>
                     <li><a href="#">Terms</a></li>

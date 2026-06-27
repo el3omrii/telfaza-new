@@ -5,7 +5,7 @@ import { notFound } from 'next/navigation'
 import { getChannel, getChannels, storageUrl } from '@/lib/api'
 import ClientChannelPlayer from '@/components/channel/ClientChannelPlayer'
 import { fmtViews } from '@/lib/utils'
-import { buildMetadata } from '@/lib/seo'
+import { buildMetadata, generateVideoSchema } from '@/lib/seo'
 
 
 interface Props {
@@ -48,8 +48,20 @@ export default async function ChannelDetailPage({ params }: Props) {
   const logo = storageUrl(channel.logo)
   const flag = "https://flagcdn.com/"+channel.country?.flag.toLowerCase()+".svg"
 
+  const videoSchema = generateVideoSchema({
+    name: channel.name,
+    description: channel.description ?? undefined,
+    thumbnailUrl: storageUrl(channel.image) ?? undefined,
+    uploadDate: channel.created_at,
+    interactionCount: channel.views,
+  })
+
   return (
     <main className="max-w-7xl w-full mx-auto mt-8 md:mt-16 px-6 md:px-12">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(videoSchema) }}
+      />
       {/* ── Hero header ── */}
       <div className="border-b border-white/[0.07] bg-zinc-900 px-5 py-8">
         <div className="grid grid-cols-[1fr_auto] md:grid-cols-[auto_1fr_auto] items-start gap-2 md:gap-6">
@@ -121,7 +133,7 @@ export default async function ChannelDetailPage({ params }: Props) {
               </p>
             )}
           {/* Categories & Tags */}
-          <div className="space-y-5 px-5 py-6">
+          <div className="flex flex-col lg:flex-row space-y-5 py-6 gap-6">
             {channel.categories && channel.categories.length > 0 && (
               <div>
                 <p className="mb-2 text-[11px] uppercase tracking-widest text-zinc-500">
@@ -164,14 +176,15 @@ export default async function ChannelDetailPage({ params }: Props) {
                 <div className="flex">
                     <Link
                       href={`/countries/${channel.country?.slug}`}
-                      className="flex flex-row gap-2 items-center rounded-lg border border-gray-500 bg-zinc-900 px-3 py-1.5 text-zinc-400 text-xs transition-all hover:opacity-80"
+                      className="flex flex-row gap-2 items-center text-zinc-400 text-xs transition-all hover:opacity-80"
                     >
                       <img src={flag} alt={channel.country?.name} className="rounded-md w-6 h-6" />
-                      {channel.country?.name}
+                      <span className="rounded-lg border border-gray-500 bg-zinc-900 px-3 py-1.5">{channel.country?.name}</span>
                     </Link>
                 </div>
               </div>
-
+              </div>
+              <div className="space-y-5">
             {channel.tags && channel.tags.length > 0 && (
               <div>
                 <p className="mb-2 text-[11px] uppercase tracking-widest text-zinc-500">Tags</p>

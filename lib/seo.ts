@@ -54,3 +54,28 @@ export function buildMetadata({
     },
   };
 }
+
+export function generateVideoSchema({
+  name,
+  description,
+  thumbnailUrl,
+  uploadDate,
+  interactionCount,
+}: {
+  name: string;
+  description?: string;
+  thumbnailUrl?: string;
+  uploadDate?: string;
+  interactionCount?: number;
+}) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "VideoObject",
+    name,
+    description: description || `Watch ${name} live on ${SITE_NAME}`,
+    thumbnailUrl: thumbnailUrl || absoluteUrl(defaultOpenGraphImage),
+    uploadDate: uploadDate || new Date().toISOString(),
+    duration: "PT0H0M0S",
+    interactionCount: interactionCount || 0,
+  };
+}
