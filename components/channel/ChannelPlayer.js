@@ -1,5 +1,6 @@
 'use client'
 import { useState, useRef, useEffect } from 'react';
+import { useViewerHeartbeat } from '@/hooks/useViewerHeartBeat'
 import { storageUrl } from '@/lib';
 import {
   MediaController,
@@ -19,7 +20,13 @@ export default function ChannelPlayer({ channel }) {
   const [mediaHeight, setMediaHeight] = useState('');
   const { sources: [{ link, drm, clearkeys }] } = channel
   const videoRef = useRef(null);
-
+  //tracking viewers
+  let viewerToken = sessionStorage.getItem('viewer_token');
+  if (!viewerToken) {
+      viewerToken = crypto.randomUUID();
+      sessionStorage.setItem('viewer_token', viewerToken);
+  }
+  useViewerHeartbeat(channel.id, viewerToken)
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;

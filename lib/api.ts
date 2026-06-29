@@ -40,10 +40,11 @@ async function get<T>(path: string, tags: string[] = [], revalidate?: number): P
   return res.json()
 }
 
-async function post<T>(path: string): Promise<T> {
+async function post<T>(path: string, body?: any): Promise<T> {
   const res = await fetch(`${API}${path}`, {
     method: 'POST',
-    headers: { Accept: 'application/json' },
+    headers: body !== null ? {Accept: 'application/json', 'Content-Type': 'application/json'} : { Accept: 'application/json' },
+    body: body !== undefined ? JSON.stringify(body) : undefined,
   })
   if (!res.ok) throw new Error(`API ${res.status}: ${path}`)
   return res.json()
@@ -84,8 +85,8 @@ export const getFiltersMeta = () =>
 export const getChannel = (slug: string | string) =>
   get<Channel>(`/channels/${slug}`, cacheTags('channels', `channel:${slug}`))
 
-export const trackChannel = (id: number | string) =>
-  post<{ viewers: number }>(`/channels/${id}/track`)
+export const trackChannel = (id: number | string, token: string) =>
+  post<{ viewers: number }>(`/channels/${id}/track`, {viewer_token: token})
 
 // ── Categories ────────────────────────────────────────────────────────────────
 

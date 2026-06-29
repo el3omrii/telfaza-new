@@ -38,7 +38,6 @@ export default async function ChannelDetailPage({ params }: Props) {
   } catch {
     notFound()
   }
-
   // Related: same first category, different channel
   const related = channel.categories?.[0]
     ? await getChannels({ category: channel.categories[0].id, per_page: 6, sort: 'views' })
