@@ -1,6 +1,6 @@
 import Link from "next/link"
 import { Suspense } from "react";
-import { getFeaturedChannels, getCountries } from '@/lib/api'
+import { getFeaturedChannels, getCountries, getWatchingNow } from '@/lib/api'
 import { buildMetadata } from '@/lib/seo'
 
 import HeroCarousel from "../components/HeroCarousel";
@@ -15,6 +15,7 @@ export const metadata = buildMetadata({
 
 export default async function Home() {
   const featured = await getFeaturedChannels()
+  const activeChannels = await getWatchingNow()
   const countries = await getCountries()
 
   return (
@@ -22,8 +23,15 @@ export default async function Home() {
       <Suspense fallback={<div className="h-[560px] bg-slate-900 animate-pulse" />}>
         <HeroCarousel />
       </Suspense>
-      {/* ── Featured ── */}
       <main className="max-w-7xl mx-auto px-6 md:px-16 lg:px-24 xl:px-32">
+      {/* -- Watching Now -- */}
+      { activeChannels.length > 0 && (
+        <section className="mt-8">
+          <SectionHead title="✦ Watching Now" href="/channels" />
+          <FeaturedChannelsSlider channels={activeChannels} />
+        </section>
+      )}
+      {/* ── Featured ── */}
         <section className="mt-8">
           <SectionHead title="✦ Featured Channels" href="/channels" />
           <FeaturedChannelsSlider channels={featured} />

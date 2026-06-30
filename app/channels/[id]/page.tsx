@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { getChannel, getChannels, storageUrl } from '@/lib/api'
 import ClientChannelPlayer from '@/components/channel/ClientChannelPlayer'
+import LiveViewerCount from '@/components/channel/LiveViewerCount'
 import { fmtViews } from '@/lib/utils'
 import { buildMetadata, generateVideoSchema } from '@/lib/seo'
 
@@ -46,7 +47,14 @@ export default async function ChannelDetailPage({ params }: Props) {
 
   const logo = storageUrl(channel.logo)
   const flag = "https://flagcdn.com/"+channel.country?.flag.toLowerCase()+".svg"
-
+  const Icon = {
+    Eye: () => (
+      <svg className="w-5 h-5" viewBox="0 0 24 24" stroke="currentColor"
+        strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"/><circle cx="12" cy="12" r="3"/>
+      </svg>
+    ),
+  };
   const videoSchema = generateVideoSchema({
     name: channel.name,
     description: channel.description ?? undefined,
@@ -103,18 +111,16 @@ export default async function ChannelDetailPage({ params }: Props) {
           {/* Stats */}
           <div className="flex flex-col md: flex-row items-end gap-3">
             <div className="text-right">
-              <div className="font-head text-2xl font-bold text-lime-400">
-                {fmtViews(channel.views)}
+              <div className="flex justify-end items-center gap-2 font-head text-2xl font-bold text-lime-400">
+                <Icon.Eye />
+                <span>{fmtViews(channel.views)}</span>
               </div>
               <div className="flex items-center justify-end gap-1 text-xs text-zinc-500">
                  total views
               </div>
             </div>
             <div className="text-right">
-              <div className="font-head text-2xl font-bold text-red-400">
-                —
-              </div>
-              <div className="text-xs text-zinc-500">watching now</div>
+              <LiveViewerCount channelId={channel.id} initialCount={channel.active_viewers ?? 0} />
             </div>
           </div>
         </div>

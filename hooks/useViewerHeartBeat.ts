@@ -1,32 +1,50 @@
 'use client'
 
 import { useEffect } from 'react'
-import { trackChannel } from '@/lib/api' // Ensure this is client-safe!
+import { trackChannel } from '@/lib/api'
 
-export function useViewerHeartbeat(channelId: string, viewerToken: string) {
+export function useViewerHeartbeat(
+  channelId: string,
+  viewerToken: string,
+  onCountChange?: (count: number) => void
+) {
   useEffect(() => {
     let intervalId: ReturnType<typeof setInterval> | null = null
 
-    const ping = () => trackChannel(channelId, viewerToken)
+    const ping = async () => {
+      try {
+        const response = await trackChannel(channelId, viewerToken)
+        onCountChange?.(response.viewers ?? 0)
+      } catch (error) {
+        console.error('Failed to update viewer count', error)
+      }
+    }
 
     const start = () => {
-      ping() // Ping immediately
-      intervalId = setInterval(ping, 30000) // Then every 30s
+      void ping()
+      intervalId = setInterval(() => {
+        void ping()
+      }, 30000)
     }
 
     const stop = () => {
       if (intervalId) clearInterval(intervalId)
     }
 
-    const handleVisibility = () => document.hidden ? stop() : start()
+    const handleVisibility = () => {
+      if (document.hidden) {
+        stop()
+      } else {
+        start()
+      }
+    }
 
     start()
     document.addEventListener('visibilitychange', handleVisibility)
 
-    // ❗ CRITICAL: Cleanup prevents memory leaks and duplicate timers
     return () => {
       stop()
       document.removeEventListener('visibilitychange', handleVisibility)
     }
-  }, [channelId])
+  }, [channelId, viewerToken, onCountChange])
 }
