@@ -32,6 +32,12 @@
             <option value="{{ $c->id }}" {{ request('country') == $c->id ? 'selected' : '' }}>{{ $c->flag }} {{ $c->name }}</option>
         @endforeach
     </select>
+    <select name="sort"
+            class="px-3 py-2 bg-bg border border-border rounded-[10px] text-sm text-gray-200 focus:outline-none focus:border-accent transition-colors">
+        <option value="newest" {{ request('sort', 'newest') === 'newest' ? 'selected' : '' }}>Sort by: Newest</option>
+        <option value="recent" {{ request('sort') === 'recent' ? 'selected' : '' }}>Sort by: Most recent</option>
+        <option value="name" {{ request('sort') === 'name' ? 'selected' : '' }}>Sort by: Name A-Z</option>
+    </select>
     <button type="submit"
             class="px-4 py-2 bg-border hover:bg-[#2e3748] text-gray-200 text-sm font-medium rounded-[10px] transition-colors">Filter</button>
     <a href="{{ route('channels.index') }}"
@@ -48,7 +54,6 @@
                 <th class="px-4 py-3 text-left text-[0.72rem] uppercase tracking-wider text-muted">Country</th>
                 <th class="px-4 py-3 text-left text-[0.72rem] uppercase tracking-wider text-muted">Categories</th>
                 <th class="px-4 py-3 text-left text-[0.72rem] uppercase tracking-wider text-muted">Sources</th>
-                <th class="px-4 py-3 text-left text-[0.72rem] uppercase tracking-wider text-muted">Views</th>
                 <th class="px-4 py-3 text-left text-[0.72rem] uppercase tracking-wider text-muted">Status</th>
                 <th class="px-4 py-3 text-left text-[0.72rem] uppercase tracking-wider text-muted">Actions</th>
             </tr>
@@ -79,7 +84,6 @@
                 <td class="px-4 py-3">
                     <span class="px-2 py-0.5 rounded-full text-[0.72rem] font-semibold bg-accent/15 text-accent">{{ $channel->sources_count }}</span>
                 </td>
-                <td class="px-4 py-3 text-sm">{{ number_format($channel->views) }}</td>
                 <td class="px-4 py-3">
                     @if($channel->published)
                         <span class="px-2 py-0.5 rounded-full text-[0.72rem] font-semibold bg-green-500/15 text-green-400">Published</span>

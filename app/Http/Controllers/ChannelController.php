@@ -17,8 +17,7 @@ class ChannelController extends Controller
     public function index(Request $request): View
     {
         $query = Channel::with(['country', 'categories', 'tags'])
-            ->withCount('sources')
-            ->where('published', true);
+            ->withCount('sources');
 
         if ($request->filled('search')) {
             $query->where('name', 'like', '%' . $request->search . '%');
@@ -32,7 +31,17 @@ class ChannelController extends Controller
             $query->where('country_id', $request->country);
         }
 
-        $channels   = $query->orderByDesc('views')->paginate(15)->withQueryString();
+        $sort = $request->input('sort', 'newest');
+
+        if ($sort === 'recent') {
+            $query->orderByDesc('created_at');
+        } elseif ($sort === 'name') {
+            $query->orderBy('name');
+        } else {
+            $query->orderByDesc('created_at');
+        }
+
+        $channels   = $query->paginate(15)->withQueryString();
         $categories = Category::orderBy('name')->get();
         $countries  = Country::orderBy('name')->get();
 
