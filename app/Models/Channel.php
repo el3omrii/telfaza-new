@@ -13,10 +13,10 @@ class Channel extends Model
 {
 	use ClearsNextjsCache;
     protected $fillable = [
-        'name', 'slug', 'description', 'logo', 'image', 'views', 'epgid', 'featured', 'country_id', 'language', 'quality',
+        'name', 'slug', 'description', 'logo', 'image', 'views', 'epgid', 'featured', 'published', 'country_id', 'language', 'quality',
     ];
 
-    protected $casts = ['views' => 'integer', 'featured' => 'boolean'];
+    protected $casts = ['views' => 'integer', 'featured' => 'boolean', 'published' => 'boolean'];
 
 	protected $hidden = ['epgid'];
 

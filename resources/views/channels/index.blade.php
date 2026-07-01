@@ -49,6 +49,7 @@
                 <th class="px-4 py-3 text-left text-[0.72rem] uppercase tracking-wider text-muted">Categories</th>
                 <th class="px-4 py-3 text-left text-[0.72rem] uppercase tracking-wider text-muted">Sources</th>
                 <th class="px-4 py-3 text-left text-[0.72rem] uppercase tracking-wider text-muted">Views</th>
+                <th class="px-4 py-3 text-left text-[0.72rem] uppercase tracking-wider text-muted">Status</th>
                 <th class="px-4 py-3 text-left text-[0.72rem] uppercase tracking-wider text-muted">Actions</th>
             </tr>
         </thead>
@@ -80,6 +81,13 @@
                 </td>
                 <td class="px-4 py-3 text-sm">{{ number_format($channel->views) }}</td>
                 <td class="px-4 py-3">
+                    @if($channel->published)
+                        <span class="px-2 py-0.5 rounded-full text-[0.72rem] font-semibold bg-green-500/15 text-green-400">Published</span>
+                    @else
+                        <span class="px-2 py-0.5 rounded-full text-[0.72rem] font-semibold bg-red-500/15 text-red-400">Unpublished</span>
+                    @endif
+                </td>
+                <td class="px-4 py-3">
                     <div class="flex items-center gap-1.5">
                         <a href="{{ route('channels.show', $channel) }}"
                            class="px-3 py-1.5 bg-border hover:bg-[#2e3748] text-gray-200 text-xs font-medium rounded-lg transition-colors">View</a>
@@ -95,7 +103,7 @@
             </tr>
         @empty
             <tr>
-                <td colspan="6" class="px-4 py-10 text-center text-muted text-sm">No channels found.</td>
+                <td colspan="7" class="px-4 py-10 text-center text-muted text-sm">No channels found.</td>
             </tr>
         @endforelse
         </tbody>

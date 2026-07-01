@@ -17,7 +17,8 @@ class ChannelController extends Controller
     public function index(Request $request): View
     {
         $query = Channel::with(['country', 'categories', 'tags'])
-            ->withCount('sources');
+            ->withCount('sources')
+            ->where('published', true);
 
         if ($request->filled('search')) {
             $query->where('name', 'like', '%' . $request->search . '%');
@@ -70,6 +71,7 @@ class ChannelController extends Controller
             'language'            => 'nullable|string|max:100',
             'epgid'               => 'nullable|string|max:10',
             'featured'            => 'nullable|boolean',
+            'published'           => 'nullable|boolean',
             'quality'             => 'nullable|in:4K,1080p,720p,480p,360p',
             'categories'          => 'nullable|array',
             'categories.*'        => 'exists:categories,id',
@@ -91,6 +93,7 @@ class ChannelController extends Controller
             'epgid'       => $request->epgid,
             'quality'     => $request->quality,
             'featured'    => $request->boolean('featured'),
+            'published'   => $request->boolean('published', true),
             'logo'        => $request->hasFile('logo')
                                 ? $this->storeImage($request->file('logo'), 'channels/logos', $request->name, 'logo')
                                 : null,
@@ -155,6 +158,7 @@ class ChannelController extends Controller
             'epgid'       => 'nullable|string|max:10',
             'quality'     => 'nullable|in:4K,1080p,720p,480p,360p',
             'featured'    => 'nullable|boolean',
+            'published'   => 'nullable|boolean',
             'categories'  => 'nullable|array',
             'categories.*'=> 'exists:categories,id',
             'tags'        => 'nullable|array',
@@ -169,6 +173,7 @@ class ChannelController extends Controller
             'epgid'       => $request->epgid,
             'quality'     => $request->quality,
             'featured'    => $request->boolean('featured'),
+            'published'   => $request->boolean('published'),
         ];
 
         // Replace logo only if a new file was uploaded; delete the old one

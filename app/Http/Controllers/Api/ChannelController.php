@@ -42,7 +42,8 @@ class ChannelController extends Controller
         ]);
 
         $query = Channel::with(['country:id,name,flag', 'categories:id,name,color', 'tags:id,name'])
-            ->withCount('sources');
+            ->withCount('sources')
+            ->where('published', true);
 
         // ── Filters ──────────────────────────────────────────────────────────
         if ($request->filled('search')) {
@@ -99,6 +100,7 @@ class ChannelController extends Controller
     {
         $channels = Channel::with(['country:id,name,flag', 'categories:id,name,color', 'tags:id,name'])
             ->where('featured', true)
+            ->where('published', true)
             ->orderByDesc('views')
             ->limit(20)
             ->get();
@@ -112,6 +114,7 @@ class ChannelController extends Controller
     public function trending(): JsonResponse
     {
         $channels = Channel::with(['country:id,name,flag', 'categories:id,name,color', 'tags:id,name'])
+            ->where('published', true)
             ->orderByDesc('views')
             ->limit(20)
             ->get();
