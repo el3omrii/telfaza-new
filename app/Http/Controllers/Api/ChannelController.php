@@ -144,9 +144,12 @@ class ChannelController extends Controller
 
     // ─── POST /api/channels/{channel}/track ──────────────────────────────────
     // Called by the frontend player to register a viewer heartbeat
-    public function track(Channel $channel, ViewingTracker $tracker): JsonResponse
+    public function track(Channel $channel, Request $request, ViewingTracker $tracker): JsonResponse
     {
-        $tracker->trackChannel($channel->id);
+		$request->validate([
+        	'viewer_token' => 'required|uuid',
+    	]);
+        $tracker->trackChannel($channel->id, $request->viewer_token);
 
         return response()->json(['viewers' => $tracker->getCurrentViewers($channel->id)]);
     }
