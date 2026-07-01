@@ -20,9 +20,9 @@ class TrackChannelView
         $response = $next($request);
         
         // Track if we're on a channel viewing route
-        if ($request->route('channel')) {
+        /*if ($request->route('channel')) {
             $this->tracker->trackChannel($request->route('channel'));
-        }
+        }*/
         
         return $response;
     }

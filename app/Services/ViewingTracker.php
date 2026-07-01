@@ -10,19 +10,18 @@ class ViewingTracker
 {
     private $expirySeconds = 60; // Consider user "watching" for 60 seconds without activity
     
-    public function trackChannel($channelId)
+    public function trackChannel($channelId, string $viewerToken)
     {
-        $sessionId = Session::getId();
         $key = "channel:{$channelId}:viewers";
         
         // Add this session to the channel's viewer set
-        Redis::zadd($key, time(), $sessionId);
+        Redis::zadd($key, time(), $viewerToken);
         
         // Set expiry for the channel key (cleanup old data)
         Redis::expire($key, $this->expirySeconds);
         
         // Track user's current channel
-        Redis::setex("user:{$sessionId}:current_channel", $this->expirySeconds, $channelId);
+        Redis::setex("user:{$viewerToken}:current_channel", $this->expirySeconds, $channelId);
         
         return true;
     }
@@ -67,16 +66,14 @@ class ViewingTracker
         return $channels;
     }
     
-    public function stopTracking($channelId = null)
+    public function stopTracking($channelId = null, string $viewerToken = null)
     {
-        $sessionId = Session::getId();
-        
-        if ($channelId) {
-            // Remove from specific channel
-            Redis::zrem("channel:{$channelId}:viewers", $sessionId);
-        }
-        
-        // Remove user's current channel tracking
-        Redis::del("user:{$sessionId}:current_channel");
-    }
+        if (!$viewerToken) return;
+
+	    if ($channelId) {
+	        Redis::zrem("channel:{$channelId}:viewers", $viewerToken);
+	    }
+	
+	    Redis::del("user:{$viewerToken}:current_channel");
+	}
 }
