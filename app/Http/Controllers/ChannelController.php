@@ -33,10 +33,12 @@ class ChannelController extends Controller
 
         $sort = $request->input('sort', 'newest');
 
-        if ($sort === 'recent') {
-            $query->orderByDesc('created_at');
+        if ($sort === 'views') {
+            $query->orderByDesc('views');
         } elseif ($sort === 'name') {
             $query->orderBy('name');
+        } elseif ($sort === 'status') {
+            $query->orderByDesc('published')->orderBy('name');
         } else {
             $query->orderByDesc('created_at');
         }

@@ -34,9 +34,10 @@
     </select>
     <select name="sort"
             class="px-3 py-2 bg-bg border border-border rounded-[10px] text-sm text-gray-200 focus:outline-none focus:border-accent transition-colors">
-        <option value="newest" {{ request('sort', 'newest') === 'newest' ? 'selected' : '' }}>Sort by: Newest</option>
-        <option value="recent" {{ request('sort') === 'recent' ? 'selected' : '' }}>Sort by: Most recent</option>
+        <option value="views" {{ request('sort', 'newest') === 'views' ? 'selected' : '' }}>Sort by: Most Viewed</option>
+        <option value="newest" {{ request('sort') === 'newest' ? 'selected' : '' }}>Sort by: Newest</option>
         <option value="name" {{ request('sort') === 'name' ? 'selected' : '' }}>Sort by: Name A-Z</option>
+        <option value="status" {{ request('sort') === 'status' ? 'selected' : '' }}>Sort by: Status</option>
     </select>
     <button type="submit"
             class="px-4 py-2 bg-border hover:bg-[#2e3748] text-gray-200 text-sm font-medium rounded-[10px] transition-colors">Filter</button>
