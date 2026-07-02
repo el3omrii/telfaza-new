@@ -16,6 +16,7 @@ use App\Http\Controllers\Api\CountryController;
 use App\Http\Controllers\Api\SearchController;
 use App\Http\Controllers\Api\TagController;
 use App\Http\Controllers\Api\SliderController;
+use App\Http\Controllers\Api\ReportController;
 use Illuminate\Support\Facades\Route;
 
 
@@ -55,7 +56,8 @@ Route::get('/channels/{channel:slug}',    [ChannelController::class, 'show']);
 
 // POST /api/channels/{id}/track   — heartbeat for live viewer count (Redis)
 Route::post('/channels/{channel}/track', [ChannelController::class, 'track']);
-
+// POST /api/channels/{id}/report  — report a channel issue
+Route::post('/video-reports', [ReportController::class, 'store']);
 // ─── Categories ───────────────────────────────────────────────────────────────
 
 // GET  /api/categories            — list all with channel count

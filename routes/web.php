@@ -7,6 +7,7 @@ use App\Http\Controllers\GeminiController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SourceController;
 use App\Http\Controllers\TagController;
+use App\Http\Controllers\ReportController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -49,6 +50,9 @@ Route::middleware('auth')->group(function () {
     Route::post('/ai/generate-description', [GeminiController::class, 'generateDescription'])
          ->name('ai.generate-description');
 
+     // Reports 
+    Route::resource('reports', ReportController::class)
+         ->only(['index', 'edit', 'update', 'destroy']);
     // Profile
     Route::get('/profile',               [ProfileController::class, 'edit'])->name('profile.edit');
     Route::put('/profile',               [ProfileController::class, 'update'])->name('profile.update');
