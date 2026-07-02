@@ -116,9 +116,10 @@ export default function HeroCarouselClient({ slides }) {
           phase === "in" ? "scale-100 opacity-100" : "scale-[1.04] opacity-0"
         }`}
       >
-        <img
-          src={slide.image}
+        <Image
+          src={storageUrl(slide.image)}
           alt={slide.title}
+          fill
           className="absolute inset-0 w-full h-full object-cover object-center"
         />
 
@@ -197,13 +198,14 @@ export default function HeroCarouselClient({ slides }) {
 
         {/* ── Poster ── */}
         <div
-          className={`relative z-10 min-w-0 w-full transition-[opacity,transform] duration-500 ease-out sm:max-w-[280px] md:max-w-xs lg:self-center lg:pb-12 ${
+          className={`relative z-10 min-w-0 h-48 md:h-72 lg:h-96 w-full transition-[opacity,transform] duration-500 ease-out sm:max-w-[280px] md:max-w-xs lg:self-center lg:pb-12 ${
             phase === "in" ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0"
           }`}
         >
-          <img
-            src={slide.image}
+          <Image
+            src={storageUrl(slide.image)}
             alt={slide.title}
+            fill
             className="aspect-[3/4] w-full rounded-2xl border-2 border-white/50 object-cover shadow-[0_24px_60px_rgba(0,0,0,0.45)]"
           />
         </div>

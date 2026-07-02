@@ -14,6 +14,62 @@ import {
 import { MediaRenditionMenu, MediaRenditionMenuButton } from 'media-chrome/react/menu';
 import ShakaVideo from 'shaka-video-element/react';
 
+function setupSnrtUrlFix(shakaPlayer) {
+  
+	let capturedToken = null;
+  const TOKEN_PARAM = 'token';
+
+  // 1️⃣ ResponseFilter: Extract token from FINAL URL after redirect
+  // Signature: (type, response, context)
+  shakaPlayer.getNetworkingEngine().registerResponseFilter((type, response, context) => {
+    console.log('📡 ResponseFilter:', { type, uri: response.uri });
+    
+    if (type === shaka.net.NetworkingEngine.RequestType.MANIFEST) {
+      const finalUrl = response.uri; // ✅ Use response.uri, NOT request.uris
+      if (!finalUrl) return;
+
+      try {
+        const url = new URL(finalUrl);
+        const token = url.searchParams.get('token');
+        const tokenPath = url.searchParams.get('token_path');
+        const expires = url.searchParams.get('expires');
+        const match = finalUrl.match(new RegExp(`[?&]${TOKEN_PARAM}=(.+)`));
+        capturedToken = match ? match[1] : null;
+      } catch (e) {
+        console.log(e);
+      }
+      
+      if (capturedToken) {
+        console.log('✅ Token captured:', capturedToken);
+        shakaPlayer._debugToken = capturedToken; // For console inspection
+      }
+    }
+  });
+
+  // 2️⃣ RequestFilter: Inject token into outgoing requests
+  // Signature: (type, request, context) - this one DOES get request
+  shakaPlayer.getNetworkingEngine().registerRequestFilter((type, request, context) => {
+    if (!capturedToken || capturedToken.trim() === '') return;
+    if (type === shaka.net.NetworkingEngine.RequestType.LICENSE) return;
+    if (type === shaka.net.NetworkingEngine.RequestType.SEGMENT) return;
+
+    console.log('✏️  RequestFilter:', { type, uris: request.uris });
+    
+    for (let i = 0; i < request.uris.length; i++) {
+      if (request.uris[i].includes(`${TOKEN_PARAM}=`)) continue;
+
+      try {
+        const url = new URL(request.uris[i]);
+        url.searchParams.set(TOKEN_PARAM, capturedToken);
+        request.uris[i] = request.uris[i] + `?token=${capturedToken}`;
+      } catch (e) {
+        const sep = request.uris[i].includes('?') ? '&' : '?';
+        request.uris[i] = `${request.uris[i]}${sep}${TOKEN_PARAM}=${capturedToken}`;
+      }
+    }
+  });
+}
+
 export default function ChannelPlayer({ channel }) {
   const [error, setError] = useState('');
   const [mediaHeight, setMediaHeight] = useState('');
@@ -45,6 +101,7 @@ export default function ChannelPlayer({ channel }) {
     };
 
     if (video) {
+      setupSnrtUrlFix(video.api)
       video.addEventListener('resize', handleResize);
       handleResize();
     }
