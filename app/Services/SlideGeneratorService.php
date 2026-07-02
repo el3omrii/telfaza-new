@@ -5,6 +5,7 @@ namespace App\Services;
 use Illuminate\Support\Facades\Cache;
 use App\Models\Channel;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Storage;
 
 class SlideGeneratorService
 {
@@ -90,7 +91,7 @@ class SlideGeneratorService
             'quality'     => 'HD',
             'cc'          => 1,
             'ep'          => 1,
-            'image'       => $currentShow['imageUrl'] ? $this->storeImage($currentShow['imageUrl'], 'guide', $currentShow['name']) : 'https://via.placeholder.com/1400x800?text=No+Image',
+            'image'       => $currentShow['imageUrl'] ? $this->storeImage($currentShow['imageUrl'], 'guide', str($currentShow['name'])->slug()) : 'https://via.placeholder.com/1400x800?text=No+Image',
             'accent'      => $accent,
             'channel'     => $channel->only(['slug', 'logo']),
         ];
@@ -98,11 +99,20 @@ class SlideGeneratorService
 
     private function storeImage($remoteFile, $path, $name): string
     {
+        $filename = $name . '.' . pathinfo($remoteFile, PATHINFO_EXTENSION);
+        $filePath = $path . '/' . $filename;
+        //check if file already exists
+        if (Storage::disk('uploads')->exists($filePath)) {
+            return $filePath;
+        }
         // grab remote image and store it in the uploads disk
         $fileContents = file_get_contents($remoteFile);
-        
-        $filename = $name . '.' . pathinfo($remoteFile, PATHINFO_EXTENSION);
-        return Storage::disk('uploads')->put($path . '/' . $filename, $fileContents);
+
+        // Store the image on the 'uploads' disk
+        Storage::disk('uploads')->put($filePath, $fileContents);
+
+        // Return the constructed path
+        return $filePath;
     }
 
     /**
