@@ -90,10 +90,19 @@ class SlideGeneratorService
             'quality'     => 'HD',
             'cc'          => 1,
             'ep'          => 1,
-            'image'       => $currentShow['imageUrl'] ?? 'https://via.placeholder.com/1400x800?text=No+Image',
+            'image'       => $currentShow['imageUrl'] ? $this->storeImage($currentShow['imageUrl'], 'guide', $currentShow['name']) : 'https://via.placeholder.com/1400x800?text=No+Image',
             'accent'      => $accent,
             'channel'     => $channel->only(['slug', 'logo']),
         ];
+    }
+
+    private function storeImage($remoteFile, $path, $name): string
+    {
+        // grab remote image and store it in the uploads disk
+        $fileContents = file_get_contents($remoteFile);
+        
+        $filename = $name . '.' . pathinfo($remoteFile, PATHINFO_EXTENSION);
+        return Storage::disk('uploads')->put($path . '/' . $filename, $fileContents);
     }
 
     /**

@@ -52,6 +52,7 @@ class GrabEPGData extends Command
                 $this->error("❌ {$channel->name}: {$e->getMessage()}");
                 $failed++;
             }
+            sleep(1); // Optional: Sleep for 1 second to avoid overwhelming the API
         }
 
         $this->newLine();
