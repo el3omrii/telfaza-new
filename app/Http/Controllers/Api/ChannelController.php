@@ -89,7 +89,14 @@ class ChannelController extends Controller
     // ─── GET /api/channels/{channel} ─────────────────────────────────────────
     public function show(Channel $channel): JsonResponse
     {
-        $channel->load(['country', 'categories', 'tags', 'sources']);
+        $channel->load([
+            'country',
+            'categories',
+            'tags',
+            'sources' => function ($query) {
+                $query->where('enabled', true);
+            }
+        ]);
         $channel->incrementViews();
 
         return response()->json($channel);
