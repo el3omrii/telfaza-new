@@ -15,9 +15,11 @@ return new class extends Migration
             $table->id();
             $table->foreignId('channel_id')->constrained()->cascadeOnDelete();
             $table->string('issue_type');        // e.g., 'dead_stream', 'no_audio'
+            $table->string('user_token');        // e.g., 'dead_stream', 'no_audio'
             $table->text('details')->nullable();
             $table->string('user_agent')->nullable();
             $table->boolean('treated')->default(false);
+            $table->string('fix')->nullable();;
             $table->timestamps();
         });
     }

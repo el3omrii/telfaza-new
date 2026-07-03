@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers\Api;
+use App\Http\Controllers\Controller;
 
 use Illuminate\Http\Request;
 
@@ -11,6 +12,7 @@ class ReportController extends Controller
             'issue_type' => 'required|string|max:255',
             'details'    => 'nullable|string|max:1000',
             'channel_id' => 'nullable|exists:channels,id',
+            'user_token' => 'required|uuid',
         ]);
 
         $data['user_agent'] = $request->header('User-Agent');
