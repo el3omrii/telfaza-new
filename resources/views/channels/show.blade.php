@@ -153,7 +153,18 @@
                     <code class="text-xs text-muted truncate block">{!! $source->clearkeys_formatted ?? '—' !!}</code>
                 </td>
                 <td class="px-4 py-3">
-                    <div class="flex gap-1.5">
+                    <div class="flex flex-wrap items-center gap-2">
+                        <form action="{{ route('sources.toggle', $source) }}" method="POST" class="flex items-center gap-2">
+                            @csrf
+                            <label class="inline-flex items-center cursor-pointer">
+                                <input type="checkbox" name="enabled" value="1" class="sr-only peer"
+                                       {{ $source->enabled ? 'checked' : '' }} onchange="this.form.submit()">
+                                <span class="relative h-5 w-10 rounded-full bg-border transition-colors peer-checked:bg-green-500/30">
+                                    <span class="absolute left-0.5 top-0.5 h-4 w-4 rounded-full bg-white transition-transform peer-checked:translate-x-5"></span>
+                                </span>
+                                <span class="ml-2 text-[0.72rem] font-medium {{ $source->enabled ? 'text-green-400' : 'text-muted' }}">{{ $source->enabled ? 'On' : 'Off' }}</span>
+                            </label>
+                        </form>
                         <a href="{{ route('sources.edit', $source) }}"
                            class="px-3 py-1.5 bg-border hover:bg-[#2e3748] text-gray-200 text-xs font-medium rounded-lg transition-colors">Edit</a>
                         <form action="{{ route('sources.destroy', $source) }}" method="POST"

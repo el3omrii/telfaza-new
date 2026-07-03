@@ -40,6 +40,7 @@ class SourceController extends Controller
             'type'      => 'required|in:hls,dash,mp4',
             'link'      => 'nullable|url|max:2048',
             'drm'       => 'boolean',
+            'enabled'   => 'nullable|boolean',
             'clearkeys' => 'nullable|string|max:4000',
         ]);
 
@@ -59,6 +60,7 @@ class SourceController extends Controller
             }
         }
         $data['clearkeys'] = $clearkeysArray;
+        $data['enabled'] = (bool) ($data['enabled'] ?? false);
 
         $data['channel_id'] = $channel->id;
         Source::create($data);
@@ -88,6 +90,7 @@ class SourceController extends Controller
             'type'      => 'required|in:hls,dash,mp4',
             'link'      => 'nullable|url|max:2048',
             'drm'       => 'boolean',
+            'enabled'   => 'nullable|boolean',
             'clearkeys' => 'nullable|string|max:4000',
         ]);
 
@@ -111,10 +114,21 @@ class SourceController extends Controller
 		if (empty($data['drm']))
 			$data['drm'] = false;
 
+        $data['enabled'] = (bool) ($data['enabled'] ?? false);
+
         $source->update($data);
 
         return redirect()->route('channels.show', $source->channel)
                          ->with('success', 'Source updated.');
+    }
+
+    public function toggle(Request $request, Source $source): RedirectResponse
+    {
+        $source->update([
+            'enabled' => (bool) $request->input('enabled', false),
+        ]);
+
+        return redirect()->back()->with('success', $source->enabled ? 'Source enabled.' : 'Source disabled.');
     }
 
     public function destroy(Source $source): RedirectResponse

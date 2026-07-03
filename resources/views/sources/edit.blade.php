@@ -40,6 +40,16 @@
                                class="w-full px-3.5 py-2.5 bg-bg border border-border rounded-[10px] text-sm text-gray-200 placeholder-muted focus:outline-none focus:border-accent transition-colors">
                     </div>
 
+                    {{-- Status toggle --}}
+                    <div>
+                        <label class="flex items-center gap-2.5 cursor-pointer text-sm select-none">
+                            <input type="checkbox" name="enabled" id="sourceEnabled" value="1"
+                                   {{ old('enabled', $source->enabled) ? 'checked' : '' }}
+                                   class="w-4 h-4 rounded accent-accent bg-bg border-border">
+                            Enable this source
+                        </label>
+                    </div>
+
                     {{-- DRM toggle --}}
                     <div>
                         <label class="flex items-center gap-2.5 cursor-pointer text-sm select-none">

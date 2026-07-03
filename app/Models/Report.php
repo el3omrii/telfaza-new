@@ -10,6 +10,7 @@ class Report extends Model
     protected $fillable = [
         'issue_type',
         'details',
+        'user_token',
         'user_agent',
         'treated',
         'channel_id',

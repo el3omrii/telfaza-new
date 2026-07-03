@@ -29,6 +29,7 @@ Route::middleware('auth')->group(function () {
 
     // Sources — standalone index page + nested CRUD under channels
     Route::get('/sources', [SourceController::class, 'index'])->name('sources.index');
+    Route::post('/sources/{source}/toggle', [SourceController::class, 'toggle'])->name('sources.toggle');
     Route::resource('channels.sources', SourceController::class)
          ->only(['create', 'store', 'edit', 'update', 'destroy'])
          ->shallow();
