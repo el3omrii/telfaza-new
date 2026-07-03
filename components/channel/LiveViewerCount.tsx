@@ -1,7 +1,8 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useState } from 'react'
 import { useViewerHeartbeat } from '@/hooks/useViewerHeartBeat'
+import { useViewerToken } from '@/hooks/useViewerToken'
 
 export default function LiveViewerCount({
   channelId,
@@ -12,16 +13,7 @@ export default function LiveViewerCount({
 }) {
   const [viewerCount, setViewerCount] = useState(initialCount)
 
-  const viewerToken = useMemo(() => {
-    if (typeof window === 'undefined') return ''
-
-    const storedToken = window.sessionStorage.getItem('viewer_token')
-    if (storedToken) return storedToken
-
-    const nextToken = crypto.randomUUID()
-    window.sessionStorage.setItem('viewer_token', nextToken)
-    return nextToken
-  }, [])
+  const viewerToken = useViewerToken()
 
   useViewerHeartbeat(channelId.toString(), viewerToken, setViewerCount)
   /* ─── icons ────────────────────────────────────────────────────────── */

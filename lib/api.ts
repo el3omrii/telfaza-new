@@ -133,6 +133,11 @@ export const getCountryChannels = (
   cacheTags('countries', 'channels', `country:${id}:channels`)
 )
 
+// ── Report Video ──────────────────────────────────────────────────────────────
+
+export const reportVideo = (body: string) =>
+  post<{ ok: string }>(`/video-reports`, body)
+
 // ── Search ────────────────────────────────────────────────────────────────────
 
 export const searchAll = (q: string, perPage = 10) =>

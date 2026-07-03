@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { getChannel, getChannels, storageUrl } from '@/lib/api'
 import ClientChannelPlayer from '@/components/channel/ClientChannelPlayer'
+import ChannelActionButtons from '@/components/channel/ChannelActionButtons'
 import LiveViewerCount from '@/components/channel/LiveViewerCount'
 import { fmtViews } from '@/lib/utils'
 import { buildMetadata, generateVideoSchema } from '@/lib/seo'
@@ -131,6 +132,7 @@ export default async function ChannelDetailPage({ params }: Props) {
         {/* Left — player + meta */}
         <div className="border-r border-white/[0.07]">
           <ClientChannelPlayer channel={channel} />
+          <ChannelActionButtons channelId={channel.id} channelName={channel.name} />
           {/* Description */}
           {channel.description && (
               <p className="max-w-xl text-sm font-light leading-relaxed text-zinc-400">
