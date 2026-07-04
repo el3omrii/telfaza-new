@@ -2,8 +2,8 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Str;
 
 class CategorySeeder extends Seeder
 {
@@ -25,7 +25,16 @@ class CategorySeeder extends Seeder
         ];
 
         foreach ($categories as $data) {
-            \App\Models\Category::create($data);
+            $slug = Str::slug($data['name']);
+
+            \App\Models\Category::updateOrCreate(
+                ['slug' => $slug],
+                [
+                    'name' => $data['name'],
+                    'description' => $data['description'],
+                    'color' => $data['color'],
+                ]
+            );
         }
     }
 }

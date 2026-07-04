@@ -5,7 +5,6 @@ namespace Database\Seeders;
 use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
-use Database\Seeders\CategorySeeder;
 
 class DatabaseSeeder extends Seeder
 {
@@ -16,15 +15,16 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
+        User::updateOrCreate(
+            ['email' => 'el3omri@hotmail.fr'],
+            [
+                'name' => 'Amine Omri',
+                'password' => bcrypt('123456'),
+            ]
+        );
 
-        User::factory()->create([
-            'name' => 'Amine Omri',
-            'email' => 'el3omri@hotmail.fr',
-            'password' => bcrypt('123456'),
+        $this->call([
+            CategorySeeder::class,
         ]);
-		$this->call([
-			CategorySeeder::class
-		]);
     }
 }
