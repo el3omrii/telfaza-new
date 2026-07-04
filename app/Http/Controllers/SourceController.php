@@ -22,11 +22,29 @@ class SourceController extends Controller
         $bytes = base64_decode($b64);
         return bin2hex($bytes);
     }
-    public function index(): View
+    public function index(Request $request): View
     {
-        $sources = Source::with('channel')->orderByDesc('id')->paginate(20);
+        $channelFilter = trim((string) $request->input('channel', ''));
+        $linkFilter = trim((string) $request->input('link', ''));
 
-        return view('sources.index', compact('sources'));
+        $sources = Source::with('channel')
+            ->when($channelFilter !== '', function ($query) use ($channelFilter) {
+                $query->whereHas('channel', function ($channelQuery) use ($channelFilter) {
+                    $channelQuery->where('name', 'like', '%' . $channelFilter . '%');
+                });
+            })
+            ->when($linkFilter !== '', function ($query) use ($linkFilter) {
+                $query->where('link', 'like', '%' . $linkFilter . '%');
+            })
+            ->orderByDesc('id')
+            ->paginate(20)
+            ->appends($request->only(['channel', 'link']));
+
+        $groupedSources = $sources->getCollection()
+            ->groupBy(fn (Source $source) => $source->channel_id)
+            ->values();
+
+        return view('sources.index', compact('sources', 'groupedSources'));
     }
 
     public function create(Channel $channel): View
