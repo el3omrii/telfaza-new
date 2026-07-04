@@ -6,6 +6,7 @@ use App\Models\Tag;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
+use Illuminate\Support\Str;
 
 class TagController extends Controller
 {
@@ -22,6 +23,7 @@ class TagController extends Controller
             'name' => 'required|string|max:255|unique:tags,name',
         ]);
 
+        $data['slug'] = Str::slug($data['name']);
         Tag::create($data);
 
         return redirect()->route('tags.index')->with('success', 'Tag created.');
@@ -32,7 +34,7 @@ class TagController extends Controller
         $data = $request->validate([
             'name' => 'required|string|max:255|unique:tags,name,' . $tag->tag_id . ',tag_id',
         ]);
-
+        $data['slug'] = Str::slug($data['name']);
         $tag->update($data);
 
         return redirect()->route('tags.index')->with('success', 'Tag updated.');
@@ -54,8 +56,10 @@ class TagController extends Controller
         $data = $request->validate([
             'name' => 'required|string|max:255',
         ]);
-
-        $tag = Tag::firstOrCreate(['name' => trim($data['name'])]);
+        
+        $tag = Tag::firstOrCreate(['name' => trim($data['name']),
+                                   'slug' => Str::slug($data['name'])
+                                   ]);
 
         return response()->json([
             'id' => $tag->id,
