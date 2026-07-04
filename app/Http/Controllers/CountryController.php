@@ -6,6 +6,7 @@ use App\Models\Country;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
+use Illuminate\Support\Str;
 
 class CountryController extends Controller
 {
@@ -22,7 +23,7 @@ class CountryController extends Controller
             'name' => 'required|string|max:255|unique:countries,name',
             'flag' => 'nullable|string|max:10',
         ]);
-
+        $data['slug'] = Str::slug($data['name']);
         Country::create($data);
 
         return redirect()->route('countries.index')->with('success', 'Country added.');
@@ -34,7 +35,7 @@ class CountryController extends Controller
             'name' => 'required|string|max:255|unique:countries,name,' . $country->id . ',id',
             'flag' => 'nullable|string|max:10',
         ]);
-
+        $data['slug'] = Str::slug($data['name']);
         $country->update($data);
 
         return redirect()->route('countries.index')->with('success', 'Country updated.');

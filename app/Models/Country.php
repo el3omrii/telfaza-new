@@ -10,6 +10,7 @@ class Country extends Model
     protected $fillable = [
         'name',
         'flag',
+        'slug'
     ];
  
     public function channels(): HasMany

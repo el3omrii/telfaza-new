@@ -17,7 +17,6 @@
                 <th class="px-4 py-3 text-left text-[0.72rem] uppercase tracking-wider text-muted">Type</th>
                 <th class="px-4 py-3 text-left text-[0.72rem] uppercase tracking-wider text-muted">Stream URL</th>
                 <th class="px-4 py-3 text-left text-[0.72rem] uppercase tracking-wider text-muted">DRM</th>
-                <th class="px-4 py-3 text-left text-[0.72rem] uppercase tracking-wider text-muted">Clearkeys</th>
                 <th class="px-4 py-3 text-left text-[0.72rem] uppercase tracking-wider text-muted">Actions</th>
             </tr>
         </thead>
@@ -41,9 +40,6 @@
                     @else
                         <span class="px-2 py-0.5 rounded-full text-[0.72rem] font-semibold bg-border text-muted">No</span>
                     @endif
-                </td>
-                <td class="px-4 py-3 max-w-xs">
-                    <code class="text-xs text-muted truncate block">{!! $source->clearkeys_formatted !!}</code>
                 </td>
                 <td class="px-4 py-3">
                     <div class="flex flex-wrap items-center gap-2">

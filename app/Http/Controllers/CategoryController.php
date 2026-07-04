@@ -6,6 +6,7 @@ use App\Models\Category;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
+use Illuminate\Support\Str;
 
 class CategoryController extends Controller
 {
@@ -29,6 +30,7 @@ class CategoryController extends Controller
             'color'       => 'nullable|string|max:7',
         ]);
 
+        $data['slug'] = Str::slug($data['name']);
         Category::create($data);
 
         return redirect()->route('categories.index')
@@ -54,7 +56,7 @@ class CategoryController extends Controller
             'description' => 'nullable|string|max:500',
             'color'       => 'nullable|string|max:7',
         ]);
-
+        $data['slug'] = Str::slug($data['name']);
         $category->update($data);
 
         return redirect()->route('categories.index')
