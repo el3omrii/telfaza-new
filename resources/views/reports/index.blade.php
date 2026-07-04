@@ -22,40 +22,44 @@
                 </tr>
             </thead>
             <tbody>
-            @forelse($reports as $report)
-                <tr class="border-b border-border last:border-0 hover:bg-white/[.02] transition-colors">
-                    <td class="px-4 py-3">
-                        <div class="font-medium text-sm">{{ $report->channel?->name ?? 'Deleted channel' }}</div>
-                        <p class="text-muted text-xs mt-0.5">{{ $report->created_at->format('M d, Y H:i') }}</p>
-                    </td>
-                    <td class="px-4 py-3">
-                        <span class="px-2.5 py-1 rounded-full text-[0.72rem] font-semibold bg-accent/15 text-accent">{{ str_replace('_', ' ', $report->issue_type) }}</span>
-                    </td>
-                    <td class="px-4 py-3 max-w-md">
-                        <p class="text-sm text-gray-200">{{ Str::limit($report->details ?: 'No details provided.', 120) }}</p>
-                        @if($report->user_agent)
-                            <p class="text-muted text-xs mt-1">{{ Str::limit($report->user_agent, 90) }}</p>
+            @forelse($reports->groupBy('channel_id') as $channelId => $group)
+                @php($channel = $group->first()->channel)
+                @foreach($group as $index => $report)
+                    <tr class="border-b border-border last:border-0 hover:bg-white/[.02] transition-colors">
+                        @if($index === 0)
+                            <td rowspan="{{ $group->count() }}" class="px-4 py-3 align-top">
+                                <div class="font-medium text-sm">{{ $channel?->name ?? 'Deleted channel' }}</div>
+                            </td>
                         @endif
-                    </td>
-                    <td class="px-4 py-3">
-                        @if($report->treated)
-                            <span class="px-2 py-0.5 rounded-full text-[0.72rem] font-semibold bg-green-500/15 text-green-400">Handled</span>
-                        @else
-                            <span class="px-2 py-0.5 rounded-full text-[0.72rem] font-semibold bg-red-500/15 text-red-400">Pending</span>
-                        @endif
-                    </td>
-                    <td class="px-4 py-3">
-                        <div class="flex gap-1.5">
-                            <a href="{{ route('reports.edit', $report) }}"
-                               class="px-3 py-1.5 bg-border hover:bg-[#2e3748] text-gray-200 text-xs font-medium rounded-lg transition-colors">Review</a>
-                            <form action="{{ route('reports.destroy', $report) }}" method="POST"
-                                  onsubmit="return confirm('Delete this report?')">
-                                @csrf @method('DELETE')
-                                <button class="px-3 py-1.5 bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30 text-xs font-medium rounded-lg transition-colors">Delete</button>
-                            </form>
-                        </div>
-                    </td>
-                </tr>
+                        <td class="px-4 py-3">
+                            <span class="px-2.5 py-1 rounded-full text-[0.72rem] font-semibold bg-accent/15 text-accent">{{ str_replace('_', ' ', $report->issue_type) }}</span>
+                        </td>
+                        <td class="px-4 py-3 max-w-md">
+                            <p class="text-sm text-gray-200">{{ Str::limit($report->details ?: 'No details provided.', 120) }}</p>
+                            @if($report->user_agent)
+                                <p class="text-muted text-xs mt-1">{{ Str::limit($report->user_agent, 90) }}</p>
+                            @endif
+                        </td>
+                        <td class="px-4 py-3">
+                            @if($report->treated)
+                                <span class="px-2 py-0.5 rounded-full text-[0.72rem] font-semibold bg-green-500/15 text-green-400">Handled</span>
+                            @else
+                                <span class="px-2 py-0.5 rounded-full text-[0.72rem] font-semibold bg-red-500/15 text-red-400">Pending</span>
+                            @endif
+                        </td>
+                        <td class="px-4 py-3">
+                            <div class="flex gap-1.5">
+                                <a href="{{ route('reports.edit', $report) }}"
+                                   class="px-3 py-1.5 bg-border hover:bg-[#2e3748] text-gray-200 text-xs font-medium rounded-lg transition-colors">Review</a>
+                                <form action="{{ route('reports.destroy', $report) }}" method="POST"
+                                      onsubmit="return confirm('Delete this report?')">
+                                    @csrf @method('DELETE')
+                                    <button class="px-3 py-1.5 bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30 text-xs font-medium rounded-lg transition-colors">Delete</button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                @endforeach
             @empty
                 <tr>
                     <td colspan="5" class="px-4 py-10 text-center text-muted text-sm">No reports found.</td>

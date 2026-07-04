@@ -1,7 +1,12 @@
 <!DOCTYPE html>
 <html lang="en" class="h-full">
 <head>
-    @php use Illuminate\Support\Facades\Auth; @endphp
+    @php
+        use App\Models\Report;
+        use Illuminate\Support\Facades\Auth;
+
+        $unhandledReportsCount = Report::where('treated', false)->count();
+    @endphp
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@yield('title', 'StreamPanel') — StreamPanel</title>
@@ -101,7 +106,14 @@
         <a href="{{ route('reports.index') }}" onclick="closeSidebar()"
            class="{{ $navLink }} {{ request()->routeIs('reports.*') ? $active : $idle }}">
             <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M4 22V4a1 1 0 0 1 .4-.8A6 6 0 0 1 8 2c3 0 5 2 7.333 2q2 0 3.067-.8A1 1 0 0 1 20 4v10a1 1 0 0 1-.4.8A6 6 0 0 1 16 16c-3 0-5-2-8-2a6 6 0 0 0-4 1.528"/></svg>
-            Reports
+            <span class="flex items-center gap-2">
+                Reports
+                @if($unhandledReportsCount > 0)
+                    <span class="inline-flex min-w-6 justify-center rounded-full bg-red-500/15 px-2 py-0.5 text-[0.7rem] font-semibold text-red-400">
+                        {{ $unhandledReportsCount }}
+                    </span>
+                @endif
+            </span>
         </a>
     </nav>
 
