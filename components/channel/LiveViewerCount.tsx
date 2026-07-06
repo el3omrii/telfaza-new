@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { useViewerHeartbeat } from '@/hooks/useViewerHeartBeat'
+import { usePusherViewerCount } from '@/hooks/usePusherViewerCount'
 import { useViewerToken } from '@/hooks/useViewerToken'
 
 export default function LiveViewerCount({
@@ -15,7 +15,7 @@ export default function LiveViewerCount({
 
   const viewerToken = useViewerToken()
 
-  useViewerHeartbeat(channelId.toString(), viewerToken, setViewerCount)
+  usePusherViewerCount(channelId.toString(), viewerToken, setViewerCount)
   /* ─── icons ────────────────────────────────────────────────────────── */
 const Icon = {
   Users: () => (
