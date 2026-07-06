@@ -32,7 +32,7 @@ export default function ChannelActionButtons({
   channelId: number | string
   channelName: string
 }) {
-  const viewerToken = useViewerToken()
+  const userToken = useViewerToken()
   const [isFavorite, setIsFavorite] = useState(() => {
     return readFavorites().map(String).includes(String(channelId))
   })
@@ -69,18 +69,13 @@ export default function ChannelActionButtons({
     setMessage('')
 
     try {
-      const response = await reportVideo(JSON.stringify({
-          channelId: String(channelId),
+      const response = await reportVideo({
+          channel_id: String(channelId),
           channelName,
-          reason,
-          viewerToken,
-        })
+          issue_type: reason,
+          user_token: userToken,
+        }
       )
-
-      if (!response.ok) {
-        throw new Error('Unable to submit report')
-      }
-
       setStatus('success')
       setMessage('Thanks, your report has been received.')
       setTimeout(() => {
@@ -144,7 +139,7 @@ export default function ChannelActionButtons({
             </div>
 
             <form className="space-y-4" onSubmit={handleSubmit}>
-              <input type="hidden" name="viewer_token" value={viewerToken} />
+              <input type="hidden" name="user_token" value={userToken} />
 
               <label className="block text-sm text-zinc-300">
                 <span className="mb-2 block">Issue</span>

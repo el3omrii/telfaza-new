@@ -73,7 +73,9 @@ function SearchBox({
   const [results, setResults] = useState<Channel[]>([])
   const [loading, setLoading] = useState(false)
   const [open, setOpen] = useState(false)
-  const debounced = useDebounce(query, 220)
+  const debouncedQuery = useDebounce(query, 220)
+  const trimmedQuery = query.trim()
+  const trimmedDebouncedQuery = debouncedQuery.trim()
 
   useEffect(() => {
     setQuery('')
@@ -82,8 +84,7 @@ function SearchBox({
   }, [pathname])
 
   useEffect(() => {
-    const trimmed = debounced.trim()
-    if (!trimmed) {
+    if (!trimmedDebouncedQuery) {
       setResults([])
       setLoading(false)
       return
@@ -92,7 +93,7 @@ function SearchBox({
     let ignore = false
     setLoading(true)
 
-    searchAll(trimmed, 6)
+    searchAll(trimmedDebouncedQuery, 6)
       .then((res) => {
         if (!ignore) {
           setResults(res.channels)
@@ -112,13 +113,12 @@ function SearchBox({
     return () => {
       ignore = true
     }
-  }, [debounced])
+  }, [trimmedDebouncedQuery])
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    const trimmed = query.trim()
-    if (!trimmed) return
-    router.push(`/search?q=${encodeURIComponent(trimmed)}`)
+    if (!trimmedQuery) return
+    router.push(`/search?q=${encodeURIComponent(trimmedQuery)}`)
     setQuery('')
     setOpen(false)
     setResults([])
@@ -133,7 +133,7 @@ function SearchBox({
     onSelect?.()
   }
 
-  const showResults = open && (query.trim().length > 0 || loading || results.length > 0)
+  const showResults = open && (trimmedQuery.length > 0 || loading || results.length > 0)
   const inputClassName = variant === 'mobile'
     ? 'bg-transparent text-sm text-white placeholder-white/40 outline-none flex-1'
     : 'bg-transparent text-sm text-white placeholder-white/40 outline-none w-full'
@@ -234,7 +234,7 @@ function SearchBox({
                 )
               })}
               <Link
-                href={`/search?q=${encodeURIComponent(query.trim())}`}
+                href={`/search?q=${encodeURIComponent(trimmedQuery)}`}
                 onClick={() => {
                   setQuery('')
                   setOpen(false)
@@ -247,7 +247,7 @@ function SearchBox({
             </div>
           ) : (
             <div className="px-3 py-3 text-sm text-zinc-400">
-              No channels found for “{query.trim()}”.
+              No channels found for “{trimmedQuery}”.
             </div>
           )}
         </div>
