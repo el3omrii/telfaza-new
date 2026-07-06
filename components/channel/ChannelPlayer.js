@@ -15,7 +15,11 @@ import { MediaRenditionMenu, MediaRenditionMenuButton } from 'media-chrome/react
 import ShakaVideo from 'shaka-video-element/react';
 
 function setupSnrtUrlFix(shakaPlayer) {
-  
+  const RequestType = {
+    MANIFEST: 0,
+    SEGMENT: 1,
+    LICENSE: 2
+  }
 	let capturedToken = null;
   const TOKEN_PARAM = 'token';
 
@@ -24,7 +28,7 @@ function setupSnrtUrlFix(shakaPlayer) {
   shakaPlayer.getNetworkingEngine().registerResponseFilter((type, response, context) => {
     console.log('📡 ResponseFilter:', { type, uri: response.uri });
     
-    if (type === shaka.net.NetworkingEngine.RequestType.MANIFEST) {
+    if (type === RequestType.MANIFEST) {
       const finalUrl = response.uri; // ✅ Use response.uri, NOT request.uris
       if (!finalUrl) return;
 
@@ -50,8 +54,8 @@ function setupSnrtUrlFix(shakaPlayer) {
   // Signature: (type, request, context) - this one DOES get request
   shakaPlayer.getNetworkingEngine().registerRequestFilter((type, request, context) => {
     if (!capturedToken || capturedToken.trim() === '') return;
-    if (type === shaka.net.NetworkingEngine.RequestType.LICENSE) return;
-    if (type === shaka.net.NetworkingEngine.RequestType.SEGMENT) return;
+    if (type === RequestType.LICENSE) return;
+    if (type === RequestType.SEGMENT) return;
 
     console.log('✏️  RequestFilter:', { type, uris: request.uris });
     
@@ -136,7 +140,7 @@ export default function ChannelPlayer({ channel }) {
             <MediaMuteButton className="media-control"></MediaMuteButton>
             <MediaVolumeRange className="media-control hidden md:block"></MediaVolumeRange>
             <div className="flex items-center justify-center gap-2 truncate md:flex-grow">
-              <img src={storageUrl(channel.logo)} alt={channel.name} className="w-6 md:w-12 max-h-[50px] object-cover rounded-xl" />
+              <img src={storageUrl(channel.logo)} alt={channel.name} className="w-6 md:w-12 max-h-[50px] object-fit rounded-xl" />
               <span className="truncate text-xs sm:text-sm text-muted">{channel.name}</span>
             </div>
             <MediaRenditionMenuButton className="media-control">
