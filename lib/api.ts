@@ -77,7 +77,7 @@ export const getTrendingChannels = () =>
   get<Channel[]>('/channels/trending', cacheTags('channels', 'channels:trending'))
 
 export const getWatchingNow = () =>
-  get<Channel[]>('/channels/watching-now', cacheTags('channels', 'channels:watching-now'))
+  get<Channel[]>('/channels/watching-now', [], 60)
 
 export const getFiltersMeta = () =>
   get<FiltersMeta>('/channels/filters/meta', cacheTags('channels', 'channels:filters-meta'))
