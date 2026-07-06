@@ -17,6 +17,7 @@ use App\Http\Controllers\Api\SearchController;
 use App\Http\Controllers\Api\TagController;
 use App\Http\Controllers\Api\SliderController;
 use App\Http\Controllers\Api\ReportController;
+use App\Http\Controllers\Api\PusherController;
 use Illuminate\Support\Facades\Route;
 
 
@@ -90,7 +91,7 @@ Route::get('/countries', [CountryController::class, 'index']);
 // GET  /api/countries/{id}/channels
 //      ?category=1  &quality=1080p  &sort=views  &order=desc  &per_page=24
 Route::get('/countries/{country:slug}/channels', [CountryController::class, 'channels']);
-
+Route::post('/pusher/webhook', [PusherController::class, 'webhook']);
 Route::get('/watching-now', function (ViewingTracker $tracker) {
     $watchingNow = $tracker->getWatchingNow();
     
