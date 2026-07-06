@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Services\ViewingTracker;
 use Pusher\Pusher;
+use Pusher\PusherException;
 
 use Illuminate\Http\Request;
 
@@ -25,25 +26,24 @@ class PusherController extends Controller
         ];
 
         // 2. Pass the formatted headers and the raw body
-        $webhook = $pusher->webhook($webhook_headers, $request->getContent());
-
-        // 3. Verify it actually came from Pusher
-        if (!$webhook->isValid()) {
-            return response()->json(['error' => 'Invalid signature'], 403);
+        try {
+            $webhook = $pusher->webhook($webhook_headers, $request->getContent());
+        } catch (PusherException $e) {
+            return response()->json(['error' => 'Invalid webhook'], 400);
         }
 
-        // 4. Process the events
-        $events = $webhook->getEvents();
+        // 3. Process the events
+        $events = $webhook->get_events();
 
         foreach ($events as $event) {
             // Channel name looks like "presence-stream-123"
-            $channelId = str_replace('presence-stream-', '', $event['channel']);
+            $channelId = str_replace('presence-stream-', '', $event->channel);
 
-            if ($event['name'] === 'member_added') {
-                $tracker->trackChannel($channelId, $event['user_id']);
+            if ($event->name === 'member_added') {
+                $tracker->trackChannel($channelId, $event->user_id);
             } 
-            elseif ($event['name'] === 'member_removed') {
-                $tracker->stopTracking($channelId, $event['user_id']);
+            elseif ($event->name === 'member_removed') {
+                $tracker->stopTracking($channelId, $event->user_id);
             }
         }
 
