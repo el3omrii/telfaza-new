@@ -135,8 +135,8 @@ export const getCountryChannels = (
 
 // ── Report Video ──────────────────────────────────────────────────────────────
 
-export const reportVideo = (body: string) =>
-  post<{ ok: string }>(`/video-reports`, body)
+export const reportVideo = (body: any) =>
+  post(`/video-reports`, body)
 
 // ── Search ────────────────────────────────────────────────────────────────────
 

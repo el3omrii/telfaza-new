@@ -69,7 +69,7 @@ export default function ChannelActionButtons({
     setMessage('')
 
     try {
-      const response = await reportVideo({
+      await reportVideo({
           channel_id: String(channelId),
           channelName,
           issue_type: reason,
