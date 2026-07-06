@@ -17,20 +17,27 @@ class PusherController extends Controller
             ['cluster' => env('PUSHER_APP_CLUSTER')]
         );
 
-        // 1. Get the raw body and headers to verify the webhook signature
-        $webhook = $pusher->webhook($request->headers->all(), $request->getContent());
+        // 1. Format the headers exactly how the Pusher SDK expects them
+        $webhook_headers = [
+            'X-Pusher-Key' => $request->header('X-Pusher-Key'),
+            'X-Pusher-Signature' => $request->header('X-Pusher-Signature'),
+            'X-Pusher-Webhook-Id' => $request->header('X-Pusher-Webhook-Id'),
+        ];
 
-        // 2. Verify it actually came from Pusher
+        // 2. Pass the formatted headers and the raw body
+        $webhook = $pusher->webhook($webhook_headers, $request->getContent());
+
+        // 3. Verify it actually came from Pusher
         if (!$webhook->isValid()) {
             return response()->json(['error' => 'Invalid signature'], 403);
         }
 
-        // 3. Process the events
+        // 4. Process the events
         $events = $webhook->getEvents();
 
         foreach ($events as $event) {
             // Channel name looks like "presence-stream-123"
-            $channelId = str_replace('presence-', '', $event['channel']);
+            $channelId = str_replace('presence-stream-', '', $event['channel']);
 
             if ($event['name'] === 'member_added') {
                 $tracker->trackChannel($channelId, $event['user_id']);
