@@ -1,12 +1,13 @@
 'use client'
 
 import { useEffect } from 'react'
+import { Dispatch, SetStateAction } from 'react'
 import Pusher from 'pusher-js'
 
 export function usePusherViewerCount(
   channelId: string,
   viewerToken: string,
-  onCountChange?: (count: number) => void
+  onCountChange?: Dispatch<SetStateAction<number>>
 ) {
   useEffect(() => {
     // Initialize Pusher
