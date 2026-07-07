@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Session;
 
 class ViewingTracker
 {
-    private $expirySeconds = 60; // Consider user "watching" for 60 seconds without activity
+    private $expirySeconds = 3600; // Consider user "watching" for 60 seconds without activity
     
     public function trackChannel($channelId, string $viewerToken)
     {
