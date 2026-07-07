@@ -5,9 +5,10 @@ use App\Http\Controllers\ChannelController;
 use App\Http\Controllers\CountryController;
 use App\Http\Controllers\GeminiController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ReportController;
+use App\Http\Controllers\SitemapController;
 use App\Http\Controllers\SourceController;
 use App\Http\Controllers\TagController;
-use App\Http\Controllers\ReportController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -18,6 +19,10 @@ use Illuminate\Support\Facades\Route;
 
 // ── Authentication (guest only) ───────────────────────────────────────────────
 Auth::routes(['register' => false, 'reset' => false, 'verify' => false]);
+
+// ── Public sitemap endpoints ────────────────────────────────────────────────
+Route::get('/sitemap.xml', [SitemapController::class, 'sitemap'])->name('sitemap.xml');
+Route::get('/video-sitemap.xml', [SitemapController::class, 'videoSitemap'])->name('video-sitemap.xml');
 
 // ── Protected application routes (auth required) ──────────────────────────────
 Route::middleware('auth')->group(function () {
@@ -51,9 +56,14 @@ Route::middleware('auth')->group(function () {
     Route::post('/ai/generate-description', [GeminiController::class, 'generateDescription'])
          ->name('ai.generate-description');
 
-     // Reports 
+    // Reports 
     Route::resource('reports', ReportController::class)
          ->only(['index', 'edit', 'update', 'destroy']);
+
+    // Sitemaps
+    Route::get('/sitemaps', [SitemapController::class, 'index'])->name('sitemaps.index');
+    Route::post('/sitemaps/generate', [SitemapController::class, 'generate'])->name('sitemaps.generate');
+
     // Profile
     Route::get('/profile',               [ProfileController::class, 'edit'])->name('profile.edit');
     Route::put('/profile',               [ProfileController::class, 'update'])->name('profile.update');

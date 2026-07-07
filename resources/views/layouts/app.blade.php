@@ -115,6 +115,14 @@
                 @endif
             </span>
         </a>
+
+        <a href="{{ route('sitemaps.index') }}" onclick="closeSidebar()"
+           class="{{ $navLink }} {{ request()->routeIs('sitemaps.*') ? $active : $idle }}">
+            <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path d="M4 4h16v16H4z"/><path d="M8 8h8M8 12h8M8 16h5"/>
+            </svg>
+            Sitemaps
+        </a>
     </nav>
 
     {{-- User block --}}
