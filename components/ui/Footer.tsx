@@ -42,21 +42,16 @@ export default function Footer() {
                     <p className='text-lg text-gray-800'>COMPANY</p>
                     <ul className='mt-3 flex flex-col gap-2 text-sm'>
                         <li><a href="#">About</a></li>
-                        <li><a href="#">Careers</a></li>
-                        <li><a href="#">Press</a></li>
+                        <li><a href="#">Contact us</a></li>
                         <li><a href="#">Blog</a></li>
-                        <li><a href="#">Partners</a></li>
                     </ul>
                 </div>
 
                 <div>
-                    <p className='text-lg text-gray-800'>SUPPORT</p>
+                    <p className='text-lg text-gray-800'>LEGAL</p>
                     <ul className='mt-3 flex flex-col gap-2 text-sm'>
-                        <li><a href="#">Help Center</a></li>
-                        <li><a href="#">Safety Information</a></li>
-                        <li><a href="#">Cancellation Options</a></li>
-                        <li><a href="#">Contact Us</a></li>
-                        <li><a href="#">Accessibility</a></li>
+                        <li><Link href="/privacy">Privacy Policy</Link></li>
+                        <li><Link href="/cookies">Cookie Policy</Link></li>
                     </ul>
                 </div>
             </div>
@@ -74,7 +69,6 @@ export default function Footer() {
                   </span>
                 </a>. Free arabic TV.</p>
                 <ul className='flex items-center gap-4'>
-                    <li><a href="#">Privacy</a></li>
                     <li><a href="#">Terms</a></li>
                     <li><a href="#">Sitemap</a></li>
                 </ul>

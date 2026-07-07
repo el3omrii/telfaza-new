@@ -1,11 +1,13 @@
 import Link from "next/link"
 import { Suspense } from "react";
-import { getFeaturedChannels, getCountries, getWatchingNow } from '@/lib/api'
+import { getFeaturedChannels, getCountries } from '@/lib/api'
 import { buildMetadata } from '@/lib/seo'
 
 import HeroCarousel from "../components/HeroCarousel";
 import { FeaturedChannelsSlider } from '@/components/channel/FeaturedChannelsSlider'
 import { CountryGrid } from '@/components/country/CountryGrid'
+import { WatchingNowSection } from '@/components/channel/WatchingNowSection'
+import { SectionHead } from '@/components/ui/SectionHead'
 
 export const metadata = buildMetadata({
   title: 'Home',
@@ -15,7 +17,6 @@ export const metadata = buildMetadata({
 
 export default async function Home() {
   const featured = await getFeaturedChannels()
-  const activeChannels = await getWatchingNow()
   const countries = await getCountries()
 
   return (
@@ -25,12 +26,8 @@ export default async function Home() {
       </Suspense>
       <main className="max-w-7xl mx-auto px-6 md:px-16 lg:px-24 xl:px-32">
       {/* -- Watching Now -- */}
-      { activeChannels.length > 0 && (
-        <section className="mt-8">
-          <SectionHead title="✦ Watching Now" href="/channels" />
-          <FeaturedChannelsSlider channels={activeChannels} />
-        </section>
-      )}
+      <WatchingNowSection />
+
       {/* ── Featured ── */}
         <section className="mt-8">
           <SectionHead title="✦ Featured Channels" href="/channels" />
@@ -46,17 +43,4 @@ export default async function Home() {
     </div>
 
   );
-}
-function SectionHead({ title, href }: { title: string; href: string }) {
-  return (
-    <div className="relative mb-8 flex items-baseline justify-between">
-      <h2 className="font-head text-2xl font-bold tracking-tight pb-4 border-b border-gray-700 after:content-[''] 
-           after:absolute after:bottom-0 after:left-0 
-           after:h-1.5 after:w-32 
-           after:bg-red-500 ">{title}</h2>
-      <Link href={href} className="text-xs text-zinc-500 transition-colors hover:text-teal-400">
-        View all →
-      </Link>
-    </div>
-  )
 }
