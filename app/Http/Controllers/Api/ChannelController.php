@@ -129,6 +129,19 @@ class ChannelController extends Controller
         return response()->json($channels);
     }
 
+    // ─── GET /api/channels/favorites ──────────────────────────────────────────
+    // favorites channels by ids 
+    public function favorites(Request $request): JsonResponse
+    {
+        $request->validate([
+            'ids' => 'required|array',
+            'ids.*' => 'integer',
+        ]);
+        $channels = Channel::whereIn('id', $request->input('ids'))->get();
+
+        return response()->json($channels);
+    }
+
     // ─── GET /api/channels/watching-now ──────────────────────────────────────
     // Live viewers from Redis via ViewingTracker
     public function watchingNow(ViewingTracker $tracker): JsonResponse
