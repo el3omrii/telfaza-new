@@ -5,7 +5,7 @@ import { buildMetadata } from '@/lib/seo'
 
 import HeroCarousel from "../components/HeroCarousel";
 import { FeaturedChannelsSlider } from '@/components/channel/FeaturedChannelsSlider'
-import { CountryGrid } from '@/components/country/CountryGrid'
+import { HomeCountryGrid } from '@/components/country/HomeCountryGrid'
 import { WatchingNowSection } from '@/components/channel/WatchingNowSection'
 import { SectionHead } from '@/components/ui/SectionHead'
 
@@ -37,7 +37,7 @@ export default async function Home() {
         {/* ── Countries ── */}
         <section className="mt-8">
           <SectionHead title="✦ TV By Country" href="/channels?featured=1" />
-          <CountryGrid countries={countries} />
+          <HomeCountryGrid countries={countries} />
         </section>
       </main>
     </div>

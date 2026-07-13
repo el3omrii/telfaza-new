@@ -38,8 +38,11 @@ export default function ChannelActionButtons({
   })
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [reason, setReason] = useState(REPORT_OPTIONS[0].value)
+  const [details, setDetails] = useState('')
   const [status, setStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle')
   const [message, setMessage] = useState('')
+  const [shareMessage, setShareMessage] = useState('')
+  const [isShareDropdownOpen, setIsShareDropdownOpen] = useState(false)
 
   const toggleFavorite = () => {
     if (typeof window === 'undefined') return
@@ -61,6 +64,7 @@ export default function ChannelActionButtons({
     setStatus('idle')
     setMessage('')
     setReason(REPORT_OPTIONS[0].value)
+    setDetails('')
   }
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -73,6 +77,7 @@ export default function ChannelActionButtons({
           channel_id: String(channelId),
           channelName,
           issue_type: reason,
+          details,
           user_token: userToken,
         }
       )
@@ -86,6 +91,50 @@ export default function ChannelActionButtons({
       setMessage('We could not submit the report right now. Please try again.')
     }
   }
+
+  const handleShare = async () => {
+    if (typeof window === 'undefined') return;
+
+    try {
+      const currentUrl = window.location.href;
+      const shareData = {
+        title: `Watch ${channelName} on Telfaza LIVE`,
+        text: `Check out ${channelName} live on Telfaza!`,
+        url: currentUrl,
+      };
+
+      // Try Web Share API first
+      if (navigator.share) {
+        await navigator.share(shareData);
+        setShareMessage('Thanks for sharing!');
+      } else {
+        // Fallback to clipboard copy
+        await navigator.clipboard.writeText(currentUrl);
+        setShareMessage('Link copied to clipboard!');
+      }
+
+      // Clear message after 2 seconds
+      setTimeout(() => {
+        setShareMessage('');
+      }, 2000);
+    } catch (err) {
+      console.error('Error sharing:', err);
+      setShareMessage('Could not share. Please try again.');
+      setTimeout(() => {
+        setShareMessage('');
+      }, 2000);
+    }
+  };
+
+  const handleShareEmail = () => {
+    if (typeof window === 'undefined') return;
+
+    const currentUrl = window.location.href;
+    const subject = `Check out ${channelName} on Telfaza LIVE`;
+    const body = `I wanted to share this live stream with you: ${currentUrl}`;
+
+    window.location.href = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+  };
 
   return (
     <div className="flex flex-wrap items-center gap-3 py-4">
@@ -106,79 +155,178 @@ export default function ChannelActionButtons({
         {isFavorite ? 'Favorited' : 'Favorite'}
       </button>
 
+      <div className="relative">
+        <button
+          type="button"
+          onClick={() => {
+            handleShare();
+            setIsShareDropdownOpen(false);
+          }}
+          onMouseEnter={() => setIsShareDropdownOpen(true)}
+          onMouseLeave={() => setIsShareDropdownOpen(false)}
+          className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-zinc-900 px-3.5 py-2 text-sm font-medium text-zinc-200 transition hover:border-blue-500/40 hover:text-blue-400"
+          title="Share this channel"
+        >
+          <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+            <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8" />
+            <polyline points="16,6 12,2 8,6" />
+            <line x1="12" y1="2" x2="12" y2="15" />
+          </svg>
+          Share
+        </button>
+        {isShareDropdownOpen && (
+          <div
+            onMouseEnter={() => setIsShareDropdownOpen(true)}
+            onMouseLeave={() => setIsShareDropdownOpen(false)}
+            className="absolute right-0 mt-2 w-48 rounded-md border border-white/10 bg-zinc-900 shadow-lg z-10"
+          >
+            <div className="py-1">
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleShare();
+                  setIsShareDropdownOpen(false);
+                }}
+                className="w-full px-4 py-2 text-left text-sm text-zinc-200 hover:bg-zinc-800 flex items-center gap-2"
+              >
+                <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+                  <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8" />
+                  <polyline points="16,6 12,2 8,6" />
+                  <line x1="12" y1="2" x2="12" y2="15" />
+                </svg>
+                Social Networks
+              </button>
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleShareEmail();
+                  setIsShareDropdownOpen(false);
+                }}
+                className="w-full px-4 py-2 text-left text-sm text-zinc-200 hover:bg-zinc-800 flex items-center gap-2"
+              >
+                <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+                  <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+                  <polyline points="22,6 12,13 2,6" />
+                </svg>
+                Email
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+
       <button
         type="button"
         onClick={() => setIsModalOpen(true)}
         className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-zinc-900 px-3.5 py-2 text-sm font-medium text-zinc-200 transition hover:border-amber-500/40 hover:text-amber-400"
       >
-        <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
-          <path d="M12 3v10" />
-          <path d="M12 15v6" />
-          <path d="M4 7h16" />
-          <path d="M6 7c0-2.2 1.8-4 4-4h4c2.2 0 4 1.8 4 4" />
+        <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M4 22V4a1 1 0 0 1 .4-.8A6 6 0 0 1 8 2c3 0 5 2 7.333 2q2 0 3.067-.8A1 1 0 0 1 20 4v10a1 1 0 0 1-.4.8A6 6 0 0 1 16 16c-3 0-5-2-8-2a6 6 0 0 0-4 1.528"/>
         </svg>
         Report dead stream
       </button>
 
+      {shareMessage && (
+        <div className="fixed bottom-4 right-4 z-50 rounded-lg bg-zinc-800 px-4 py-2 text-sm text-emerald-400 shadow-lg">
+          {shareMessage}
+        </div>
+      )}
+
       {isModalOpen ? (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4">
-          <div className="w-full max-w-md rounded-2xl border border-white/10 bg-zinc-900 p-5 shadow-2xl">
-            <div className="mb-4 flex items-start justify-between gap-3">
-              <div>
-                <h3 className="text-lg font-semibold text-white">Report dead stream</h3>
-                <p className="mt-1 text-sm text-zinc-400">Let us know what is wrong with this stream.</p>
-              </div>
-              <button
-                type="button"
-                onClick={closeModal}
-                className="rounded-full p-2 text-zinc-400 transition hover:bg-zinc-800 hover:text-white"
-                aria-label="Close report dialog"
-              >
-                ×
-              </button>
-            </div>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4 backdrop-blur-md">
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="report-dialog-title"
+            className="relative w-full max-w-md overflow-hidden rounded-[28px] border border-white/10 bg-[linear-gradient(180deg,rgba(24,24,27,0.98),rgba(9,9,11,0.98))] shadow-[0_24px_80px_rgba(0,0,0,0.65)]"
+          >
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(245,158,11,0.2),transparent_36%),radial-gradient(circle_at_bottom_left,rgba(59,130,246,0.16),transparent_38%)]" />
 
-            <form className="space-y-4" onSubmit={handleSubmit}>
-              <input type="hidden" name="user_token" value={userToken} />
-
-              <label className="block text-sm text-zinc-300">
-                <span className="mb-2 block">Issue</span>
-                <select
-                  value={reason}
-                  onChange={event => setReason(event.target.value)}
-                  className="w-full rounded-lg border border-white/10 bg-zinc-800 px-3 py-2 text-sm text-white outline-none ring-0"
-                >
-                  {REPORT_OPTIONS.map(option => (
-                    <option key={option.value} value={option.value}>
-                      {option.label}
-                    </option>
-                  ))}
-                </select>
-              </label>
-
-              <div className="flex justify-end gap-2">
+            <div className="relative p-5">
+              <div className="mb-4 flex items-start justify-between gap-3">
+                <div className="flex items-start gap-3">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-amber-500/15 text-amber-400">
+                    <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+                      <path d="M12 9v4" />
+                      <path d="M12 17h.01" />
+                      <path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0Z" />
+                    </svg>
+                  </div>
+                  <div>
+                    <h3 id="report-dialog-title" className="text-lg font-semibold text-white">Report dead stream</h3>
+                    <p className="mt-1 text-sm text-zinc-400">Let us know what is wrong with this stream.</p>
+                  </div>
+                </div>
                 <button
                   type="button"
                   onClick={closeModal}
-                  className="rounded-full border border-white/10 px-3.5 py-2 text-sm text-zinc-300 transition hover:bg-zinc-800"
+                  className="rounded-full p-2 text-zinc-400 transition hover:bg-zinc-800 hover:text-white"
+                  aria-label="Close report dialog"
                 >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={status === 'submitting'}
-                  className="rounded-full bg-amber-500 px-3.5 py-2 text-sm font-semibold text-zinc-950 transition hover:bg-amber-400 disabled:cursor-not-allowed disabled:opacity-70"
-                >
-                  {status === 'submitting' ? 'Submitting...' : 'Submit report'}
+                  ×
                 </button>
               </div>
 
-              {message ? (
-                <p className={`text-sm ${status === 'error' ? 'text-rose-400' : 'text-emerald-400'}`}>
-                  {message}
-                </p>
-              ) : null}
-            </form>
+              <form className="space-y-4" onSubmit={handleSubmit}>
+                <input type="hidden" name="user_token" value={userToken} />
+
+                <label className="block text-sm text-zinc-300">
+                  <span className="mb-2 block font-medium text-zinc-200">Issue</span>
+                  <div className="relative">
+                    <select
+                      value={reason}
+                      onChange={event => setReason(event.target.value)}
+                      className="w-full appearance-none rounded-xl border border-white/10 bg-zinc-900/80 px-3 py-3 pr-10 text-sm text-white outline-none transition focus:border-amber-500/50 focus:ring-2 focus:ring-amber-500/25"
+                    >
+                      {REPORT_OPTIONS.map(option => (
+                        <option key={option.value} value={option.value}>
+                          {option.label}
+                        </option>
+                      ))}
+                    </select>
+                    <svg className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+                      <polyline points="6,9 12,15 18,9" />
+                    </svg>
+                  </div>
+                </label>
+
+                <label className="block text-sm text-zinc-300">
+                  <span className="mb-2 block font-medium text-zinc-200">Details</span>
+                  <textarea
+                    value={details}
+                    onChange={event => setDetails(event.target.value)}
+                    rows={4}
+                    placeholder="Tell us more about the issue..."
+                    className="w-full rounded-xl border border-white/10 bg-zinc-900/80 px-3 py-3 text-sm text-white outline-none transition placeholder:text-zinc-500 focus:border-amber-500/50 focus:ring-2 focus:ring-amber-500/25"
+                  />
+                </label>
+
+                <div className="flex justify-end gap-2 pt-1">
+                  <button
+                    type="button"
+                    onClick={closeModal}
+                    className="rounded-full border border-white/10 px-3.5 py-2 text-sm text-zinc-300 transition hover:bg-zinc-800"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={status === 'submitting'}
+                    className="rounded-full bg-amber-500 px-3.5 py-2 text-sm font-semibold text-zinc-950 transition hover:bg-amber-400 disabled:cursor-not-allowed disabled:opacity-70"
+                  >
+                    {status === 'submitting' ? 'Submitting...' : 'Submit report'}
+                  </button>
+                </div>
+
+                {message ? (
+                  <p className={`rounded-xl border px-3 py-2 text-sm ${status === 'error' ? 'border-rose-500/30 bg-rose-500/10 text-rose-300' : 'border-emerald-500/30 bg-emerald-500/10 text-emerald-300'}`}>
+                    {message}
+                  </p>
+                ) : null}
+              </form>
+            </div>
           </div>
         </div>
       ) : null}

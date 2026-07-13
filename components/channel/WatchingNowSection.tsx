@@ -46,7 +46,7 @@ export function WatchingNowSection() {
 
   return (
     <section className="mt-8">
-      <SectionHead title="✦ Watching Now" href="/channels" />
+      <SectionHead title="✦ Watching Now" />
       <FeaturedChannelsSlider channels={activeChannels} />
     </section>
   );

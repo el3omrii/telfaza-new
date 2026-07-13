@@ -72,3 +72,17 @@ export function mergeFilters(
 ): ChannelFilters {
   return { ...base, ...updates, page: 1 }  // reset page on any filter change
 }
+
+export function readFavorites(): Array<string | number> {
+   const FAVORITES_KEY = 'telfaza_favorite_channels'
+  if (typeof window === 'undefined') return []
+
+  try {
+    const stored = window.localStorage.getItem(FAVORITES_KEY)
+    if (!stored) return []
+
+    return JSON.parse(stored) as Array<string | number>
+  } catch {
+    return []
+  }
+}

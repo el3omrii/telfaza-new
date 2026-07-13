@@ -26,8 +26,12 @@ function setupSnrtUrlFix(shakaPlayer) {
   // 1️⃣ ResponseFilter: Extract token from FINAL URL after redirect
   // Signature: (type, response, context)
   shakaPlayer.getNetworkingEngine().registerResponseFilter((type, response, context) => {
-    console.log('📡 ResponseFilter:', { type, uri: response.uri });
+    const originalUri = response.originalUri || '';
     
+    // 🔒 Only activate for /saudia_tv/ endpoint
+    if (!originalUri.includes('/snrt/')) {
+      return Promise.resolve();
+    }
     if (type === RequestType.MANIFEST) {
       const finalUrl = response.uri; // ✅ Use response.uri, NOT request.uris
       if (!finalUrl) return;
@@ -95,7 +99,6 @@ export default function ChannelPlayer({ channel }) {
         setError('DRM configuration failed');
       }
     }
-
     video.src = link;
 
     const handleResize = () => {

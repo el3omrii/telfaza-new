@@ -1,12 +1,14 @@
+import Link from 'next/link'
 import type { Country } from '@/types'
 import { CountryCard } from './CountryCard'
 
 interface Props {
   countries: Country[]
   emptyMessage?: string
+  showViewAllButton?: boolean
 }
 
-export function CountryGrid({ countries, emptyMessage = 'No Countries found.' }: Props) {
+export function CountryGrid({ countries, emptyMessage = 'No Countries found.', showViewAllButton = true }: Props) {
   if (countries.length === 0) {
     return (
       <div className="flex min-h-[200px] items-center justify-center text-sm text-zinc-500">
@@ -16,10 +18,11 @@ export function CountryGrid({ countries, emptyMessage = 'No Countries found.' }:
   }
 
   return (
-    <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-5">
+    <div className="grid sm:grid-cols-2 gap-3 md:gap-4 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
       {countries.map(c => (
         <CountryCard key={c.id} country={c} />
       ))}
+
     </div>
   )
 }

@@ -22,7 +22,7 @@ export default async function CountriesPage() {
       </div>
 
       <div className="mt-8">
-        <CountryGrid countries={countries} />
+        <CountryGrid countries={countries} showViewAllButton={false} />
       </div>
     </main>
   )

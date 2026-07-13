@@ -62,6 +62,17 @@ export function FeaturedChannelsSlider({ channels }: Props) {
     },
   });
 
+  // Determine if navigation should be shown based on number of channels
+  // Navigation is only needed when there are more channels than can fit in the view
+  const shouldShowNavigation = () => {
+    if (channels.length <= 1) return false;
+
+    // Default to showing navigation if we can't determine the current breakpoint
+    // This is a simplified approach that assumes navigation is needed for more than 1 channel
+    // A more precise implementation would require tracking the current breakpoint
+    return channels.length > 1;
+  };
+
   return (
     <div className="relative">
       <div ref={sliderRef} className="keen-slider -mx-1.5 pl-1.5">
@@ -73,30 +84,38 @@ export function FeaturedChannelsSlider({ channels }: Props) {
       </div>
 
       <div className="mt-4 flex items-center justify-between gap-3">
-        <p className="text-xs text-zinc-500">
-          Swipe or use the arrows to browse featured channels.
-        </p>
+        {shouldShowNavigation() ? (
+          <>
+            <p className="text-xs text-zinc-500">
+              Swipe or use the arrows to browse featured channels.
+            </p>
 
-        <div className="flex gap-2">
-          <button
-            type="button"
-            onClick={() => instanceRef.current?.prev()}
-            disabled={!loaded || !canGoPrev}
-            aria-label="Previous featured channels"
-            className="flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-zinc-900 text-white transition hover:border-white/20 hover:bg-zinc-800 disabled:cursor-not-allowed disabled:opacity-40"
-          >
-            <ArrowIcon direction="left" />
-          </button>
-          <button
-            type="button"
-            onClick={() => instanceRef.current?.next()}
-            disabled={!loaded || !canGoNext}
-            aria-label="Next featured channels"
-            className="flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-zinc-900 text-white transition hover:border-white/20 hover:bg-zinc-800 disabled:cursor-not-allowed disabled:opacity-40"
-          >
-            <ArrowIcon direction="right" />
-          </button>
-        </div>
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={() => instanceRef.current?.prev()}
+                disabled={!loaded || !canGoPrev}
+                aria-label="Previous featured channels"
+                className="flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-zinc-900 text-white transition hover:border-white/20 hover:bg-zinc-800 disabled:cursor-not-allowed disabled:opacity-40"
+              >
+                <ArrowIcon direction="left" />
+              </button>
+              <button
+                type="button"
+                onClick={() => instanceRef.current?.next()}
+                disabled={!loaded || !canGoNext}
+                aria-label="Next featured channels"
+                className="flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-zinc-900 text-white transition hover:border-white/20 hover:bg-zinc-800 disabled:cursor-not-allowed disabled:opacity-40"
+              >
+                <ArrowIcon direction="right" />
+              </button>
+            </div>
+          </>
+        ) : (
+          <p className="text-xs text-zinc-500">
+            {channels.length === 1 ? 'Featured channel' : 'Featured channels'}
+          </p>
+        )}
       </div>
     </div>
   );

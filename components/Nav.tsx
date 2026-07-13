@@ -5,6 +5,8 @@ import { useDebounce } from '@/hooks/useDebounce'
 import React, { useEffect, useState } from "react"
 import { searchAll, storageUrl } from '@/lib/api'
 import type { Channel } from '@/types'
+import { readFavorites } from "@/lib";
+import FavoritesPage from "@/app/favorites/page";
 
 const NAV_LINKS = [
   { href: '/', label: 'Home' },
@@ -13,7 +15,7 @@ const NAV_LINKS = [
   { href: '/countries', label: 'Countries' },
   { href: '/tags', label: 'Tags' },
 ];
-
+const favs = readFavorites()
 function isActivePath(pathname: string, href: string) {
   if (href === '/') return pathname === '/'
   return pathname === href || pathname.startsWith(`${href}/`)
@@ -41,6 +43,11 @@ const Icon = {
     <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
       <polyline points="16 3 21 3 21 8" /><line x1="4" y1="20" x2="21" y2="3" />
       <polyline points="21 16 21 21 16 21" /><line x1="4" y1="4" x2="9" y2="9" />
+    </svg>
+  ),
+  Bookmark: () => (
+    <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+      <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />
     </svg>
   ),
   User: () => (
@@ -76,6 +83,7 @@ function SearchBox({
   const debouncedQuery = useDebounce(query, 220)
   const trimmedQuery = query.trim()
   const trimmedDebouncedQuery = debouncedQuery.trim()
+  
 
   useEffect(() => {
     setQuery('')
@@ -330,6 +338,18 @@ function Navbar({ menuOpen, setMenuOpen }: {menuOpen: boolean, setMenuOpen: Reac
           style={{ background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.1)' }}
         >
           <Icon.Filter /><span className="text-xs tracking-wide">FILTER</span>
+        </Link>
+        <Link href="/favorites"
+          className="relative p-2 rounded-xl text-white/50 hover:text-white transition-colors"
+          style={{ background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.1)' }}
+          title="Favorites"
+        >
+          <Icon.Bookmark />
+          { favs.length > 0 && (
+            <span className="absolute -top-2 -right-2 min-w-6 justify-center rounded-full bg-teal-400/80 px-2 py-0.5 text-[0.7rem] font-semibold text-white">
+              { favs.length }
+            </span>
+          )}
         </Link>
         {[<Icon.Users />, <Icon.Shuffle />].map((ic, i) => (
           <button

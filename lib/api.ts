@@ -85,6 +85,9 @@ export const getFiltersMeta = () =>
 export const getChannel = (slug: string | string) =>
   get<Channel>(`/channels/${slug}`, cacheTags('channels', `channel:${slug}`))
 
+export const getChannelsByIds = (ids: Array<string | number>) =>
+  get<Channel[]>(`/channels/favorites${qs({ ids })}`)
+
 export const trackChannel = (id: number | string, token: string) =>
   post<{ viewers: number }>(`/channels/${id}/track`, {viewer_token: token})
 
