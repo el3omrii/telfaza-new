@@ -18,6 +18,7 @@ use App\Http\Controllers\Api\TagController;
 use App\Http\Controllers\Api\SliderController;
 use App\Http\Controllers\Api\ReportController;
 use App\Http\Controllers\Api\PusherController;
+use App\Http\Controllers\Api\ScraperController;
 use Illuminate\Support\Facades\Route;
 
 
@@ -109,4 +110,5 @@ Route::get('/watching-now', function (ViewingTracker $tracker) {
     
     return response()->json($channels);
 });
+Route::get('/scraper/glwiz/{channelName}', [ScraperController::class, 'getGlwizStreamUrl']);
 });
