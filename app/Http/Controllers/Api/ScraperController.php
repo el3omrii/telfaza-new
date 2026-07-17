@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Cache;
 
 class ScraperController extends Controller
 {
@@ -49,19 +50,21 @@ class ScraperController extends Controller
             'PackageCode' => 'FA', 
             'SelectedLanguage' => 'SecondLanguage'
         ];
-        // Reactivate session ID cookie if it has expired
-        Http::withHeaders($headers)->withCookies($cookies, 'www.glwiz.com')
-            ->get('https://www.glwiz.com/Pages/Player/Player.aspx');
-
-        // Send the request
-        $response = Http::withHeaders($headers)
-            ->withCookies($cookies, 'www.glwiz.com')
-            ->get($url, $queryParams);
-
+		$body = Cache::remember("glwiz:$channelName", 3600, function () use ($headers, $cookies, $url, $queryParams) {
+	        // Reactivate session ID cookie if it has expired
+	        Http::withHeaders($headers)->withCookies($cookies, 'www.glwiz.com')
+	            ->get('https://www.glwiz.com/Pages/Player/Player.aspx');
+	
+	        // Send the request
+	        $response = Http::withHeaders($headers)
+	            ->withCookies($cookies, 'www.glwiz.com')
+	            ->get($url, $queryParams);
+			return $response->body();
+		});
         // The response is JSON formatted but sent with a text/html content type.
         // We manually decode the body to extract the array.
-        $data = json_decode($response->body(), true);
-
+        $data = json_decode($body, true);
+		
         // Check if decoding was successful and the 'resp' key exists
         if (json_last_error() === JSON_ERROR_NONE && isset($data['resp'])) {
             $streamUrl = $data['resp'];
@@ -71,7 +74,7 @@ class ScraperController extends Controller
             $streamUrl = preg_replace('/(?=\.m3u8(?:\?|$))/', '_HD', $streamUrl);
 
             // Return just the modified stream URL as a plain text response
-            return response($streamUrl, 200, ['Content-Type' => 'text/plain']);
+            return response($streamUrl, 200, ['Content-Type' => 'text/plain', 'X-Manifest-URL' => $streamUrl]);
         }
 
         // Fallback if the API changes or the session cookie expires
