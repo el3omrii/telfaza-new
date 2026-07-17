@@ -108,9 +108,31 @@ export default function ChannelPlayer({ channel }) {
     };
 
     if (video) {
+      video.api.configure({
+        manifest: {
+          hls: {
+            // Ignore les incohérences de timestamps et force l'alignement sur le manifeste
+            ignoreManifestProgramDateTime: true 
+          },
+          // Augmente la tolérance aux écarts de synchronisation
+          availabilityWindowOverride: 60 
+        },
+        streaming: {
+          // Force le player à rester un peu plus loin derrière le direct pour encaisser les écarts
+          liveSyncDuration: 30, 
+          // Empêche le player de bloquer si un micro-trou (gap) apparaît dans la timeline
+          jumpLargeGaps: true 
+        }
+      })
       setupSnrtUrlFix(video.api)
       video.addEventListener('resize', handleResize);
       handleResize();
+      video.addEventListener('error', (event) => {
+        // event.detail contains the shaka.util.Error object
+        console.error('Shaka Error Code:', event.detail.code);
+        console.error('Shaka Error Category:', event.detail.category);
+        console.error('Shaka Error Data:', event.detail.data);
+      });
     }
 
     return () => {

@@ -30,7 +30,7 @@ export default async function FavoritesPage() {
   // and fetch the channels data accordingly
   const favorites = readFavorites()
   return (
-    <main className="max-w-7xl w-full mx-auto mt-8 md:mt-16 px-6 md:px-12">
+    <main className="max-w-7xl w-full mx-auto mt-16 px-6 md:px-12">
       {/* ── Hero header ── */}
       <div className="border-b border-white/[0.07] bg-zinc-900 px-5 py-8">
         <div className="flex items-center gap-3">

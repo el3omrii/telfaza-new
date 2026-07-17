@@ -32,7 +32,7 @@ const Icon = {
         <Icon.Users />
         <span>{viewerCount}</span>
       </div>
-      <div className="text-xs text-zinc-500">watching now</div>
+      <div className="text-xs text-zinc-500 text-nowrap">watching now</div>
     </>
   )
 }

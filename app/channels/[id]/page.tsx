@@ -110,13 +110,13 @@ export default async function ChannelDetailPage({ params }: Props) {
           </div>
 
           {/* Stats */}
-          <div className="flex flex-col md: flex-row items-end gap-3">
+          <div className="flex items-end gap-3">
             <div className="text-right">
               <div className="flex justify-end items-center gap-2 font-head text-2xl font-bold text-lime-400">
                 <Icon.Eye />
                 <span>{fmtViews(channel.views)}</span>
               </div>
-              <div className="flex items-center justify-end gap-1 text-xs text-zinc-500">
+              <div className="flex items-center justify-end gap-1 text-xs text-zinc-500 text-nowrap">
                  total views
               </div>
             </div>

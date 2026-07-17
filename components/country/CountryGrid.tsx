@@ -18,7 +18,7 @@ export function CountryGrid({ countries, emptyMessage = 'No Countries found.', s
   }
 
   return (
-    <div className="grid sm:grid-cols-2 gap-3 md:gap-4 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+    <div className="grid grid-cols-2 gap-3 md:gap-4 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
       {countries.map(c => (
         <CountryCard key={c.id} country={c} />
       ))}

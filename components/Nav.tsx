@@ -16,6 +16,7 @@ const NAV_LINKS = [
   { href: '/tags', label: 'Tags' },
 ];
 const favs = readFavorites()
+
 function isActivePath(pathname: string, href: string) {
   if (href === '/') return pathname === '/'
   return pathname === href || pathname.startsWith(`${href}/`)
@@ -83,7 +84,6 @@ function SearchBox({
   const debouncedQuery = useDebounce(query, 220)
   const trimmedQuery = query.trim()
   const trimmedDebouncedQuery = debouncedQuery.trim()
-  
 
   useEffect(() => {
     setQuery('')
@@ -173,7 +173,7 @@ function SearchBox({
             onBlur={() => {
               window.setTimeout(() => setOpen(false), 120)
             }}
-            placeholder="Search channels…"
+            placeholder="Search channels..."
           />
           {query && (
             <button

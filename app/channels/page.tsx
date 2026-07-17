@@ -31,7 +31,7 @@ export default async function ChannelsPage({ searchParams }: Props) {
   ])
 
   return (
-    <main className="max-w-7xl w-full mx-auto md:mt-16 px-6 md:px-16 lg:px-24 xl:px-32">
+    <main className="max-w-7xl w-full mx-auto mt-16 px-6 md:px-16 lg:px-24 xl:px-32">
       {/* Header */}
       <div className="border-b border-white/[0.07] px-5 py-8">
         <h1 className="font-head text-3xl font-extrabold tracking-tight">All Channels</h1>

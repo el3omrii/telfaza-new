@@ -46,7 +46,7 @@ export default async function TagPage({ params, searchParams }: Props) {
   const { tag, channels } = data
 
   return (
-    <main className="max-w-7xl w-full mx-auto md:mt-16 px-6 md:px-12">
+    <main className="max-w-7xl w-full mx-auto mt-16 px-6 md:px-12">
       {/* Header */}
       <div className="border-b border-white/[0.07] px-5 py-8">
         <div className="flex items-baseline gap-3">
