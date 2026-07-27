@@ -9,7 +9,7 @@
             <video:title>{{ $video['title'] }}</video:title>
             <video:description>{{ $video['description'] }}</video:description>
             <video:thumbnail_loc>{{ $video['thumbnail'] }}</video:thumbnail_loc>
-            <video:content_loc>{{ $video['content_loc'] }}</video:content_loc>
+            <video:content_loc>{{ $video['stream_loc'] }}</video:content_loc>
             @if(!empty($video['publication']))<video:publication_date>{{ $video['publication'] }}</video:publication_date>@endif
             <video:live>yes</video:live>
         </video:video>
