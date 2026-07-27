@@ -138,6 +138,9 @@ class SitemapController extends Controller
         $channels = Channel::query()
             ->where('published', true)
             ->whereNotNull('image')
+            ->with(['sources' => function ($query) {
+                $query->where('enabled', true); 
+            }])
             ->orderBy('updated_at', 'desc')
             ->get();
 
@@ -148,7 +151,7 @@ class SitemapController extends Controller
                 'title'       => $channel->name,
                 'description' => Str::limit(strip_tags($channel->description ?? ''), 160),
                 'thumbnail'   => $channel->image ? env('APP_STORAGE_URL') . $channel->image : null,
-                'content_loc' => $this->buildUrl($frontendUrl, '/channels/' . $channel->slug),
+                'content_loc' => $channel->sources->first()->link,
                 'publication' => $channel->created_at?->toAtomString(),
             ];
         }
