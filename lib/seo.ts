@@ -59,23 +59,29 @@ export function generateVideoSchema({
   name,
   description,
   thumbnailUrl,
+  contentUrl,
   uploadDate,
   interactionCount,
 }: {
   name: string;
   description?: string;
   thumbnailUrl?: string;
+  contentUrl?: string;
   uploadDate?: string;
   interactionCount?: number;
 }) {
+  const date = new Date();
+  let expires = date.setDate(date.getDate() + 30);
   return {
     "@context": "https://schema.org",
     "@type": "VideoObject",
     name,
     description: description || `Watch ${name} live on ${SITE_NAME}`,
     thumbnailUrl: thumbnailUrl || absoluteUrl(defaultOpenGraphImage),
+    contentUrl: contentUrl || process.env.NEXT_PUBLIC_STORAGE_URL,
     uploadDate: uploadDate || new Date().toISOString(),
-    duration: "PT0H0M0S",
+    isLiveBroadcast: true,
+    expires: new Date(expires).toISOString(), //expires after 30 days
     interactionCount: interactionCount || 0,
   };
 }

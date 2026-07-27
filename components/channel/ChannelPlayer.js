@@ -112,16 +112,11 @@ export default function ChannelPlayer({ channel }) {
         manifest: {
           hls: {
             // Ignore les incohérences de timestamps et force l'alignement sur le manifeste
-            ignoreManifestProgramDateTime: true 
+            ignoreManifestProgramDateTime: true,
+            liveSegmentsDelay: 3 
           },
           // Augmente la tolérance aux écarts de synchronisation
           availabilityWindowOverride: 60 
-        },
-        streaming: {
-          // Force le player à rester un peu plus loin derrière le direct pour encaisser les écarts
-          liveSyncDuration: 30, 
-          // Empêche le player de bloquer si un micro-trou (gap) apparaît dans la timeline
-          jumpLargeGaps: true 
         }
       })
       setupSnrtUrlFix(video.api)

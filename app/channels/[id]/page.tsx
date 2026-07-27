@@ -60,6 +60,7 @@ export default async function ChannelDetailPage({ params }: Props) {
     name: channel.name,
     description: channel.description ?? undefined,
     thumbnailUrl: storageUrl(channel.image) ?? undefined,
+    contentUrl: channel.sources?.[0].link,
     uploadDate: channel.created_at,
     interactionCount: channel.views,
   })
