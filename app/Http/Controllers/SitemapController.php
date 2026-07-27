@@ -147,7 +147,7 @@ class SitemapController extends Controller
             $videos[] = [
                 'title'       => $channel->name,
                 'description' => Str::limit(strip_tags($channel->description ?? ''), 160),
-                'thumbnail'   => $channel->image ? $this->buildUrl($frontendUrl, '/uploads/' . $channel->image) : null,
+                'thumbnail'   => $channel->image ? env('APP_STORAGE_URL') . $channel->image : null,
                 'content_loc' => $this->buildUrl($frontendUrl, '/channels/' . $channel->slug),
                 'publication' => $channel->created_at?->toAtomString(),
             ];
