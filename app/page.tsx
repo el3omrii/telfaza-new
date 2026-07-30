@@ -10,7 +10,7 @@ import { WatchingNowSection } from '@/components/channel/WatchingNowSection'
 import { SectionHead } from '@/components/ui/SectionHead'
 
 export const metadata = buildMetadata({
-  title: 'Home',
+  title: 'Telfaza Live',
   description: 'Watch live TV channels and discover featured stations, countries, categories, and tags.',
   path: '/',
 })
