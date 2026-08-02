@@ -6,7 +6,6 @@ import React, { useEffect, useState } from "react"
 import { searchAll, storageUrl } from '@/lib/api'
 import type { Channel } from '@/types'
 import { readFavorites } from "@/lib";
-import FavoritesPage from "@/app/favorites/page";
 
 const NAV_LINKS = [
   { href: '/', label: 'Home' },
@@ -15,7 +14,6 @@ const NAV_LINKS = [
   { href: '/countries', label: 'Countries' },
   { href: '/tags', label: 'Tags' },
 ];
-const favs = readFavorites()
 
 function isActivePath(pathname: string, href: string) {
   if (href === '/') return pathname === '/'
@@ -267,6 +265,11 @@ function SearchBox({
 /* ─── Navbar ───────────────────────────────────────────────────────── */
 function Navbar({ menuOpen, setMenuOpen }: {menuOpen: boolean, setMenuOpen: React.Dispatch<React.SetStateAction<boolean>>}) {
   const pathname = usePathname()
+  const [favs, setFavs] = useState<Array<string | number>>([])
+
+  useEffect(() => {
+    setFavs(readFavorites())
+  }, [])
 
   return (
     <nav
