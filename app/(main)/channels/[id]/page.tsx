@@ -133,7 +133,7 @@ export default async function ChannelDetailPage({ params }: Props) {
         {/* Left — player + meta */}
         <div className="border-r border-white/[0.07]">
           <ClientChannelPlayer channel={channel} />
-          <ChannelActionButtons channelId={channel.id} channelName={channel.name} />
+           <ChannelActionButtons channelId={channel.id} channelName={channel.name} slug={channel.slug} />
           {/* Description */}
           {channel.description && (
               <p className="max-w-xl text-sm font-light leading-relaxed text-zinc-400">

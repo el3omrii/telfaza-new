@@ -154,17 +154,15 @@ export default function ChannelPlayer({ channel, fullViewport = false }) {
 
           <MediaLoadingIndicator slot="centered-chrome"></MediaLoadingIndicator>
 
-          <MediaControlBar className={`bg-black/75 p-1 ${fullViewport ? 'mx-2 my-2' : 'mx-4 m-2 rounded-full'}`}>
+          <MediaControlBar className="bg-black/75 p-1 mx-4 m-2 rounded-full">
             <MediaPlayButton className="media-control"></MediaPlayButton>
             <MediaLiveButton className="media-control scale-80 sm:scale-100"></MediaLiveButton>
             <MediaMuteButton className="media-control"></MediaMuteButton>
             <MediaVolumeRange className="media-control hidden md:block"></MediaVolumeRange>
-            {!fullViewport && (
               <div className="flex items-center justify-center gap-2 truncate md:flex-grow">
                 <img src={storageUrl(channel.logo)} alt={channel.name} className="w-6 md:w-12 max-h-[50px] object-fit rounded-xl" />
                 <span className="truncate text-xs sm:text-sm text-muted">{channel.name}</span>
               </div>
-            )}
             <MediaRenditionMenuButton className="media-control">
                 <span slot="icon" className="text-[#58BEC9] border border-[#58BEC9] py-1 px-2 rounded-md bg-green-950/50 text-xs sm:text-base">{mediaHeight}</span>
             </MediaRenditionMenuButton>

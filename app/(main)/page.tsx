@@ -3,7 +3,7 @@ import { Suspense } from "react";
 import { getFeaturedChannels, getCountries } from '@/lib/api'
 import { buildMetadata } from '@/lib/seo'
 
-import HeroCarousel from "../components/HeroCarousel";
+import HeroCarousel from "@/components/HeroCarousel";
 import { FeaturedChannelsSlider } from '@/components/channel/FeaturedChannelsSlider'
 import { HomeCountryGrid } from '@/components/country/HomeCountryGrid'
 import { WatchingNowSection } from '@/components/channel/WatchingNowSection'

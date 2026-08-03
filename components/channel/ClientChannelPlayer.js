@@ -26,8 +26,8 @@ const ChannelPlayer = dynamic(
 
 export default function ClientChannelPlayer({ channel }) {
   return (
-    <ClientChannelPlayer channel={channel}>
+    <ChannelPlayer channel={channel}>
       <PlayerFallback channel={channel} />
-    </ClientChannelPlayer>
+    </ChannelPlayer>
   );
 }

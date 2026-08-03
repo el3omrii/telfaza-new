@@ -2,7 +2,6 @@ import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { getChannel } from '@/lib/api'
 import ChannelPlayer from '@/components/channel/ChannelPlayer'
-
 interface Props {
   params: Promise<{ slug: string }>
 }
@@ -34,7 +33,7 @@ export default async function EmbedPage({ params }: Props) {
   }
 
   return (
-    <div className="w-screen h-screen bg-black flex items-center justify-center overflow-hidden">
+    <div className="w-full h-[100dvh] bg-black flex items-center justify-center overflow-hidden fixed inset-0">
       <ChannelPlayer channel={channel} fullViewport={true} />
     </div>
   )

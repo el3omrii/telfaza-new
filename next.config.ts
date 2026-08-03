@@ -1,12 +1,6 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  turbopack: {
-    resolveAlias: {
-      // Directs Turbopack to swap out the production build for the debug build
-      'shaka-player/dist/shaka-player.compiled': 'shaka-player/dist/shaka-player.compiled.debug',
-    },
-  },
   images: {
     remotePatterns: [
       {
