@@ -151,8 +151,9 @@ class SitemapController extends Controller
                 'title'       => $channel->name,
                 'description' => Str::limit(strip_tags($channel->description ?? ''), 160),
                 'thumbnail'   => $channel->image ? env('APP_STORAGE_URL') . $channel->image : null,
-                'content_loc' => $this->buildUrl($frontendUrl, '/channels/' . $channel->slug),
-                'stream_loc'  => $channel->sources->first()?->link,
+                'url'         => $this->buildUrl($frontendUrl, '/channels/' . $channel->slug),
+                'content_loc' => $this->channel->sources->first()?->link,
+                'stream_loc'  => $this->buildUrl($frontendUrl, '/embed/' . $channel->slug),
                 'publication' => $channel->created_at?->toAtomString(),
             ];
         }
