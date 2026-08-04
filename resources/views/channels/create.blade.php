@@ -26,7 +26,12 @@
                 <div class="p-5 space-y-4">
                     <div>
                         <label class="block text-[0.72rem] font-medium uppercase tracking-wider text-muted mb-1.5">Name *</label>
-                        <input name="name" value="{{ old('name') }}" required placeholder="e.g. BBC World News"
+                        <input name="name" id="name" value="{{ old('name') }}" required placeholder="e.g. BBC World News"
+                               class="w-full px-3.5 py-2.5 bg-bg border border-border rounded-[10px] text-sm text-gray-200 placeholder-muted focus:outline-none focus:border-accent transition-colors">
+                    </div>
+                    <div>
+                        <label class="block text-[0.72rem] font-medium uppercase tracking-wider text-muted mb-1.5">Slug *</label>
+                        <input name="slug" id="slug" value="{{ old('slug') }}" required placeholder="e.g. bbc-world-news"
                                class="w-full px-3.5 py-2.5 bg-bg border border-border rounded-[10px] text-sm text-gray-200 placeholder-muted focus:outline-none focus:border-accent transition-colors">
                     </div>
                     <div>
@@ -383,6 +388,41 @@ async function createTag() {
     }
     setTimeout(() => { feedback.textContent = ''; }, 3500);
 }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const nameField = document.getElementById('name');
+        const slugField = document.getElementById('slug');
+
+        if (!nameField || !slugField) {
+            return;
+        }
+
+        let slugManuallyEdited = slugField.value.trim().length > 0;
+
+        slugField.addEventListener('input', function () {
+            slugManuallyEdited = true;
+        });
+
+        nameField.addEventListener('input', function () {
+            if (slugManuallyEdited) {
+                return;
+            }
+
+            slugField.value = slugify(nameField.value);
+        });
+
+        function slugify(text) {
+            return text
+                .toString()
+                .normalize('NFKD')              // normalize accented characters
+                .replace(/[\u0300-\u036f]/g, '') // remove accents
+                .toLowerCase()
+                .trim()
+                .replace(/[^a-z0-9]+/g, '-')     // replace spaces/symbols with hyphen
+                .replace(/-+/g, '-')             // collapse multiple hyphens
+                .replace(/^-|-$/g, '');          // remove leading/trailing hyphens
+        }
+    });
 </script>
 @endpush
 @endsection

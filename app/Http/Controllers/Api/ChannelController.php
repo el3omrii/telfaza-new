@@ -19,7 +19,7 @@ class ChannelController extends Controller
     //   search      string         partial name match
     //   category    int|int[]      filter by category id(s)
     //   tag         int|int[]      filter by tag id(s)
-    //   country     int            filter by country id
+    //   country     string         filter by country slug
     //   language    string         filter by language
     //   quality     string         4K|1080p|720p|480p|360p
     //   featured    bool           1 = featured only
@@ -32,7 +32,7 @@ class ChannelController extends Controller
             'search'   => 'nullable|string|max:255',
             'category' => 'nullable',          // int or array
             'tag'      => 'nullable',
-            'country'  => 'nullable|integer',
+            'country'  => 'nullable|string|max:100',
             'language' => 'nullable|string|max:100',
             'quality'  => 'nullable|in:4K,1080p,720p,480p,360p',
             'featured' => 'nullable|boolean',
@@ -61,7 +61,7 @@ class ChannelController extends Controller
         }
 
         if ($request->filled('country')) {
-            $query->where('country_id', $request->country);
+            $query->whereHas('country', fn ($q) => $q->where('slug', $request->country));
         }
 
         if ($request->filled('language')) {
