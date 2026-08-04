@@ -7,12 +7,37 @@ import { Pagination } from '@/components/ui/Pagination'
 import { CountrySelect, LanguageSelect } from '@/components/ui/CountrySelect'
 import { buildMetadata } from '@/lib/seo'
 
-export const metadata = buildMetadata({
+/*export const metadata = buildMetadata({
   title: 'Channels',
   description: 'Browse and filter every live TV channel available on Telfaza LIVE.',
   path: '/channels',
-})
+})*/
+export async function generateMetadata({ searchParams }: Props): Promise<Metadata> {
+  const resolvedSearchParams = await searchParams
+  const page = Number(resolvedSearchParams.page) || 1
+  
+  // Base path without query params
+  const baseUrl = `${process.env.NEXT_PUBLIC_APP_URL}/channels`
 
+  // Reconstruct clean canonical query string (excluding page to avoid duplicate indexing if desired, 
+  // or including page parameter as standard canonical pagination)
+  const queryParams = new URLSearchParams()
+  if (page > 1) queryParams.set('page', page.toString())
+  if (resolvedSearchParams.country) queryParams.set('country', String(resolvedSearchParams.country))
+  if (resolvedSearchParams.language) queryParams.set('language', String(resolvedSearchParams.language))
+  if (resolvedSearchParams.category) queryParams.set('category', String(resolvedSearchParams.category))
+
+  const queryString = queryParams.toString()
+  const canonicalUrl = queryString ? `${baseUrl}?${queryString}` : baseUrl
+
+  return {
+    title: page > 1 ? `Channels - Page ${page} | Telfaza LIVE` : 'Watch Arabic TV Channels Live Streaming',
+    description: 'Browse and filter every live TV channel available on Telfaza LIVE.',
+    alternates: {
+      canonical: canonicalUrl,
+    },
+  }
+}
 interface Props {
   searchParams: Record<string, string | string[] | undefined>
 }
@@ -34,10 +59,11 @@ export default async function ChannelsPage({ searchParams }: Props) {
     <main className="max-w-7xl w-full mx-auto mt-16 px-6 md:px-16 lg:px-24 xl:px-32">
       {/* Header */}
       <div className="border-b border-white/[0.07] px-5 py-8">
-        <h1 className="font-head text-3xl font-extrabold tracking-tight">All Channels</h1>
+        <h1 className="font-head text-3xl font-extrabold tracking-tight">Watch Arabic TV Channels Live Streaming</h1>
         <p className="mt-1 text-sm text-zinc-500">
-          Browse and filter {result.meta.total.toLocaleString()} channels
+          Browse, filter, and watch {result.meta.total.toLocaleString()} top Arab TV channels online for free.
         </p>
+        <h2 class="sr-only">Arabic Live TV Channel Directory</h2>
       </div>
 
       {/* Filters row 1 — sort + quality */}

@@ -23,7 +23,7 @@ const Icon = {
   return (
     <Link
       href={`/channels/${channel.slug}`}
-      className="group relative flex flex-col overflow-hidden rounded-xl border border-white/[0.07] bg-zinc-900 transition-all duration-150 hover:-translate-y-0.5 hover:border-white/[0.12]"
+      className="group relative flex flex-col overflow-hidden rounded-xl border border-white/[0.07] bg-zinc-900 transition-all duration-300 hover:-translate-y-2 hover:border-purple-500/50 hover:shadow-lg hover:shadow-purple-500/10"
     >
       {/* Thumbnail */}
       <div className="relative aspect-video w-full overflow-hidden bg-zinc-800">
@@ -39,8 +39,8 @@ const Icon = {
 
         {/* Overlays */}
         {channel.featured && (
-          <span className="absolute right-2 top-2 rounded bg-lime-400 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider text-zinc-950">
-            Featured
+          <span className="absolute top-2 right-2 rounded-md bg-black/60 backdrop-blur-md px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-amber-400 border border-amber-400/30">
+            ★ Featured
           </span>
         )}
         {channel.quality && (
@@ -60,10 +60,10 @@ const Icon = {
       <div className="px-3 py-2.5">
         <p className="truncate text-sm font-medium text-zinc-100">{channel.name}</p>
         <div className="mt-1 flex items-center justify-between">
-          <span className="flex text-[11px] text-zinc-500 truncate gap-2">
+          <span className="flex items-center text-[11px] text-zinc-500 truncate gap-2">
             {channel.country?.flag &&
             <img src={flag} alt={channel.country?.name} className="w-4 h-4 object-fit" />
-            } {channel.country?.name}
+            } <span>{channel.country?.name}</span>
           </span>
           <span className="flex items-center gap-1 text-[11px] text-zinc-500">
             <Icon.Eye />
@@ -72,7 +72,7 @@ const Icon = {
         </div>
 
         {/* Tags */}
-        {channel.tags && channel.tags.length > 0 && (
+        {/*channel.tags && channel.tags.length > 0 && (
           <div className="mt-2 flex flex-wrap gap-1">
             {channel.tags.slice(0, 2).map(t => (
               <span
@@ -83,7 +83,7 @@ const Icon = {
               </span>
             ))}
           </div>
-        )}
+        )*/}
       </div>
     </Link>
   )

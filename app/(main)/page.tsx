@@ -8,6 +8,7 @@ import { FeaturedChannelsSlider } from '@/components/channel/FeaturedChannelsSli
 import { HomeCountryGrid } from '@/components/country/HomeCountryGrid'
 import { WatchingNowSection } from '@/components/channel/WatchingNowSection'
 import { SectionHead } from '@/components/ui/SectionHead'
+import { HeroBanner } from '@/components/ui/HeroBanner'
 
 export const metadata = buildMetadata({
   title: 'Telfaza Live',
@@ -25,6 +26,8 @@ export default async function Home() {
         <HeroCarousel />
       </Suspense>
       <main className="max-w-7xl mx-auto px-6 md:px-16 lg:px-24 xl:px-32">
+      {/* -- Hero Banner -- */}
+      <HeroBanner />
       {/* -- Watching Now -- */}
       <WatchingNowSection />
 

@@ -28,7 +28,7 @@ export function CountrySelect({ countries }: { countries: Country[] }) {
     >
       <option value="">All Countries</option>
       {countries.map(c => (
-        <option key={c.id} value={c.id}>{c.name}</option>
+        <option key={c.id} value={c.name}>{c.name}</option>
       ))}
     </select>
   )

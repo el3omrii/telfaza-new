@@ -2,8 +2,8 @@ import Link from "next/link";
 
 export default function Footer() {
   return (
-    <div className='text-gray-500/80 pt-8 px-6 md:px-16 lg:px-24 xl:px-32'>
-            <div className='flex flex-wrap justify-between gap-12 md:gap-6'>
+    <div className='text-gray-500/80 mt-16 px-6 md:px-16 lg:px-24 xl:px-32'>
+            <div className='flex flex-wrap justify-between gap-12 md:gap-6 text-neutral-300 '>
                 <div className='max-w-80'>
                     {/* Logo */}
                     <div className="font-black text-2xl tracking-widest select-none" style={{ fontFamily: "system-ui, sans-serif" }}>
@@ -15,8 +15,8 @@ export default function Footer() {
                         LIVE
                         </span>
                   </div>
-                    <p className='text-sm'>
-                        Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text
+                    <p className="text-sm mt-6">
+                        Telfaza LIVE brings you seamless access to top live TV streams across the Arab world. Watch sports, news, entertainment, and children's programming for free.
                     </p>
                     <div className='flex items-center gap-3 mt-4'>
                         {/* Instagram */}
@@ -39,7 +39,7 @@ export default function Footer() {
                 </div>
 
                 <div>
-                    <p className='text-lg text-gray-800'>COMPANY</p>
+                    <p className='text-lg'>COMPANY</p>
                     <ul className='mt-3 flex flex-col gap-2 text-sm'>
                         <li><a href="#">About</a></li>
                         <li><a href="#">Contact us</a></li>
@@ -48,7 +48,7 @@ export default function Footer() {
                 </div>
 
                 <div>
-                    <p className='text-lg text-gray-800'>LEGAL</p>
+                    <p className='text-lg'>LEGAL</p>
                     <ul className='mt-3 flex flex-col gap-2 text-sm'>
                         <li><Link href="/privacy">Privacy Policy</Link></li>
                         <li><Link href="/cookies">Cookie Policy</Link></li>
