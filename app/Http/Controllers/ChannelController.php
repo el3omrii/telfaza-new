@@ -182,6 +182,7 @@ class ChannelController extends Controller
         $data = [
             'name'        => $request->name,
             'description' => $request->description,
+            'metadescription' => $request->metadescription,
             'country_id'  => $request->country_id,
             'language'    => $request->language,
             'epgid'       => $request->epgid,
