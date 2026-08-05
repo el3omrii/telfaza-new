@@ -46,7 +46,8 @@ export interface Channel {
   id: number
   name: string
   slug: string
-  description: string | null
+  description: string | null,
+  metadescription: string | null
   logo: string | null
   image: string | null
   language: string | null

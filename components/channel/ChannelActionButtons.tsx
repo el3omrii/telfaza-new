@@ -158,7 +158,7 @@ export default function ChannelActionButtons({
   };
 
   return (
-    <div className="flex flex-wrap items-center gap-3 py-4">
+    <div className="flex flex-wrap justify-end items-center gap-3 py-4">
       <button
         type="button"
         onClick={toggleFavorite}

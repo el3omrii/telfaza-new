@@ -4,10 +4,12 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { getChannel, getChannels, storageUrl } from '@/lib/api'
 import ClientChannelPlayer from '@/components/channel/ClientChannelPlayer'
+import { RelatedChannelsSlider } from '@/components/channel/RelatedChannelsSlider'
 import ChannelActionButtons from '@/components/channel/ChannelActionButtons'
 import LiveViewerCount from '@/components/channel/LiveViewerCount'
 import { fmtViews } from '@/lib/utils'
 import { buildMetadata, generateVideoSchema } from '@/lib/seo'
+import ReactMarkDown from "react-markdown"
 
 
 interface Props {
@@ -20,7 +22,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const ch = await getChannel(id)
     return buildMetadata({
       title: `Watch ${ch.name} Live Streaming Online`,
-      description: ch.description ?? `Watch ${ch.name} live on ${process.env.NEXT_PUBLIC_APP_NAME}.`,
+      description: ch.metadescription ?? `Watch ${ch.name} live on ${process.env.NEXT_PUBLIC_APP_NAME}.`,
       path: `/channels/${ch.slug}`,
       imageUrl : ch.image
     })
@@ -41,12 +43,16 @@ export default async function ChannelDetailPage({ params }: Props) {
   } catch {
     notFound()
   }
-  // Related: same first category, different channel
-  const related = channel.categories?.[0]
-    ? await getChannels({ category: channel.categories[0].id, per_page: 6, sort: 'views' })
+  // Top watched channels
+  const topwatched = channel.categories?.[0]
+    ? await getChannels({ per_page: 6, sort: 'views' })
         .then(r => r.data.filter(c => c.id !== channel.id).slice(0, 5))
     : []
 
+  // Related: same second category (more specific), different channel
+  const category = channel.categories?.[1] ? channel.categories?.[1].id : channel.categories?.[0].id
+  const related =  await getChannels({ category: category, per_page: 8, sort: 'views' })
+        .then(r => r.data.filter(c => c.id !== channel.id))
   const logo = storageUrl(channel.logo)
   const flag = "https://flagcdn.com/"+channel.country?.flag.toLowerCase()+".svg"
   const Icon = {
@@ -90,7 +96,7 @@ export default async function ChannelDetailPage({ params }: Props) {
           {/* Info */}
           <div>
             <h1 className="font-head mb-2 text-lg md:text-xl lg:text-3xl font-extrabold tracking-tight text-white">
-              {channel.name}
+              {channel.name} Live Streaming Online
             </h1>
             <div className="mb-3 flex flex-wrap gap-1.5">
               {channel.featured && (
@@ -137,9 +143,9 @@ export default async function ChannelDetailPage({ params }: Props) {
            <ChannelActionButtons channelId={channel.id} channelName={channel.name} slug={channel.slug} />
           {/* Description */}
           {channel.description && (
-              <p className="max-w-xl text-sm font-light leading-relaxed text-zinc-400">
-                {channel.description}
-              </p>
+              <div className="prose prose-invert max-w-none text-sm md:text-base font-light leading-relaxed text-zinc-400">
+                <ReactMarkDown>{channel.description}</ReactMarkDown>
+              </div>
             )}
           {/* Categories & Tags */}
           <div className="flex flex-col lg:flex-row space-y-5 py-6 gap-6">
@@ -210,20 +216,26 @@ export default async function ChannelDetailPage({ params }: Props) {
                 </div>
               </div>
             )}
+            { related.length > 0 && (
+              <div className="py-2 max-w-sm md:max-w-2xl lg:max-w-4xl overflow-x-hidden">
+                <h3 className="text-lg my-8">Related Channels</h3>
+                <RelatedChannelsSlider channels={related} />
+              </div>
+            )}
           </div>
         </div>
 
         {/* Right sidebar */}
         <aside className="px-5 py-6">
 
-          {/* Related channels */}
-          {related.length > 0 && (
+          {/* Top watched channels */}
+          {topwatched.length > 0 && (
             <div>
               <p className="mb-3 text-[11px] uppercase tracking-widest text-zinc-500">
-                Related Channels
+                Top Watched
               </p>
               <div className="space-y-2">
-                {related.map(ch => (
+                {topwatched.map(ch => (
                   <Link
                     key={ch.id}
                     href={`/channels/${ch.slug}`}
