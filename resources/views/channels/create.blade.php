@@ -60,6 +60,11 @@
                         </div>
                         <p id="aiError" class="hidden text-xs text-red-400 mt-1.5"></p>
                     </div>
+                    <div>
+                    <label class="block text-[0.72rem] font-medium uppercase tracking-wider text-muted mb-1.5">Meta Description (for SEO)</label>
+                    <input name="metadescription" id="metadescription" value="{{ old('metadescription') }}" required
+                           class="w-full px-3.5 py-2.5 bg-bg border border-border rounded-[10px] text-sm text-gray-200 focus:outline-none focus:border-accent transition-colors">
+                </div>
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         @foreach([['logo','logoInput','logoPreview','logoLabel','image/jpeg,image/png,image/webp,image/svg+xml','Logo','jpeg, png, webp, svg — max 2 MB'],
                                    ['image','imageInput','imagePreview','imageLabel','image/jpeg,image/png,image/webp','Channel Image','jpeg, png, webp — max 4 MB']] as [$field,$inputId,$previewId,$labelId,$accept,$title,$hint])

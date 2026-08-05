@@ -64,24 +64,32 @@ class GeminiController extends Controller
             $country  ? "Country: {$country}"   : null,
         ])->filter()->implode(', ');
 
-        /*return <<<PROMPT
-        Write a concise, engaging description for a TV/streaming channel with the following details:
-        Channel name: {$name}
+        return <<<PROMPT
+        Act as an expert SEO Copywriter specializing in media and live streaming websites. 
+        Your task is to write the SEO Meta Data and On-Page Content for a live TV streaming page.
+        - Channel name: {$name}
+        - Target url : https://telfazalive.com/channels/{$name}-live-streaming-online
+        - Target Keyword: [{$name} tv live streaming online]
         {$context}
 
-        Requirements:
-        - 2-3 sentences maximum
-        - Professional and informative tone
-        - Focus on the channel's content and audience
-        - Do not include the channel name at the start of the description
-        - Plain text only, no markdown or bullet points
+        STRICT GUIDELINES YOU MUST FOLLOW:
+        1. SEARCH INTENT: The user's intent is ACTION-ORIENTED. They want to watch a stream RIGHT NOW. Do not write a history lesson or a Wikipedia-style "About Us" page. 
+        2. CONTENT STRUCTURE:
+        - H1: Include the target keyword naturally.
+        - H2: "How to Watch [Channel Name] Live Online" (Keep it brief, 2-3 sentences focusing on clicking the player).
+        - H2: "What You Can Expect on [Channel Name]" (Bullet points of the top 3-4 types of shows/music they will see. Use the Secondary Keywords here).
+        - H2: "Why Stream [Channel Name] on Telfaza Live?" (Brief section on quality, no buffering, free access, etc.)
+        5. FORMATTING: Keep paragraphs very short (2-3 sentences max). Use bullet points. This is for mobile users who scan text.
+        6. TONE: Energetic, direct, and helpful. 
+        7. DO NOT include satellite frequencies, Biss keys, or technical dish settings. 
+
 
         Return only the description text, nothing else.
-        PROMPT;*/
-		return "Write a concise, brief, professional description for a TV channel. "
+        PROMPT;
+		/*return "Write a concise, brief, professional description for a TV channel. "
          . "Details: {$name}" . ($context ? " ({$context})" : "") . ". "
 		 . "Start with channel history, satellite, frequency " 
          . "Focus on content and audience. Use keywords like live and online. "
-         . "Plain text only. Return only the description.";
+         . "Plain text only. Return only the description.";*/
     }
 }
