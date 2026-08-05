@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
-export const SITE_NAME = process.env.NEXT_PUBLIC_SITE_NAME;
-export const SITE_DESCRIPTION = process.env.NEXT_PUBLIC_SITE_DESCRIPTION;
+export const SITE_NAME = process.env.NEXT_PUBLIC_SITE_NAME ?? "Telfaza";
+export const SITE_DESCRIPTION = process.env.NEXT_PUBLIC_SITE_DESCRIPTION ?? 
   "Watch live TV channels, browse by country, category, and tag, and discover what is streaming now.";
 
 const siteUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
