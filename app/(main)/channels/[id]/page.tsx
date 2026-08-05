@@ -19,9 +19,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   try {
     const ch = await getChannel(id)
     return buildMetadata({
-      title: ch.name,
-      description: ch.description ?? `Watch ${ch.name} live on Telfaza LIVE.`,
+      title: `Watch ${ch.name} Live Streaming Online`,
+      description: ch.description ?? `Watch ${ch.name} live on ${process.env.NEXT_PUBLIC_APP_NAME}.`,
       path: `/channels/${ch.slug}`,
+      imageUrl : ch.image
     })
   } catch {
     return buildMetadata({

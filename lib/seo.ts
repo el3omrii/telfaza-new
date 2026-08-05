@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
 
-export const SITE_NAME = "Telfaza LIVE";
-export const SITE_DESCRIPTION =
+export const SITE_NAME = process.env.NEXT_PUBLIC_SITE_NAME;
+export const SITE_DESCRIPTION = process.env.NEXT_PUBLIC_SITE_DESCRIPTION;
   "Watch live TV channels, browse by country, category, and tag, and discover what is streaming now.";
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+const siteUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
 
 export const metadataBase = new URL(siteUrl);
 export const defaultOpenGraphImage = "/og-image.svg";
@@ -17,13 +17,15 @@ export function buildMetadata({
   title,
   description = SITE_DESCRIPTION,
   path = "/",
+  imageUrl ,
 }: {
   title: string;
   description?: string;
   path?: string;
+  imageUrl? : string | null
 }): Metadata {
   const url = absoluteUrl(path);
-  const imageUrl = absoluteUrl(defaultOpenGraphImage);
+  const resolvedImageUrl = imageUrl ? imageUrl : absoluteUrl(defaultOpenGraphImage);
 
   return {
     title,
@@ -39,9 +41,9 @@ export function buildMetadata({
       url,
       images: [
         {
-          url: imageUrl,
-          width: 1200,
-          height: 630,
+          url: resolvedImageUrl,
+          width: 440,
+          height: 250,
           alt: `${title} | ${SITE_NAME}`,
         },
       ],
@@ -50,7 +52,7 @@ export function buildMetadata({
       card: "summary_large_image",
       title,
       description,
-      images: [imageUrl],
+      images: [resolvedImageUrl],
     },
   };
 }

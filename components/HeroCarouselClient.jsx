@@ -159,11 +159,11 @@ export default function HeroCarouselClient({ slides }) {
               {slide.genres.join(", ")}
             </span>
           </div>
-          <div class="inline-flex self-start items-center gap-2 rounded-full border border-red-500/30 bg-red-950/40 px-3 py-1 font-sans text-xs font-bold uppercase tracking-wider text-red-400 backdrop-blur-sm shadow-[0_0_12px_rgba(239,68,68,0.25)]">
+          <div className="inline-flex self-start items-center gap-2 rounded-full border border-red-500/30 bg-red-950/40 px-3 py-1 font-sans text-xs font-bold uppercase tracking-wider text-red-400 backdrop-blur-sm shadow-[0_0_12px_rgba(239,68,68,0.25)]">
           {/*-- Glowing Red Live Dot -- */}
-          <span class="relative flex h-2 w-2">
-            <span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-red-400 opacity-75"></span>
-            <span class="relative inline-flex h-2 w-2 rounded-full bg-red-500"></span>
+          <span className="relative flex h-2 w-2">
+            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-red-400 opacity-75"></span>
+            <span className="relative inline-flex h-2 w-2 rounded-full bg-red-500"></span>
           </span>
           <span>Now Streaming Live</span>
         </div>

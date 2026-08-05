@@ -1,4 +1,5 @@
 import { Suspense } from 'react'
+import { Metadata } from 'next'
 import { getChannels, getFiltersMeta, getCountries, getCategories } from '@/lib/api'
 import { paramsToFilters } from '@/lib/utils'
 import { ChannelGrid } from '@/components/channel/ChannelGrid'
@@ -63,7 +64,7 @@ export default async function ChannelsPage({ searchParams }: Props) {
         <p className="mt-1 text-sm text-zinc-500">
           Browse, filter, and watch {result.meta.total.toLocaleString()} top Arab TV channels online for free.
         </p>
-        <h2 class="sr-only">Arabic Live TV Channel Directory</h2>
+        <h2 className="sr-only">Arabic Live TV Channel Directory</h2>
       </div>
 
       {/* Filters row 1 — sort + quality */}
