@@ -164,6 +164,7 @@ class ChannelController extends Controller
         $request->validate([
             'name'        => 'required|string|max:255',
             'description' => 'nullable|string',
+            'metadescription' => 'nullable|string|max:255',
             'logo'        => 'nullable|image|mimes:jpeg,png,webp,svg|max:2048',
             'image'       => 'nullable|image|mimes:jpeg,png,webp|max:4096',
             'country_id'  => 'nullable|exists:countries,id',
