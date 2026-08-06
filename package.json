@@ -1,7 +1,12 @@
 {
-  "name": "telfaza-new",
+  "name": "telfaza-live",
   "version": "0.1.0",
   "private": true,
+  "browserslist": [
+    "last 2 versions",
+    "not dead",
+    "not IE 11"
+  ],
   "scripts": {
     "dev": "next dev",
     "build": "next build",
