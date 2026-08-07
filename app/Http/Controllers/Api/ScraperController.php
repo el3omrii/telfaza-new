@@ -81,4 +81,45 @@ class ScraperController extends Controller
         return response('Failed to fetch or parse stream URL.', 500);
     }
 
+    function getSumariaStreamUrl()
+    {
+        $url = 'https://www.alsumaria.tv/Live/video';
+
+        // Headers from the cURL request (-H)
+        $headers = [
+            'accept' => 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
+            'accept-language' => 'fr-FR,fr;q=0.9,en-US;q=0.8,en;q=0.7,ar;q=0.6',
+            'cache-control' => 'max-age=0',
+            'priority' => 'u=0, i',
+            'sec-ch-ua' => '"Not;A=Brand";v="8", "Chromium";v="150", "Google Chrome";v="150"',
+            'referer' => 'https://www.alsumaria.tv/',
+            'user-agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36',
+        ];
+
+        // Cookies from the cURL request (-b)
+        $cookies = [
+            'ASP.NET_SessionId' => 'z2mguhsm30dg22nbdugggeam', 
+            'otmDataFrontend' => 'clsGlobals_LanguageID=1',
+        ];
+		$stream_url = Cache::remember("sumaria", 3600, function () use ($headers, $cookies, $url) {
+	        // Reactivate session ID cookie if it has expired
+	        Http::withHeaders($headers)->withCookies($cookies, 'www.alsumaria.tv')
+	            ->get('https://www.alsumaria.tv/');
+	
+	        // Send the request
+	        $response = Http::withHeaders($headers)
+	            ->withCookies($cookies, 'www.alsumaria.tv')
+	            ->get($url);
+            // preg_match
+            $matches = [];
+            $match = preg_match_all('/file: "(.*)"/', $response->body(), $matches);
+			return $matches[1][0];
+		});
+        if ($stream_url)
+            return redirect($stream_url, 301);
+
+        // Fallback if the API changes or the session cookie expires
+        return response('Failed to fetch or parse stream URL.', 500);
+    }
+
 }

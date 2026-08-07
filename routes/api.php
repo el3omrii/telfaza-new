@@ -111,4 +111,5 @@ Route::get('/watching-now', function (ViewingTracker $tracker) {
     return response()->json($channels);
 });
 Route::get('/scraper/glwiz/{channelName}', [ScraperController::class, 'getGlwizStreamUrl']);
+Route::get('/scraper/sumaria', [ScraperController::class, 'getSumariaStreamUrl']);
 });
