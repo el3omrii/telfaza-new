@@ -65,9 +65,9 @@ export default async function ChannelDetailPage({ params }: Props) {
   };
   const videoSchema = generateVideoSchema({
     name: channel.name,
-    description: channel.description ?? undefined,
+    description: channel.metadescription ?? undefined,
     thumbnailUrl: storageUrl(channel.image) ?? undefined,
-    contentUrl: channel.sources?.[0].link,
+    embedUrl: `${process.env.NEXT_PUBLIC_APP_URL}/embed/${channel.slug}` ,
     uploadDate: channel.created_at,
     interactionCount: channel.views,
   })
@@ -217,7 +217,7 @@ export default async function ChannelDetailPage({ params }: Props) {
               </div>
             )}
             { related.length > 0 && (
-              <div className="py-2 max-w-sm md:max-w-2xl lg:max-w-4xl overflow-x-hidden">
+              <div className="py-2 max-w-sm sm:max-w-xl md:max-w-2xl lg:max-w-4xl overflow-x-hidden">
                 <h3 className="text-lg my-8">Related Channels</h3>
                 <RelatedChannelsSlider channels={related} />
               </div>
@@ -231,9 +231,9 @@ export default async function ChannelDetailPage({ params }: Props) {
           {/* Top watched channels */}
           {topwatched.length > 0 && (
             <div>
-              <p className="mb-3 text-[11px] uppercase tracking-widest text-zinc-500">
+              <h3 className="mb-3 text-lg font-bold uppercase tracking-widest text-neutral-300">
                 Top Watched
-              </p>
+              </h3>
               <div className="space-y-2">
                 {topwatched.map(ch => (
                   <Link
@@ -241,7 +241,7 @@ export default async function ChannelDetailPage({ params }: Props) {
                     href={`/channels/${ch.slug}`}
                     className="flex items-center gap-3 rounded-lg p-2 transition-all hover:bg-zinc-800"
                   >
-                    <div className="relative w-16 h-12 rounded-lg border border-white/25">
+                    <div className="relative w-24 h-18 rounded-lg border border-white/25">
                       <Image src={storageUrl(ch.image) || "not found"} alt={ch.name} fill className="object-cover rounded-lg"/>
                     </div>
                     <div className="min-w-0">

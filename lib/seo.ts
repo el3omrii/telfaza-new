@@ -61,14 +61,14 @@ export function generateVideoSchema({
   name,
   description,
   thumbnailUrl,
-  contentUrl,
+  embedUrl,
   uploadDate,
   interactionCount,
 }: {
   name: string;
   description?: string;
   thumbnailUrl?: string;
-  contentUrl?: string;
+  embedUrl?: string;
   uploadDate?: string;
   interactionCount?: number;
 }) {
@@ -80,10 +80,20 @@ export function generateVideoSchema({
     name,
     description: description || `Watch ${name} live on ${SITE_NAME}`,
     thumbnailUrl: thumbnailUrl || absoluteUrl(defaultOpenGraphImage),
-    contentUrl: contentUrl || process.env.NEXT_PUBLIC_STORAGE_URL,
+    embedUrl: embedUrl || process.env.NEXT_PUBLIC_STORAGE_URL,
     uploadDate: uploadDate || new Date().toISOString(),
     isLiveBroadcast: true,
     expires: new Date(expires).toISOString(), //expires after 30 days
-    interactionCount: interactionCount || 0,
+    interactionStatistic: {
+        "@type": "InteractionCounter",
+        "interactionType": { "@type": "WatchAction" },
+        "userInteractionCount": interactionCount
+    },
+    "publication": [
+        {
+          "@type": "BroadcastEvent",
+          "isLiveBroadcast": true,
+        },
+      ]
   };
 }
