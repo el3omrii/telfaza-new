@@ -101,7 +101,7 @@ class ScraperController extends Controller
             'ASP.NET_SessionId' => 'z2mguhsm30dg22nbdugggeam', 
             'otmDataFrontend' => 'clsGlobals_LanguageID=1',
         ];
-		$stream_url = Cache::remember("sumaria", 3600, function () use ($headers, $cookies, $url) {
+		//$stream_url = Cache::remember("sumaria", 3600, function () use ($headers, $cookies, $url) {
 	        // Reactivate session ID cookie if it has expired
 	        Http::withHeaders($headers)->withCookies($cookies, 'www.alsumaria.tv')
 	            ->get('https://www.alsumaria.tv/');
@@ -113,8 +113,7 @@ class ScraperController extends Controller
             // preg_match
             $matches = [];
             $match = preg_match_all('/file: "(.*)"/', $response->body(), $matches);
-			return $matches[1][0];
-		});
+			$stream_url = $matches[1][0];
         if ($stream_url)
             return redirect($stream_url, 301);
 
