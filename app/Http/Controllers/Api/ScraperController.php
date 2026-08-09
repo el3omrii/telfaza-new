@@ -115,7 +115,7 @@ class ScraperController extends Controller
             $match = preg_match_all('/file: "(.*)"/', $response->body(), $matches);
 			$stream_url = $matches[1][0];
         if ($stream_url)
-            return redirect($stream_url, 301);
+            return response()->json(["stream_url" => $stream_url]);
 
         // Fallback if the API changes or the session cookie expires
         return response('Failed to fetch or parse stream URL.', 500);
