@@ -11,8 +11,8 @@ use App\Http\Resources\ChannelResource;
 use App\Services\ViewingTracker;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Str;
 
 class ChannelController extends Controller
 {
@@ -99,10 +99,11 @@ class ChannelController extends Controller
                 $query->where('enabled', true);
             }
         ]);
-        $stream_url = $channel->sources()->first();
-        if (Str::startsWith($stream_url, 'https://stream.telfazalive/local2/')) {
-            $real_url = "https://api.telfazalive.com/api/scraper/" . Str::after($stream_url, 'https://stream.telfazalive/local2/');
-            $stream_url = json_decode(Http::get($real))["stream_url"];
+        $stream_url = $channel->sources->first()->link;
+		$prefix = 'https://stream.telfazalive.com/local2/';
+        if (Str::startsWith($stream_url, $prefix)) {
+            $real_url = "https://api.telfazalive.com/api/scraper/" . Str::after($stream_url, $prefix);
+            $channel->sources->first()->link = json_decode(Http::get($real_url))->stream_url;
         }
         $channel->incrementViews();
 
