@@ -113,7 +113,7 @@ class ScraperController extends Controller
         $data = json_decode($response->body(), true);
         // Check if decoding was successful and the 'resp' key exists
         if (json_last_error() === JSON_ERROR_NONE) {
-            $stream_url = $data['streams']['mpd'];
+            $stream_url = $data['streams']['hls'];
             if ($stream_url)
                 return response()->json(["stream_url" => $stream_url]);
         }
