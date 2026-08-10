@@ -4,7 +4,7 @@ import { buildMetadata } from '@/lib/seo'
 
 export const metadata = buildMetadata({
   title: 'Categories',
-  description: 'Explore live TV channels grouped by genre and category.',
+  description: 'Explore Arab TV channels by category on Telfaza LIVE. Watch live sports, news, drama series, movies, and kids shows online for free in HD quality.',
   path: '/categories',
 })
 
@@ -14,10 +14,11 @@ export default async function CategoriesPage() {
   return (
     <main className="max-w-7xl w-full mx-auto mt-16 px-6 md:px-16 lg:px-24 xl:px-32">
       <div className="border-b border-white/[0.07] px-5 py-8">
-        <h1 className="font-head text-3xl font-extrabold tracking-tight">Categories</h1>
+        <h1 className="font-head text-3xl font-extrabold tracking-tight">Browse TV Channels by category</h1>
         <p className="mt-1 text-sm text-zinc-500">
           {categories.length} categories · browse by genre
         </p>
+        <p className="mt-12 text-zinc-300">Discover live Arabic television tailored to what you love. Select a category below to browse free, 24/7 live streams across sports, news, movies, series, and religious programming. Experience seamless streaming in high definition directly from your browser.</p>
       </div>
 
       <div className="grid grid-cols-2 gap-4 px-5 py-8 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">

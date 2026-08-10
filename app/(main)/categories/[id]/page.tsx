@@ -18,7 +18,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   try {
     const { category } = await getCategoryChannels(id)
     return buildMetadata({
-      title: category.name,
+      title: `${category.name} Live TV`,
       description: category.description ?? `Browse live channels in ${category.name}.`,
       path: `/categories/${category.slug}`,
     })
@@ -53,31 +53,32 @@ export default async function CategoryPage({ params, searchParams }: Props) {
     ch.tags?.forEach(t => tagMap.set(t.id, t))
   )
   const tags = Array.from(tagMap.values())
+  //const topChannelsList = ['Cbc Sofra', 'Samira TV']
+  const topChannelsList = channels.data.map(ch => ch.name).slice(0,3)
 
   return (
     <main className="max-w-7xl w-full mx-auto mt-16 px-6 md:px-12">
       {/* Header */}
       <div className="border-b border-white/[0.07] px-5 py-8">
-        <div className="flex items-end gap-4">
-          <div
-            className="h-3 w-3 shrink-0 rounded-full"
-            style={{ background: category.color, marginBottom: 6 }}
-          />
-          <div>
+          <div className="flex items-center gap-4">
+            <div
+            className="h-6 w-6 shrink-0 rounded-full"
+            style={{ background: category.color }}
+            />
             <h1
               className="font-head text-3xl font-extrabold tracking-tight"
               style={{ color: category.color }}
             >
-              {category.name}
+              Watch {category.name} TV Channels Live
             </h1>
-            {category.description && (
-              <p className="mt-1 text-sm text-zinc-500">{category.description}</p>
-            )}
+            </div>          
             <p className="mt-1 text-sm text-zinc-500">
               {channels.meta.total.toLocaleString()} channels
             </p>
-          </div>
-        </div>
+            <p className="mt-8 text-sm text-zinc-300">Watch top Arabic {category.name.toLowerCase()} TV channels live streaming online for free. 
+  Stream popular channels like {topChannelsList.join(', ')} in HD quality with no registration required.</p>
+            
+          
       </div>
 
       {/* Filters */}
