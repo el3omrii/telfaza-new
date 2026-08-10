@@ -109,6 +109,9 @@ export default function ChannelPlayer({ channel, fullViewport = false }) {
 
     if (video) {
       video.api.configure({
+        streaming: {
+          clearBufferSwitch: false
+        },
         manifest: {
           hls: {
             // Ignore les incohérences de timestamps et force l'alignement sur le manifeste

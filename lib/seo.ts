@@ -25,7 +25,7 @@ export function buildMetadata({
   imageUrl? : string | null
 }): Metadata {
   const url = absoluteUrl(path);
-  const resolvedImageUrl = imageUrl ? imageUrl : absoluteUrl(defaultOpenGraphImage);
+  const resolvedImageUrl = imageUrl ? `${process.env.NEXT_PUBLIC_STORAGE_URL}/${imageUrl}` : absoluteUrl(defaultOpenGraphImage);
 
   return {
     title,
@@ -89,7 +89,7 @@ export function generateVideoSchema({
         "interactionType": { "@type": "WatchAction" },
         "userInteractionCount": interactionCount
     },
-    "publication": [
+    publication: [
         {
           "@type": "BroadcastEvent",
           "isLiveBroadcast": true,
