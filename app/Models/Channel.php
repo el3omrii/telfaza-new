@@ -44,8 +44,8 @@ class Channel extends Model
     {
         $this->increment('views');
     }
-
-    protected static function booted(): void
+    // We don't need this anymore, the slug is manually set by user
+    /*protected static function booted(): void
     {
         static::creating(function ($channel) {
             if (empty($channel->slug)) {
@@ -65,5 +65,5 @@ class Channel extends Model
         }
 
         return $slug;
-    }
+    }*/
 }

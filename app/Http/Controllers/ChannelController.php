@@ -76,6 +76,7 @@ class ChannelController extends Controller
         $request->validate([
             'name'                => 'required|string|max:255',
             'description'         => 'nullable|string',
+            'slug'                => 'required|string',
             'metadescription'     => 'nullable|string|max:255',
             'logo'                => 'nullable|image|mimes:jpeg,png,webp,svg|max:2048',
             'image'               => 'nullable|image|mimes:jpeg,png,webp|max:4096',
@@ -100,6 +101,7 @@ class ChannelController extends Controller
         $channel = Channel::create([
             'name'        => $request->name,
             'description' => $request->description,
+            'slug'        => $request->slug,
             'metadescription' => $request->metadescription,
             'country_id'  => $request->country_id,
             'language'    => $request->language,
@@ -163,6 +165,7 @@ class ChannelController extends Controller
     {
         $request->validate([
             'name'        => 'required|string|max:255',
+            'slug'        => 'required|string',
             'description' => 'nullable|string',
             'metadescription' => 'nullable|string|max:255',
             'logo'        => 'nullable|image|mimes:jpeg,png,webp,svg|max:2048',
@@ -181,6 +184,7 @@ class ChannelController extends Controller
 
         $data = [
             'name'        => $request->name,
+            'slug'        => $request->slug,
             'description' => $request->description,
             'metadescription' => $request->metadescription,
             'country_id'  => $request->country_id,
