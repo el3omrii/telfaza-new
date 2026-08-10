@@ -80,6 +80,47 @@ class ScraperController extends Controller
         // Fallback if the API changes or the session cookie expires
         return response('Failed to fetch or parse stream URL.', 500);
     }
+    function getSaudiaStreamUrl(String $channelName)
+    {
+        if (empty($channelName)) {
+            return response('Channel name is required.', 400);
+        }
+        $url = "https://aloula.faulio.com/api/v1.1/channels/$channelName/player";
+
+        // Headers from the cURL request (-H)
+        $headers = [
+            'accept' => 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
+            'accept-language' => 'fr-FR,fr;q=0.9,en-US;q=0.8,en;q=0.7,ar;q=0.6',
+            'cache-control' => 'max-age=0',
+            'priority' => 'u=0, i',
+            'sec-ch-ua' => '"Not;A=Brand";v="8", "Chromium";v="150", "Google Chrome";v="150"',
+            'sec-ch-ua-mobile' => '?0',
+            'sec-ch-ua-platform' => '"Windows"',
+            'sec-fetch-dest' => 'document',
+            'sec-fetch-mode' => 'navigate',
+            'sec-fetch-site' => 'none',
+            'sec-fetch-user' => '?1',
+            'upgrade-insecure-requests' => '1',
+            'user-agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36',
+        ];
+
+        // Send the request
+        $response = Http::withHeaders($headers)
+            ->get($url);
+		
+        // The response is JSON formatted but sent with a text/html content type.
+        // We manually decode the body to extract the array.
+        $data = json_decode($response->body(), true);
+        // Check if decoding was successful and the 'resp' key exists
+        if (json_last_error() === JSON_ERROR_NONE) {
+            $stream_url = $data['streams']['mpd'];
+            if ($stream_url)
+                return response()->json(["stream_url" => $stream_url]);
+        }
+
+        // Fallback if the API changes or the session cookie expires
+        return response('Failed to fetch or parse stream URL.', 500);
+    }
 
     function getSumariaStreamUrl()
     {

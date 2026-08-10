@@ -22,7 +22,7 @@ use App\Http\Controllers\Api\ScraperController;
 use Illuminate\Support\Facades\Route;
 
 
-//Route::domain(env('APP_API_DOMAIN'))->group(function () {
+Route::domain(env('APP_API_DOMAIN'))->group(function () {
 // ─── Global search ────────────────────────────────────────────────────────────
 // GET /api/search?q=bbc
 Route::get('/search', SearchController::class);
@@ -111,5 +111,6 @@ Route::get('/watching-now', function (ViewingTracker $tracker) {
     return response()->json($channels);
 });
 Route::get('/scraper/glwiz/{channelName}', [ScraperController::class, 'getGlwizStreamUrl']);
+Route::get('/scraper/saudia/{channelName}', [ScraperController::class, 'getSaudiaStreamUrl']);
 Route::get('/scraper/sumaria', [ScraperController::class, 'getSumariaStreamUrl']);
-//});
+});
