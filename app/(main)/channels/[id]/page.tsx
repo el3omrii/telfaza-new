@@ -80,7 +80,7 @@ export default async function ChannelDetailPage({ params }: Props) {
       />
       {/* ── Hero header ── */}
       <div className="border-b border-white/[0.07] bg-zinc-900 px-5 py-8">
-        <div className="grid grid-cols-[1fr_auto] md:grid-cols-[auto_1fr_auto] items-start gap-2 md:gap-6">
+        <div className="grid grid-cols-[auto_1fr] md:grid-cols-[auto_1fr_auto] items-start gap-2 md:gap-6">
           {/* Logo */}
           <div className="flex h-18 w-18 md:h-24 md:w-24 items-center justify-center overflow-hidden rounded-2xl border border-white/10 bg-zinc-800">
             {logo ? (
@@ -118,7 +118,7 @@ export default async function ChannelDetailPage({ params }: Props) {
           </div>
 
           {/* Stats */}
-          <div className="flex items-end gap-3">
+          <div className="flex col-start-2 sm:col-start-auto items-end gap-3">
             <div className="text-right">
               <div className="flex justify-end items-center gap-2 font-head text-2xl font-bold text-lime-400">
                 <Icon.Eye />

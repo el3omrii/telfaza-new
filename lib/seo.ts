@@ -83,17 +83,11 @@ export function generateVideoSchema({
     embedUrl: embedUrl || process.env.NEXT_PUBLIC_STORAGE_URL,
     uploadDate: uploadDate || new Date().toISOString(),
     isLiveBroadcast: true,
-    expires: new Date(expires).toISOString(), //expires after 30 days
+    //expires: new Date(expires).toISOString(), //expires after 30 days
     interactionStatistic: {
         "@type": "InteractionCounter",
         "interactionType": { "@type": "WatchAction" },
         "userInteractionCount": interactionCount
-    },
-    publication: [
-        {
-          "@type": "BroadcastEvent",
-          "isLiveBroadcast": true,
-        },
-      ]
+    }
   };
 }
