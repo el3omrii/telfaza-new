@@ -8,7 +8,7 @@ use App\Traits\ClearsNextjsCache;
 
 class Category extends Model
 {
-    use ClearNextjsCache;
+    use ClearsNextjsCache;
     protected $fillable = [
         'name',
         'slug',
