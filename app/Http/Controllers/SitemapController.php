@@ -186,8 +186,8 @@ class SitemapController extends Controller
             ->get();
 
         foreach ($channels as $channel) {
-            $channel->formattedLogo = $channel->logo ? 'https://cdn.telfazalive.com' . $channel->logo : null;
-            $channel->formattedImage = $channel->image ? 'https://cdn.telfazalive.com' . $channel->image : null;
+            $channel->formattedLogo = $channel->logo ? 'https://cdn.telfazalive.com/' . $channel->logo : null;
+            $channel->formattedImage = $channel->image ? 'https://cdn.telfazalive.com/' . $channel->image : null;
             $channel->pageUrl = $this->buildUrl($frontendUrl, '/channels/' . $channel->slug);
         }
 
