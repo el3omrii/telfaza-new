@@ -3,16 +3,16 @@
         xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
     @foreach($channels as $channel)
     <url>
-        <loc>{{ $channel['url'] }}</loc>
-        @if(!empty($channel['logo']) || !empty($channel['image']))
-        @if(!empty($channel['logo']))
+        <loc>{{ $channel->pageUrl }}</loc>
+        @if(!empty($channel->formattedLogo) || !empty($channel->formattedImage))
+        @if(!empty($channel->formattedLogo))
         <image:image>
-            <image:loc>{{ $channel['logo'] }}</image:loc>
+            <image:loc>{{ $channel->formattedLogo }}</image:loc>
         </image:image>
         @endif
-        @if(!empty($channel['image']))
+        @if(!empty($channel->formattedImage))
         <image:image>
-            <image:loc>{{ $channel['image'] }}</image:loc>
+            <image:loc>{{ $channel->formattedImage }}</image:loc>
         </image:image>
         @endif
         @endif
