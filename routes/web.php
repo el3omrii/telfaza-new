@@ -23,6 +23,7 @@ Auth::routes(['register' => false, 'reset' => false, 'verify' => false]);
 // ── Public sitemap endpoints ────────────────────────────────────────────────
 Route::get('/sitemap.xml', [SitemapController::class, 'sitemap'])->name('sitemap.xml');
 Route::get('/video-sitemap.xml', [SitemapController::class, 'videoSitemap'])->name('video-sitemap.xml');
+Route::get('/image-sitemap.xml', [SitemapController::class, 'imageSitemap'])->name('image-sitemap.xml');
 
 // ── Protected application routes (auth required) ──────────────────────────────
 Route::middleware('auth')->group(function () {

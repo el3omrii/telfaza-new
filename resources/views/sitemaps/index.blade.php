@@ -62,5 +62,20 @@
             </div>
         </div>
     </div>
+
+    <div class="grid gap-6 md:grid-cols-2">
+        <div class="rounded-[18px] border border-border bg-surface p-6">
+            <h2 class="text-lg font-semibold text-white">Image sitemap</h2>
+            <p class="mt-2 text-sm text-muted">Publishes image metadata for channels that include a logo or image.</p>
+            <div class="mt-5 flex flex-wrap gap-3">
+                <a href="{{ route('image-sitemap.xml') }}" target="_blank" class="inline-flex items-center rounded-full border border-border px-4 py-2 text-sm font-semibold text-white transition hover:bg-border">
+                    Open image-sitemap.xml
+                </a>
+                <span class="inline-flex items-center rounded-full border border-border px-3 py-2 text-xs font-medium text-muted">
+                    {{ $imageSitemapExists ? 'Generated' : 'Not generated yet' }}
+                </span>
+            </div>
+        </div>
+    </div>
 </div>
 @endsection

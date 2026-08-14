@@ -20,8 +20,9 @@ class SitemapController extends Controller
         $frontendUrl = $request->input('frontend_url', env('FRONTEND_URL', url('/')));
         $sitemapExists = file_exists(public_path('sitemap.xml'));
         $videoSitemapExists = file_exists(public_path('video-sitemap.xml'));
+        $imageSitemapExists = file_exists(public_path('image-sitemap.xml'));
 
-        return view('sitemaps.index', compact('frontendUrl', 'sitemapExists', 'videoSitemapExists'));
+        return view('sitemaps.index', compact('frontendUrl', 'sitemapExists', 'videoSitemapExists', 'imageSitemapExists'));
     }
 
     public function generate(Request $request): RedirectResponse
@@ -30,6 +31,7 @@ class SitemapController extends Controller
 
         $this->writeSitemap($frontendUrl);
         $this->writeVideoSitemap($frontendUrl);
+        $this->writeImageSitemap($frontendUrl);
 
         return redirect()->route('sitemaps.index', ['frontend_url' => $frontendUrl])
             ->with('success', 'Sitemaps generated successfully.');
@@ -52,6 +54,17 @@ class SitemapController extends Controller
 
         if (!file_exists($path)) {
             return response('Video sitemap not generated yet.', 404);
+        }
+
+        return response()->file($path, ['Content-Type' => 'application/xml']);
+    }
+
+    public function imageSitemap(): Response
+    {
+        $path = public_path('image-sitemap.xml');
+
+        if (!file_exists($path)) {
+            return response('Image sitemap not generated yet.', 404);
         }
 
         return response()->file($path, ['Content-Type' => 'application/xml']);
@@ -139,7 +152,7 @@ class SitemapController extends Controller
             ->where('published', true)
             ->whereNotNull('image')
             ->with(['sources' => function ($query) {
-                $query->where('enabled', true); 
+                $query->where('enabled', true);
             }])
             ->orderBy('updated_at', 'desc')
             ->get();
@@ -160,6 +173,26 @@ class SitemapController extends Controller
 
         $xml = view('sitemaps.video-xml', compact('videos'))->render();
         file_put_contents(public_path('video-sitemap.xml'), $xml);
+    }
+
+    private function writeImageSitemap(string $frontendUrl): void
+    {
+        $channels = Channel::query()
+            ->where('published', true)
+            ->where(function($query) {
+                $query->whereNotNull('logo')->orWhereNotNull('image');
+            })
+            ->orderBy('updated_at', 'desc')
+            ->get();
+
+        foreach ($channels as $channel) {
+            $channel->formattedLogo = $channel->logo ? 'https://cdn.telfazalive.com' . $channel->logo : null;
+            $channel->formattedImage = $channel->image ? 'https://cdn.telfazalive.com' . $channel->image : null;
+            $channel->pageUrl = $this->buildUrl($frontendUrl, '/channels/' . $channel->slug);
+        }
+
+        $xml = view('sitemaps.image-xml', compact('channels'))->render();
+        file_put_contents(public_path('image-sitemap.xml'), $xml);
     }
 
     private function normalizeFrontendUrl(?string $frontendUrl): string
