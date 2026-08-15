@@ -6,6 +6,7 @@ import Nav from "@/components/Nav";
 import Footer from "@/components/ui/Footer";
 import NavigationProgress from "@/components/NavigationProgress";
 import { SITE_DESCRIPTION, SITE_NAME, metadataBase } from "@/lib/seo";
+import { GoogleAnalytics } from "@/components/analytics/GoogleAnalytics";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -64,6 +65,9 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col" style={{ background: "#0a0a0f" }}>
+        {process.env.NEXT_PUBLIC_GA_TRACKING_ID && (
+          <GoogleAnalytics trackingId={process.env.NEXT_PUBLIC_GA_TRACKING_ID} />
+        )}
         <Suspense fallback={null}>
           <NavigationProgress />
         </Suspense>
