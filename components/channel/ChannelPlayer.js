@@ -109,20 +109,20 @@ export default function ChannelPlayer({ channel, fullViewport = false }) {
 
     if (video) {
       video.api.configure({
-        streaming: {
-          clearBufferSwitch: false
-        },
         manifest: {
           hls: {
+            defaultAudioCodec: 'mp4a.40.2',
             // Ignore les incohérences de timestamps et force l'alignement sur le manifeste
             ignoreManifestProgramDateTime: true,
             liveSegmentsDelay: 3 
           },
           // Augmente la tolérance aux écarts de synchronisation
           availabilityWindowOverride: 60 
-        }
+        },
+        preferredAudioCodecs: ['mp4a.40.2']
       })
-      setupSnrtUrlFix(video.api)
+      if (link.includes('/snrt/'))
+        setupSnrtUrlFix(video.api)
       video.addEventListener('resize', handleResize);
       handleResize();
       video.addEventListener('error', (event) => {

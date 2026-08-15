@@ -15,12 +15,7 @@ const nextConfig: NextConfig = {
       {
         // Votre stockage Laravel via variable d'environnement
         protocol: 'https',
-        hostname: process.env.NEXT_PUBLIC_STORAGE_URL || "", 
-      },
-      {
-        // Le domaine spécifique qui causait l'erreur
-        protocol: 'https',
-        hostname: 'cdn.telfazalive.com',
+        hostname: process.env.NEXT_PUBLIC_STORAGE_URL?.replace(/^https?:\/\//, '') || '', // Remove protocol from the URL
       },
       {
         // Allow images from your Laravel storage (adjust hostname as needed)
