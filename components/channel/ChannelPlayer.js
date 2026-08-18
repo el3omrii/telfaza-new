@@ -78,28 +78,48 @@ function setupSnrtUrlFix(shakaPlayer) {
   });
 }
 
+
 export default function ChannelPlayer({ channel, fullViewport = false }) {
   const [error, setError] = useState('');
+  const [currentSourceIndex, setCurrentSourceIndex] = useState(0);
   const [mediaHeight, setMediaHeight] = useState('');
-  const { sources: [{ link, drm, clearkeys }] } = channel
+  const { sources } = channel;
+  const activeSource = sources[currentSourceIndex] ?? sources[0];
+  const { link, drm, clearkeys } = activeSource;
   const videoRef = useRef(null);
+  const currentSourceIndexRef = useRef(0);
+
+  useEffect(() => {
+    currentSourceIndexRef.current = currentSourceIndex;
+  }, [currentSourceIndex]);
+
+  const switchToNextSource = () => {
+    const nextIndex = currentSourceIndexRef.current + 1;
+    if (nextIndex < sources.length) {
+      setCurrentSourceIndex(nextIndex);
+      return;
+    }
+
+    console.error('All available stream sources have failed or are geo-blocked.');
+  };
+
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
 
-    // Configure DRM if needed
-    if (drm && clearkeys && video.api) {
-      try {
-        video.api.configure({
-          drm: {
-            clearKeys: clearkeys
-          }
-        });
-      } catch (err) {
-        setError('DRM configuration failed');
+    const handlePlayerError = (event) => {
+      const errorDetail = event?.detail ?? event;
+      if (!errorDetail || typeof errorDetail.code === 'undefined') return;
+
+      const isGeoBlocked = errorDetail.code === 1002 && errorDetail.data?.[1] === 403;
+      const isRestricted = errorDetail.code === 4000;
+      const isCritical = errorDetail.severity === 2;
+
+      if (isGeoBlocked || isRestricted || isCritical) {
+        console.warn(`Source failed with error code ${errorDetail.code}. Trying next source...`);
+        switchToNextSource();
       }
-    }
-    video.src = link;
+    };
 
     const handleResize = () => {
       if (video) {
@@ -107,56 +127,81 @@ export default function ChannelPlayer({ channel, fullViewport = false }) {
       }
     };
 
-    if (video) {
-      video.api.configure({
-        manifest: {
-          hls: {
-            defaultAudioCodec: 'mp4a.40.2',
-            // Ignore les incohérences de timestamps et force l'alignement sur le manifeste
-            ignoreManifestProgramDateTime: true,
-            liveSegmentsDelay: 3 
-          },
-          // Augmente la tolérance aux écarts de synchronisation
-          availabilityWindowOverride: 60 
-        },
-        preferredAudioCodecs: ['mp4a.40.2']
-      })
-      if (link.includes('/snrt/'))
-        setupSnrtUrlFix(video.api)
-      video.addEventListener('resize', handleResize);
+    const loadSource = async () => {
+      try {
+        video.api?.unload?.();
+      } catch (err) {
+        console.warn('Failed to unload previous source', err);
+      }
+
+      if (video.api) {
+        try {
+          video.api.resetConfiguration?.();
+
+          const clearKeys = drm && clearkeys ? clearkeys : {};
+          const config = {
+            manifest: {
+              hls: {
+                defaultAudioCodec: 'mp4a.40.2',
+                ignoreManifestProgramDateTime: true,
+                liveSegmentsDelay: 3
+              },
+              availabilityWindowOverride: 60
+            },
+            preferredAudioCodecs: ['mp4a.40.2'],
+            drm: {
+              clearKeys
+            }
+          };
+
+          if (link.includes('/hls2/')) {
+            config.manifest.retryParameters = { maxAttempts: 5, baseDelay: 2000 };
+          }
+
+          video.api.configure(config);
+
+          if (link.includes('/snrt/')) {
+            setupSnrtUrlFix(video.api);
+          }
+        } catch (err) {
+          console.error('Failed to configure Shaka for source', err);
+          setError('DRM configuration failed');
+        }
+      }
+
+      video.addEventListener('error', handlePlayerError);
+      video.src = link;
       handleResize();
-      video.addEventListener('error', (event) => {
-        // event.detail contains the shaka.util.Error object
-        console.error('Shaka Error Code:', event.detail.code);
-        console.error('Shaka Error Category:', event.detail.category);
-        console.error('Shaka Error Data:', event.detail.data);
-      });
-    }
+    };
+
+    loadSource();
+    video.addEventListener('resize', handleResize);
 
     return () => {
-      video?.removeEventListener('resize', handleResize);
+      video.removeEventListener('resize', handleResize);
+      video.removeEventListener('error', handlePlayerError);
       try {
-        //video.src = '';
         video.api?.unload?.();
       } catch (err) {
         console.error('Failed to cleanup channel player', err);
       }
     };
-  }, [channel]);
+  }, [channel, currentSourceIndex, link, drm, clearkeys]);
 
   return (
     <div className={`relative bg-black w-full ${fullViewport ? 'h-full' : 'overflow-hidden rounded-3xl shadow-xl'}`}>
       <div className={fullViewport ? 'w-full h-full' : 'w-full aspect-video'}>
-        <MediaController className="w-full h-full bg-black" autohide="-1">
+        <MediaController className="w-full h-full bg-black" autohide="5">
           <ShakaVideo
             ref={videoRef}
             slot="media"
             poster={storageUrl(channel.image)}
             className="w-full h-full object-cover bg-black"
           />
-
-          <MediaLoadingIndicator slot="centered-chrome"></MediaLoadingIndicator>
-
+          <div slot="middle-chrome" className="center-overlay">
+            <MediaPlayButton className="big-play-btn"></MediaPlayButton>
+            <MediaLoadingIndicator></MediaLoadingIndicator>
+          </div>
           <MediaControlBar className="bg-black/75 p-1 mx-4 m-2 rounded-full">
             <MediaPlayButton className="media-control"></MediaPlayButton>
             <MediaLiveButton className="media-control scale-80 sm:scale-100"></MediaLiveButton>

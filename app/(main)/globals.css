@@ -114,6 +114,39 @@ body {
   animation: heroProgress 7s linear infinite;
 }
 
+.center-overlay {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: grid;
+  place-items: center;
+  z-index: 10;
+}
+.center-overlay > * {
+  grid-area: 1 / 1;
+}
+.big-play-btn {
+  --media-button-background: rgba(0, 0, 0, 0.6);
+  --media-button-hover-background: rgba(0, 0, 0, 0.8);
+  --media-button-icon-width: 40px;
+  --media-button-icon-height: 40px;
+  z-index: 10;
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.big-play-btn:hover {
+  transform: scale(1.1);
+}
+.big-play-btn {
+  display: none;
+}
+media-controller[mediapaused]:not([mediabuffering]) .big-play-btn {
+  display: inline-flex;
+}
 .media-control {
   @apply bg-transparent transition mx-1 md:mx-2 h-6 md:h-12 w-auto 
 }
