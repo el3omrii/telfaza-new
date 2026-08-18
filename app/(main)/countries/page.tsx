@@ -4,8 +4,8 @@ import { CountryGrid } from '@/components/country/CountryGrid'
 import { buildMetadata } from '@/lib/seo'
 
 export const metadata = buildMetadata({
-  title: 'Countries',
-  description: 'Browse live TV channels by country and region.',
+  title: 'Watch Arabic TV Channels by Country',
+  description: 'Watch live local TV channels from across the Arab world on Telfaza LIVE. Browse TV channels by country and watch news, sports, and entertainment free in HD.',
   path: '/countries',
 })
 
@@ -15,10 +15,11 @@ export default async function CountriesPage() {
   return (
     <main className="max-w-7xl w-full mx-auto mt-16 px-6 md:px-16 lg:px-24 xl:px-32">
       <div className="border-b border-white/[0.07] px-5 py-8">
-        <h1 className="font-head text-3xl font-extrabold tracking-tight">Countries</h1>
+        <h1 className="font-head text-3xl font-extrabold tracking-tight">Watch TV Channels by Country</h1>
         <p className="mt-1 text-sm text-zinc-500">
           {countries.length} countries · browse by country
         </p>
+        <p className="mt-4">Explore our global directory of Arabic TV live streams organized by region. From Egypt and Saudi Arabia to the UAE, Morocco, and beyond—find your favorite regional networks and watch free, 24/7 live television directly in your browser.</p>
       </div>
 
       <div className="mt-8">

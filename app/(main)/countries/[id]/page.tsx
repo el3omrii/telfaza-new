@@ -19,8 +19,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   try {
     const { country } = await getCountryChannels(id)
     return buildMetadata({
-      title: country.name,
-      description: `Browse live channels from ${country.name}.`,
+      title: `Watch ${country.name} TV Channels Live Streaming`,
+      description: `Stream top ${country.name} live TV channels online for free. Watch national broadcasts, live news, and local sports from ${country.name} in HD on Telfaza LIVE.`,
       path: `/countries/${country.slug}`,
     })
   } catch {
@@ -65,15 +65,16 @@ export default async function CountryPage({ params, searchParams }: Props) {
           </div>
           <div>
             <h1
-              className="font-head text-3xl font-extrabold tracking-tight"              
+              className="font-head text-3xl font-extrabold tracking-tight text-white"              
             >
-              {country.name}
+              Watch {country.name} TV Channels Live
             </h1>            
             <p className="mt-1 text-sm text-zinc-500">
               {channels.meta.total.toLocaleString()} channels
             </p>
           </div>
         </div>
+          <p className="mt-4">Stream live television broadcasts directly from {country.name}. Browse national networks, local news channels, and regional sports streaming online for free with no subscription required.</p>
       </div>
 
       {/* Filters */}
