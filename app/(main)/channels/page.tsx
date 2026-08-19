@@ -60,7 +60,7 @@ export default async function ChannelsPage({ searchParams }: Props) {
     <main className="max-w-7xl w-full mx-auto mt-16 px-6 md:px-16 lg:px-24 xl:px-32">
       {/* Header */}
       <div className="border-b border-white/[0.07] px-5 py-8">
-        <h1 className="font-head text-3xl font-extrabold tracking-tight">Watch Arabic TV Channels Live Streaming</h1>
+        <h1 className="font-head text-3xl font-extrabold tracking-tight text-white">Watch Arabic TV Channels Live Streaming</h1>
         <p className="mt-1 text-sm text-zinc-500">
           Browse, filter, and watch {result.meta.total.toLocaleString()} top Arab TV channels online for free.
         </p>
