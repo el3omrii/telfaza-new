@@ -12,7 +12,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const channel = await getChannel(slug)
     return {
       title: `${channel.name} - Embed`,
-      description: `Watch ${channel.name} live on Telfaza LIVE.`,
+      description: channel.metadescription || `Watch ${channel.name} live on Telfaza LIVE.`,
+      alternates: {
+        canonical: `${process.env.NEXT_PUBLIC_APP_URL}/channels/${slug}`,
+      },
     }
   } catch {
     return {
