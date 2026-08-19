@@ -62,7 +62,7 @@ function setupSnrtUrlFix(shakaPlayer) {
     if (type === RequestType.SEGMENT) return;
 
     console.log('✏️  RequestFilter:', { type, uris: request.uris });
-    
+
     for (let i = 0; i < request.uris.length; i++) {
       if (request.uris[i].includes(`${TOKEN_PARAM}=`)) continue;
 
@@ -76,6 +76,7 @@ function setupSnrtUrlFix(shakaPlayer) {
       }
     }
   });
+
 }
 
 
@@ -83,6 +84,7 @@ export default function ChannelPlayer({ channel, fullViewport = false }) {
   const [error, setError] = useState('');
   const [currentSourceIndex, setCurrentSourceIndex] = useState(0);
   const [mediaHeight, setMediaHeight] = useState('');
+  const [playEventSent, setPlayEventSent] = useState(false);
   const { sources } = channel;
   const activeSource = sources[currentSourceIndex] ?? sources[0];
   const { link, drm, clearkeys } = activeSource;
@@ -169,9 +171,68 @@ export default function ChannelPlayer({ channel, fullViewport = false }) {
         }
       }
 
-      video.addEventListener('error', handlePlayerError);
-      video.src = link;
-      handleResize();
+      // Setup analytics tracking for this source
+      const setupAnalyticsTracking = () => {
+        if (!video.api) return;
+
+        // Track play event (only once per source)
+        const handlePlay = () => {
+          if (playEventSent) return;
+          setPlayEventSent(true);
+
+          if (typeof window !== 'undefined' && window.gtag) {
+            window.gtag('event', 'video_play', {
+              channel_name: channel.name || 'unknown',
+              channel_id: channel.id || 'unknown',
+              source_url: link || 'unknown',
+              video_title: channel.name || 'unknown',
+              event_category: 'video',
+              event_label: 'play'
+            });
+          }
+        };
+
+        // Track error events
+        const handleError = (event) => {
+          const errorDetail = event?.detail ?? event;
+          if (!errorDetail || typeof errorDetail.code === 'undefined') return;
+
+          if (typeof window !== 'undefined' && window.gtag) {
+            window.gtag('event', 'video_error', {
+              channel_name: channel.name || 'unknown',
+              channel_id: channel.id || 'unknown',
+              source_url: link || 'unknown',
+              error_code: errorDetail.code,
+              error_message: errorDetail.message || 'Unknown error',
+              error_severity: errorDetail.severity || 'unknown',
+              event_category: 'video',
+              event_label: 'error'
+            });
+          }
+        };
+
+        video.addEventListener('play', handlePlay);
+        video.api.addEventListener('error', handleError);
+
+        return () => {
+          video.api.removeEventListener('play', handlePlay);
+          video.api.removeEventListener('error', handleError);
+        };
+      };
+
+      const cleanupAnalytics = setupAnalyticsTracking();
+
+        video.addEventListener('error', handlePlayerError);
+
+        // Reset play event flag when source changes
+        setPlayEventSent(false);
+
+        video.src = link;
+        handleResize();
+
+      return () => {
+        if (cleanupAnalytics) cleanupAnalytics();
+      };
     };
 
     loadSource();
@@ -185,6 +246,9 @@ export default function ChannelPlayer({ channel, fullViewport = false }) {
       } catch (err) {
         console.error('Failed to cleanup channel player', err);
       }
+
+      // Reset play event flag when unloading
+      setPlayEventSent(false);
     };
   }, [channel, currentSourceIndex, link, drm, clearkeys]);
 
