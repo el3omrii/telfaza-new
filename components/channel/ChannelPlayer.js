@@ -180,8 +180,8 @@ export default function ChannelPlayer({ channel, fullViewport = false }) {
           if (playEventSent) return;
           setPlayEventSent(true);
 
-          if (typeof window !== 'undefined' && window.gtag) {
-            window.gtag('event', 'video_play', {
+          if (typeof window.parent !== 'undefined' && window.parent.gtag) {
+            window.parent.gtag('event', 'video_play', {
               channel_name: channel.name || 'unknown',
               channel_id: channel.id || 'unknown',
               source_url: link || 'unknown',
@@ -197,8 +197,8 @@ export default function ChannelPlayer({ channel, fullViewport = false }) {
           const errorDetail = event?.detail ?? event;
           if (!errorDetail || typeof errorDetail.code === 'undefined') return;
 
-          if (typeof window !== 'undefined' && window.gtag) {
-            window.gtag('event', 'video_error', {
+          if (typeof window.parent !== 'undefined' && window.parent.gtag) {
+            window.parent.gtag('event', 'video_error', {
               channel_name: channel.name || 'unknown',
               channel_id: channel.id || 'unknown',
               source_url: link || 'unknown',
