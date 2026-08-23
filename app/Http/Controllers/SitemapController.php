@@ -96,7 +96,7 @@ class SitemapController extends Controller
                 'priority'   => '0.8',
             ];
 
-            foreach ($channel->categories as $category) {
+            /*foreach ($channel->categories as $category) {
                 $urls[] = [
                     'loc'        => $this->buildUrl($frontendUrl, '/' . $category->slug . '/' . $channel->slug),
                     'lastmod'    => $channel->updated_at?->toAtomString(),
@@ -112,7 +112,7 @@ class SitemapController extends Controller
                     'changefreq' => 'weekly',
                     'priority'   => '0.7',
                 ];
-            }
+            }*/
         }
 
         foreach ($categories as $category) {
