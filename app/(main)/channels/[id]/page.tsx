@@ -63,11 +63,12 @@ export default async function ChannelDetailPage({ params }: Props) {
       </svg>
     ),
   };
+  const embedUrl = `${process.env.NEXT_PUBLIC_APP_URL}/embed/${channel.slug}`
   const videoSchema = generateVideoSchema({
     name: channel.name,
     description: channel.metadescription ?? undefined,
     thumbnailUrl: storageUrl(channel.image) ?? undefined,
-    embedUrl: `${process.env.NEXT_PUBLIC_APP_URL}/embed/${channel.slug}` ,
+    embedUrl: embedUrl,
     uploadDate: channel.created_at,
     interactionCount: channel.views,
   })
@@ -139,7 +140,15 @@ export default async function ChannelDetailPage({ params }: Props) {
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_280px]">
         {/* Left — player + meta */}
         <div className="border-r border-white/[0.07]">
-          <ClientChannelPlayer channel={channel} />
+          <div className="w-full h-64 sm:h-72 md:h-96 lg:h-128 bg-black">
+            <iframe 
+              src={embedUrl}
+              width="100%" 
+              height="100%" 
+              allow="autoplay; encrypted-media; picture-in-picture" 
+              allowFullScreen>
+            </iframe>
+            </div>
            <ChannelActionButtons channelId={channel.id} channelName={channel.name} slug={channel.slug} />
           {/* Description */}
           {channel.description && (

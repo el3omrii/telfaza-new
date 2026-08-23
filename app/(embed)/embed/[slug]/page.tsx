@@ -13,9 +13,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     return {
       title: `${channel.name} - Embed`,
       description: channel.metadescription || `Watch ${channel.name} live on Telfaza LIVE.`,
-      alternates: {
-        canonical: `${process.env.NEXT_PUBLIC_APP_URL}/channels/${slug}`,
-      },
+      robots: "noindex",
     }
   } catch {
     return {
@@ -36,7 +34,7 @@ export default async function EmbedPage({ params }: Props) {
   }
 
   return (
-    <div className="w-full h-[100dvh] bg-black flex items-center justify-center overflow-hidden fixed inset-0">
+    <div className="w-full h-full bg-black flex items-center justify-center overflow-hidden fixed inset-0">
       <ChannelPlayer channel={channel} fullViewport={true} />
     </div>
   )

@@ -9,7 +9,7 @@ export default function EmbedLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en" className="h-full antialiased">
+    <html lang="en" className="antialiaseddd">
       <body className="min-h-full flex flex-col m-0 p-0 bg-black">
         {children}
       </body>
