@@ -9,7 +9,7 @@ interface Props {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params
   try {
-    const channel = await getChannel(slug)
+    const channel = await getChannel(slug + '?embed=1')
     return {
       title: `${channel.name} - Embed`,
       description: channel.metadescription || `Watch ${channel.name} live on Telfaza LIVE.`,
@@ -28,7 +28,7 @@ export default async function EmbedPage({ params }: Props) {
   let channel
 
   try {
-    channel = await getChannel(slug)
+    channel = await getChannel(slug + '?embed=1')
   } catch {
     notFound()
   }

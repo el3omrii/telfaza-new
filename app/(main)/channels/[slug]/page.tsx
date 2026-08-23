@@ -13,13 +13,13 @@ import ReactMarkDown from "react-markdown"
 
 
 interface Props {
-  params: { id: string }
+  params: { slug: string }
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { id } = await params
+  const { slug } = await params
   try {
-    const ch = await getChannel(id)
+    const ch = await getChannel(slug)
     return buildMetadata({
       title: `Watch ${ch.name} Live Streaming Online`,
       description: ch.metadescription ?? `Watch ${ch.name} live on ${process.env.NEXT_PUBLIC_APP_NAME}.`,
@@ -36,10 +36,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function ChannelDetailPage({ params }: Props) {
-  const { id } = await params
+  const { slug } = await params
   let channel
   try {
-    channel = await getChannel(id)
+    channel = await getChannel(slug)
   } catch {
     notFound()
   }
