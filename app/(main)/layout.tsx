@@ -26,7 +26,6 @@ export const metadata: Metadata = {
   },
   description: SITE_DESCRIPTION,
   applicationName: SITE_NAME,
-  referrer: "no-referrer",
   openGraph: {
     type: "website",
     siteName: SITE_NAME,
