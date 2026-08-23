@@ -42,7 +42,7 @@ class Channel extends Model
 
     public function incrementViews(): void
     {
-        $this->increment('views');
+        $this->incrementQuietly('views');
     }
     // We don't need this anymore, the slug is manually set by user
     /*protected static function booted(): void
