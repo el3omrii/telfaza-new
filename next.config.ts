@@ -2,6 +2,7 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   output: 'standalone',
+  cacheHandler: require.resolve('./cache-handler.js'),
   // Ensure Next.js transpilePackages strips out legacy JS from node_modules if needed
   transpilePackages: [], // Add third-party UI libs here if they ship ES5 code
   
