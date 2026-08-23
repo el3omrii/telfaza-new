@@ -83,7 +83,7 @@ export const getFiltersMeta = () =>
   get<FiltersMeta>('/channels/filters/meta', cacheTags('channels', 'channels:filters-meta'))
 
 export const getChannel = (slug: string | string) =>
-  get<Channel>(`/channels/${slug}`, cacheTags('channels', `channel:${slug}`))
+  get<Channel>(`/channels/${slug}`, cacheTags('channels', `channel:${slug}`), 60)
 
 export const getChannelsByIds = (ids: Array<string | number>) =>
   get<Channel[]>(`/channels/favorites${qs({ ids })}`)
