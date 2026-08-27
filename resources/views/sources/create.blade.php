@@ -49,6 +49,16 @@
                     </label>
                 </div>
 
+                {{-- P2P toggle --}}
+                    <div>
+                        <label class="flex items-center gap-2.5 cursor-pointer text-sm select-none">
+                            <input type="checkbox" name="p2penabled" id="p2pEnabled" value="1"
+                                   {{ old('p2penabled', true) ? 'checked' : '' }}
+                                   class="w-4 h-4 rounded accent-accent bg-bg border-border">
+                            Enable P2P for this source
+                        </label>
+                    </div>
+
                 {{-- DRM toggle --}}
                 <div>
                     <label class="flex items-center gap-2.5 cursor-pointer text-sm select-none">
