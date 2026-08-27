@@ -12,7 +12,10 @@ export function usePusherViewerCount(
   useEffect(() => {
     // Initialize Pusher
     const pusher = new Pusher(process.env.NEXT_PUBLIC_PUSHER_KEY!, {
+      wsHost: process.env.NEXT_PUBLIC_PUSHER_HOST,
+      wsPort: parseInt(process.env.NEXT_PUBLIC_PUSHER_PORT || '6001', 10),
       cluster: process.env.NEXT_PUBLIC_PUSHER_CLUSTER!,
+      enabledTransports: ['ws', 'wss'],
       authEndpoint: '/api/pusher/auth',
       auth: {
         headers: {

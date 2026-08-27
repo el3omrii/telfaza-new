@@ -1,0 +1,83 @@
+schemaVersion: 2.2.0
+metadata:
+  name: nextjs-workspace
+  displayName: Next.js Development Environment
+  description: Devfile for developing a Next.js application in OpenShift Dev Spaces
+  tags:
+    - Next.js
+    - Node.js
+    - React
+  version: 1.0.0
+
+components:
+  - name: dev-container
+    container:
+      # The Universal Developer Image includes Node.js, npm, yarn, and git
+      image: quay.io/devfile/universal-developer-image:ubi9-latest
+      
+      # MEMORY & CPU LIMITS (Prevents the 90% OOM issue)
+      memoryLimit: 3Gi
+      memoryRequest: 1Gi
+      cpuLimit: '2'
+      cpuRequest: '1'
+      
+      # Expose the default Next.js port
+      endpoints:
+        - name: nextjs-app
+          targetPort: 3000
+          exposure: public
+          protocol: https
+          attributes:
+            # 'main' makes this the default clickable link in the Dev Spaces dashboard
+            type: main 
+            discoverable: false
+            secure: true
+
+      # PERFORMANCE FIX: Mount node_modules as a separate volume
+      volumeMounts:
+        - name: node-modules
+          path: /projects/node_modules
+
+  - name: node-modules
+    volume:
+      size: 2Gi
+
+commands:
+  # 1. Install dependencies
+  - id: install
+    exec:
+      component: dev-container
+      commandLine: npm install
+      workingDir: ${PROJECT_SOURCE}
+      group:
+        kind: build
+        isDefault: true
+
+  # 2. Build for production
+  - id: build
+    exec:
+      component: dev-container
+      commandLine: npm run build
+      workingDir: ${PROJECT_SOURCE}
+      group:
+        kind: build
+
+  # 3. Run development server
+  - id: dev
+    exec:
+      component: dev-container
+      # CRITICAL: Next.js must bind to 0.0.0.0 to be accessible outside the container
+      commandLine: npm run dev -- -H 0.0.0.0
+      workingDir: ${PROJECT_SOURCE}
+      group:
+        kind: run
+        isDefault: true
+
+  # 4. Run production server
+  - id: start
+    exec:
+      component: dev-container
+      commandLine: npm start -- -H 0.0.0.0
+      workingDir: ${PROJECT_SOURCE}
+      group:
+        kind: run

@@ -2,6 +2,7 @@ import Pusher from 'pusher'
 import { NextResponse } from 'next/server'
 
 const pusher = new Pusher({
+  host: process.env.NEXT_PUBLIC_PUSHER_HOST!,
   appId: process.env.PUSHER_APP_ID!,
   key: process.env.NEXT_PUBLIC_PUSHER_KEY!,
   secret: process.env.PUSHER_SECRET!,

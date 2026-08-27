@@ -1,0 +1,18 @@
+#line 32819
+var import_shaka_player = __toESM(require_shaka_player_compiled(), 1);
+if (typeof window !== "undefined") {
+  window.shaka = import_shaka_player.default;
+}
+#line 32953
+try {
+	await this.api.load(this.src);
+} catch (e) {
+	onError(e);
+	const error = e.detail ?? e;
+	this.dispatchEvent(new CustomEvent("error", {
+		detail: error,
+		bubbles: true,
+		composed: true
+	}));
+	return;
+}
