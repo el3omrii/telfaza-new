@@ -59,6 +59,7 @@ class SourceController extends Controller
             'link'      => 'nullable|url|max:2048',
             'drm'       => 'boolean',
             'enabled'   => 'nullable|boolean',
+            'p2penabled'=> 'nullable|boolean',
             'clearkeys' => 'nullable|string|max:4000',
         ]);
 
@@ -79,6 +80,7 @@ class SourceController extends Controller
         }
         $data['clearkeys'] = $clearkeysArray;
         $data['enabled'] = (bool) ($data['enabled'] ?? false);
+        $data['p2penabled'] = (bool) ($data['p2penabled'] ?? false);
 
         $data['channel_id'] = $channel->id;
         Source::create($data);
@@ -109,6 +111,7 @@ class SourceController extends Controller
             'link'      => 'nullable|url|max:2048',
             'drm'       => 'boolean',
             'enabled'   => 'nullable|boolean',
+            'p2penabled'=> 'nullable|boolean',                       
             'clearkeys' => 'nullable|string|max:4000',
         ]);
 
@@ -133,6 +136,7 @@ class SourceController extends Controller
 			$data['drm'] = false;
 
         $data['enabled'] = (bool) ($data['enabled'] ?? false);
+        $data['p2penabled'] = (bool) ($data['p2penabled'] ?? false);
 
         $source->update($data);
 
