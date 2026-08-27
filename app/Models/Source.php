@@ -13,12 +13,14 @@ class Source extends Model
         'drm',
         'clearkeys',
         'enabled',
+        'p2penabled',
         'channel_id',
     ];
  
     protected $casts = [
         'drm'       => 'boolean',
         'enabled'   => 'boolean',
+        'p2penabled'=> 'boolean',
         'clearkeys' => 'array',
     ];
  
