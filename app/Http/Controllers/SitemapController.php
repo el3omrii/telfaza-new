@@ -161,8 +161,8 @@ class SitemapController extends Controller
 
         foreach ($channels as $channel) {
             $videos[] = [
-                'title'       => $channel->name,
-                'description' => Str::limit(strip_tags($channel->description ?? ''), 160),
+                'title'       => 'Watch ' . $channel->name . ' live streaming online',
+                'description' => $channel->metadescription ? $channel->metadescription : Str::limit(strip_tags($channel->description ?? ''), 160),
                 'thumbnail'   => $channel->image ? env('APP_STORAGE_URL') . $channel->image : null,
                 'url'         => $this->buildUrl($frontendUrl, '/channels/' . $channel->slug),
                 'content_loc' => $channel->sources->first()?->link,
