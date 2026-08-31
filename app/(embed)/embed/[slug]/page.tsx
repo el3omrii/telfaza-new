@@ -1,7 +1,8 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { getChannel } from '@/lib/api'
-import ChannelPlayer from '@/components/channel/ChannelPlayer'
+import { SITE_NAME } from '@/lib/seo'
+import ClientChannelPlayer from '@/components/channel/ClientChannelPlayer'
 interface Props {
   params: Promise<{ slug: string }>
 }
@@ -11,9 +12,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   try {
     const channel = await getChannel(slug + '?embed=1')
     return {
-      title: `${channel.name} - Embed`,
+      title: `Watch ${channel.name} Live Streaming Online | ${SITE_NAME}`,
       description: channel.metadescription || `Watch ${channel.name} live on Telfaza LIVE.`,
-      robots: "noindex",
+      robots: 'index, follow',
       referrer: 'no-referrer',
     }
   } catch {
@@ -36,7 +37,7 @@ export default async function EmbedPage({ params }: Props) {
 
   return (
     <div className="w-full h-full bg-black flex items-center justify-center overflow-hidden fixed inset-0">
-      <ChannelPlayer channel={channel} />
+      <ClientChannelPlayer channel={channel} />
     </div>
   )
 }
