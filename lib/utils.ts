@@ -86,3 +86,22 @@ export function readFavorites(): Array<string | number> {
     return []
   }
 }
+
+/** Format a byte count for humans: 5120 → "5 KB", 2_621_440 → "2.5 MB" */
+export function formatBytes(bytes: number): string {
+  if (!Number.isFinite(bytes) || bytes <= 0) return '0 B'
+  const units = ['B', 'KB', 'MB', 'GB', 'TB']
+  let value = bytes
+  let i = 0
+  while (value >= 1024 && i < units.length - 1) {
+    value /= 1024
+    i += 1
+  }
+  const digits = i === 0 || value >= 100 ? 0 : 1
+  return `${value.toFixed(digits)} ${units[i]}`
+}
+
+/** Format a transfer rate: 249_344 bytes/s → "243.5 KB/s" */
+export function formatSpeed(bytesPerSecond: number): string {
+  return `${formatBytes(bytesPerSecond)}/s`
+}
