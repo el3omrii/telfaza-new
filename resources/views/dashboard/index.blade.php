@@ -16,6 +16,74 @@
     </a>
 </div>
 
+{{-- Soketi realtime server --}}
+<div class="mb-7" @unless($soketi['enabled']) hidden @endunless>
+    <div class="flex items-center gap-2.5 mb-3.5">
+        <p class="text-[0.68rem] uppercase tracking-widest text-muted">Soketi</p>
+        <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[11px] font-medium {{ $soketi['online'] ? 'bg-emerald-500/10 text-emerald-400' : 'bg-red-500/10 text-red-400' }}">
+            <span class="w-1.5 h-1.5 rounded-full {{ $soketi['online'] ? 'bg-emerald-400' : 'bg-red-400' }}"></span>
+            {{ $soketi['online'] ? 'Online' : 'Offline' }}
+        </span>
+    </div>
+
+    @if($soketi['online'])
+        <div class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-4">
+            <div class="bg-surface border border-border rounded-[10px] p-5">
+                <svg class="w-5 h-5 text-accent mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linejoin="round">
+                    <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+                </svg>
+                <p class="font-display font-bold text-2xl">{{ number_format($soketi['connections']) }}</p>
+                <p class="text-muted text-xs mt-0.5">Open connections</p>
+            </div>
+
+            <div class="bg-surface border border-border rounded-[10px] p-5">
+                <svg class="w-5 h-5 text-accent mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/>
+                </svg>
+                <p class="font-display font-bold text-2xl">{{ $soketi['startedAt']?->diffForHumans() ?? '—' }}</p>
+                <p class="text-muted text-xs mt-0.5">Since process start</p>
+            </div>
+
+            <div class="bg-surface border border-border rounded-[10px] p-5">
+                <svg class="w-5 h-5 text-accent mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <rect x="6" y="6" width="12" height="12" rx="1"/><path d="M9 2v4M15 2v4M9 18v4M15 18v4M2 9h4M2 15h4M18 9h4M18 15h4"/>
+                </svg>
+                <p class="font-display font-bold text-2xl">{{ round($soketi['memory']['percent']) }}%</p>
+                <p class="text-muted text-xs mt-0.5">Memory · of {{ $soketi['memory']['totalHuman'] }}</p>
+            </div>
+
+            <div class="bg-surface border border-border rounded-[10px] p-5">
+                <svg class="w-5 h-5 text-accent mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linejoin="round">
+                    <path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/>
+                </svg>
+                <p class="font-display font-bold text-2xl">{{ number_format($soketi['messagesSent']) }}</p>
+                <p class="text-muted text-xs mt-0.5">Messages sent</p>
+            </div>
+
+            <div class="bg-surface border border-border rounded-[10px] p-5">
+                <svg class="w-5 h-5 text-accent mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linejoin="round">
+                    <path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="M5.45 5.11L2 12v6a2 2 0 002 2h16a2 2 0 002-2v-6l-3.45-6.89A2 2 0 0016.76 4H7.24a2 2 0 00-1.79 1.11z"/>
+                </svg>
+                <p class="font-display font-bold text-2xl">{{ number_format($soketi['messagesReceived']) }}</p>
+                <p class="text-muted text-xs mt-0.5">Messages received</p>
+            </div>
+
+            <div class="bg-surface border border-border rounded-[10px] p-5">
+                <svg class="w-5 h-5 text-accent mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+                </svg>
+                <p class="font-display font-bold text-2xl">{{ number_format($soketi['httpCalls']) }}</p>
+                <p class="text-muted text-xs mt-0.5">API calls received</p>
+            </div>
+        </div>
+    @else
+        <div class="bg-surface border border-red-500/20 rounded-[10px] px-5 py-4 text-sm text-muted">
+            Error getting stats. Is Soketi running?
+        </div>
+    @endif
+</div>
+
+<div class="grid grid-cols-2 md:grid-cols-3 gap-4">
 <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
     <a href="{{ route('channels.index') }}"
        class="bg-surface border border-border rounded-[10px] p-5 hover:border-accent/40 transition-colors">

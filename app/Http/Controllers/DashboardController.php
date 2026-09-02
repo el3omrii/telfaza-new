@@ -7,6 +7,7 @@ use App\Models\Channel;
 use App\Models\Report;
 use App\Models\Source;
 use App\Models\Tag;
+use App\Services\SoketiMetrics;
 use Illuminate\View\View;
 
 class DashboardController extends Controller
@@ -27,6 +28,8 @@ class DashboardController extends Controller
             'pendingReports'    => Report::where('treated', false)->count(),
         ];
 
-        return view('dashboard.index', $stats);
+        $soketi = (new SoketiMetrics)->stats();
+
+        return view('dashboard.index', array_merge($stats, ['soketi' => $soketi]));
     }
 }
