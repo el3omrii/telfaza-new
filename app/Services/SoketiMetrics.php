@@ -38,6 +38,7 @@ class SoketiMetrics
                 'bytesSent'        => $total('soketi_socket_transmitted_bytes'),
                 'bytesReceived'    => $total('soketi_socket_received_bytes'),
                 'httpCalls'        => (int) $total('soketi_http_calls_received_total'),
+                'connectionsTotal' => (int) $total('soketi_new_connections_total'),
                 'startedAt'        => $startedAt !== null ? now()->subSeconds(time() - (float) $startedAt) : null,
                 'memory'           => [
                     'percent'    => (float) $usage->json('memory.percent', 0),
