@@ -3,6 +3,7 @@
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ChannelController;
 use App\Http\Controllers\CountryController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\GeminiController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ReportController;
@@ -28,7 +29,10 @@ Route::get('/image-sitemap.xml', [SitemapController::class, 'imageSitemap'])->na
 // ── Protected application routes (auth required) ──────────────────────────────
 Route::middleware('auth')->group(function () {
 
-    Route::redirect('/', '/channels');
+    Route::redirect('/', '/dashboard');
+
+    // Dashboard (default landing page after login)
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     // Channels (full resource)
     Route::resource('channels', ChannelController::class);

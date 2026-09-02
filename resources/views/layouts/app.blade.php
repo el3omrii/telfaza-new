@@ -54,6 +54,14 @@
             $idle    = 'text-muted hover:bg-accent/10 hover:text-accent';
         @endphp
 
+        <a href="{{ route('dashboard') }}" onclick="closeSidebar()"
+           class="{{ $navLink }} {{ request()->routeIs('dashboard') ? $active : $idle }}">
+            <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/>
+            </svg>
+            Dashboard
+        </a>
+
         <a href="{{ route('channels.index') }}" onclick="closeSidebar()"
            class="{{ $navLink }} {{ request()->routeIs('channels.*') ? $active : $idle }}">
             <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
