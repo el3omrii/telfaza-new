@@ -37,6 +37,7 @@ class CountryController extends Controller
         $order = $request->input('order', 'desc');
 
         $query = $country->channels()
+            ->where('published', true)
             ->with(['categories:id,name,color', 'tags:id,name'])
             ->withCount('sources');
 

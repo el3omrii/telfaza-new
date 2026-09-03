@@ -44,6 +44,7 @@ class TagController extends Controller
         $order = $request->input('order', 'desc');
 
         $query = $tag->channels()
+            ->where('published', true)
             ->with(['country:id,name,flag', 'categories:id,name,color'])
             ->withCount('sources');
 

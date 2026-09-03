@@ -90,7 +90,12 @@ class ChannelController extends Controller
 
     // ─── GET /api/channels/{channel} ─────────────────────────────────────────
     public function show(Channel $channel, Request $request): JsonResponse
-    {
+    {   
+        // if channel not published, return 404
+        if (!$channel->published)
+            return response()->json([
+                'message' => 'Record not found.'
+            ], 404);
         $channel->load([
             'country',
             'categories',

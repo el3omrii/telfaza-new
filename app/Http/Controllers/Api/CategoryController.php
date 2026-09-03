@@ -47,6 +47,7 @@ class CategoryController extends Controller
         $order = $request->input('order', 'desc');
 
         $query = $category->channels()
+            ->where('published', true)
             ->with(['country:id,name,flag', 'tags:id,name'])
             ->withCount('sources');
 
