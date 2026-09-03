@@ -30,8 +30,8 @@
     </div>
 
     @if($soketi['online'])
-        <div class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 font-serif">
-            <div class="bg-surface border border-border rounded-[10px] p-3">
+        <div class="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4 font-sans">
+            <div class="bg-surface border border-border rounded-[10px] p-3 transition duration-300 hover:scale-105 hover:border-accent/75">
                 <div class="flex items-center justify-between gap-3 mb-3">
                     <p class="text-muted text-sm">Open connections</p>
                     <svg class="w-6 h-6 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linejoin="round">
@@ -41,7 +41,7 @@
                 <p class="font-bold text-xl">{{ number_format($soketi['connections']) }}</p>
             </div>
 
-            <div class="bg-surface border border-border rounded-[10px] p-3">
+            <div class="bg-surface border border-border rounded-[10px] p-3 transition duration-300 hover:scale-105 hover:border-accent/75">
                 <div class="flex items-center justify-between gap-3 mb-3">
                     <p class="text-muted text-sm">Server started</p>
                     <svg class="w-6 h-6 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -51,7 +51,7 @@
                 <p class="font-bold text-lg">{{ $soketi['startedAt']?->diffForHumans() ?? '—' }}</p>
             </div>
 
-            <div class="bg-surface border border-border rounded-[10px] p-3">
+            <div class="bg-surface border border-border rounded-[10px] p-3 transition duration-300 hover:scale-105 hover:border-accent/75">
                 <div class="flex items-center justify-between gap-3 mb-3">
                 <p class="text-muted text-sm">Memory usage</p>
                 <svg class="w-6 h-6 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -61,7 +61,7 @@
                 <p class="font-bold text-lg">{{ round($soketi['memory']['percent']) }}% of {{ $soketi['memory']['totalHuman'] }}</p>
             </div>
 
-            <div class="bg-surface border border-border rounded-[10px] p-3">
+            <div class="bg-surface border border-border rounded-[10px] p-3 transition duration-300 hover:scale-105 hover:border-accent/75">
                 <div class="flex items-center justify-between gap-3 mb-3">
                     <p class="text-muted text-sm">Messages sent</p>
                     <svg class="w-6 h-6 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linejoin="round">
@@ -71,7 +71,7 @@
                 <p class="font-bold text-lg">{{ number_format($soketi['messagesSent']) }}</p>
             </div>
 
-            <div class="bg-surface border border-border rounded-[10px] p-3">
+            <div class="bg-surface border border-border rounded-[10px] p-3 transition duration-300 hover:scale-105 hover:border-accent/75">
                 <div class="flex items-center justify-between gap-3 mb-3">
                     <p class="text-muted text-sm">Messages received</p>
                     <svg class="w-6 h-6 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linejoin="round">
@@ -81,7 +81,7 @@
                 <p class="font-bold text-lg">{{ number_format($soketi['messagesReceived']) }}</p>
             </div>
 
-            <div class="bg-surface border border-border rounded-[10px] p-3">
+            <div class="bg-surface border border-border rounded-[10px] p-3 transition duration-300 hover:scale-105 hover:border-accent/75">
                 <div class="flex items-center justify-between gap-3 mb-3">
                 <p class="text-muted text-sm">Total connections</p>
                 <svg class="w-6 h-6 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
