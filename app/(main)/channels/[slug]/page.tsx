@@ -1,12 +1,12 @@
 import type { Metadata } from 'next'
-import Image from 'next/image'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
-import { getChannel, getChannels, storageUrl } from '@/lib/api'
+import { getChannel, getChannels, getRelatedChannels, storageUrl } from '@/lib/api'
 import ClientChannelPlayer from '@/components/channel/ClientChannelPlayer'
 import { RelatedChannelsSlider } from '@/components/channel/RelatedChannelsSlider'
 import ChannelActionButtons from '@/components/channel/ChannelActionButtons'
 import LiveViewerCount from '@/components/channel/LiveViewerCount'
+import ChannelSidebarTabs from '@/components/channel/ChannelSidebarTabs'
 import { fmtViews } from '@/lib/utils'
 import { buildMetadata, generateVideoSchema } from '@/lib/seo'
 import ReactMarkDown from "react-markdown"
@@ -44,15 +44,10 @@ export default async function ChannelDetailPage({ params }: Props) {
     notFound()
   }
   // Top watched channels
-  const topwatched = channel.categories?.[0]
-    ? await getChannels({ per_page: 6, sort: 'views' })
+  const topwatched = await getChannels({ per_page: 6, sort: 'views' })
         .then(r => r.data.filter(c => c.id !== channel.id).slice(0, 5))
-    : []
 
-  // Related: same second category (more specific), different channel
-  const category = channel.categories?.[1] ? channel.categories?.[1].id : channel.categories?.[0].id
-  const related =  await getChannels({ category: category, per_page: 8, sort: 'views' })
-        .then(r => r.data.filter(c => c.id !== channel.id))
+  const related = await getRelatedChannels(channel.slug)
   const logo = storageUrl(channel.logo)
   const flag = "https://flagcdn.com/"+channel.country?.flag.toLowerCase()+".svg"
   const Icon = {
@@ -236,32 +231,7 @@ export default async function ChannelDetailPage({ params }: Props) {
 
         {/* Right sidebar */}
         <aside className="px-5 py-6">
-
-          {/* Top watched channels */}
-          {topwatched.length > 0 && (
-            <div>
-              <h3 className="mb-3 text-lg font-bold uppercase tracking-widest text-neutral-300">
-                Top Watched
-              </h3>
-              <div className="space-y-2">
-                {topwatched.map(ch => (
-                  <Link
-                    key={ch.id}
-                    href={`/channels/${ch.slug}`}
-                    className="flex items-center gap-3 rounded-lg p-2 transition-all hover:bg-zinc-800"
-                  >
-                    <div className="relative w-24 h-18 rounded-lg border border-white/25">
-                      <Image src={storageUrl(ch.image) || "not found"} alt={ch.name} fill className="object-cover rounded-lg"/>
-                    </div>
-                    <div className="min-w-0">
-                      <p className="truncate text-xs font-medium text-zinc-100">{ch.name}</p>
-                      <p className="text-[11px] text-zinc-500">{fmtViews(ch.views)} views</p>
-                    </div>
-                  </Link>
-                ))}
-              </div>
-            </div>
-          )}
+          <ChannelSidebarTabs related={related} topWatched={topwatched} />
         </aside>
       </div>
     </main>
