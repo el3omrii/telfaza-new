@@ -118,6 +118,54 @@ class ChannelController extends Controller
         return response()->json($channel);
     }
 
+    // ─── GET /api/channels/{channel}/related ────────────────────────────────
+    public function related(Channel $channel): JsonResponse
+    {
+        $channel->load(['tags:id', 'categories:id']);
+
+        $query = fn () => Channel::with([
+            'country:id,name,flag',
+            'categories:id,name,color',
+            'tags:id,name',
+        ])
+            ->withCount('sources')
+            ->where('published', true)
+            ->where('id', '!=', $channel->id);
+
+        $hasTags = $channel->tags->isNotEmpty();
+        $tagChannels = $hasTags
+            ? $query()
+                ->whereHas('tags', fn ($tagQuery) => $tagQuery->whereIn('tags.id', $channel->tags->modelKeys()))
+                ->orderByDesc('views')
+                ->limit(3)
+                ->get()
+            : collect();
+
+        $countryChannels = $channel->country_id
+            ? $query()
+                ->where('country_id', $channel->country_id)
+                ->orderByDesc('views')
+                ->limit($hasTags ? 3 : 4)
+                ->get()
+            : collect();
+
+        $categoryChannels = $channel->categories->isNotEmpty()
+            ? $query()
+                ->whereHas('categories', fn ($categoryQuery) => $categoryQuery->whereIn('categories.id', $channel->categories->modelKeys()))
+                ->orderByDesc('views')
+                ->limit($hasTags ? 2 : 4)
+                ->get()
+            : collect();
+
+        $relatedChannels = $tagChannels
+            ->concat($countryChannels)
+            ->concat($categoryChannels)
+            ->unique('id')
+            ->values();
+
+        return ChannelResource::collection($relatedChannels)->response();
+    }
+
     // ─── GET /api/channels/featured ──────────────────────────────────────────
     public function featured(): JsonResponse
     {

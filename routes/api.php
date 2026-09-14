@@ -53,6 +53,7 @@ Route::get('/channels/trending',      [ChannelController::class, 'trending']);
 Route::get('/channels/watching-now',  [ChannelController::class, 'watchingNow']);
 Route::get('/channels/filters/meta',  [ChannelController::class, 'filtersMeta']);
 Route::get('/channels/favorites',     [ChannelController::class, 'favorites']);
+Route::get('/channels/{channel:slug}/related', [ChannelController::class, 'related']);
 
 // GET  /api/channels/{slug}         — full channel detail (increments views)
 Route::get('/channels/{channel:slug}',    [ChannelController::class, 'show']);
