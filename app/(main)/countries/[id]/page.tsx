@@ -56,7 +56,7 @@ export default async function CountryPage({ params, searchParams }: Props) {
   const tags = Array.from(tagMap.values())
 
   return (
-    <main className="max-w-7xl w-full mx-auto md:mt-16 px-6 md:px-12">
+    <main className="max-w-7xl w-full mx-auto mt-16 px-6 md:px-16 lg:px-24 xl:px-32">
       {/* Header */}
       <div className="border-b border-white/[0.07] px-5 py-8">
         <div className="flex items-end gap-4">
@@ -74,7 +74,7 @@ export default async function CountryPage({ params, searchParams }: Props) {
             </p>
           </div>
         </div>
-          <p className="mt-4">Stream live television broadcasts directly from {country.name}. Browse national networks, local news channels, and regional sports streaming online for free with no subscription required.</p>
+          <p className="mt-4 text-zinc-300">Stream live television broadcasts directly from {country.name}. Browse national networks, local news channels, and regional sports streaming online for free with no subscription required.</p>
       </div>
 
       {/* Filters */}
