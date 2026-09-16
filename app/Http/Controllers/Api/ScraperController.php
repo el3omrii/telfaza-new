@@ -93,6 +93,8 @@ class ScraperController extends Controller
             'accept-language' => 'fr-FR,fr;q=0.9,en-US;q=0.8,en;q=0.7,ar;q=0.6',
             'cache-control' => 'max-age=0',
             'priority' => 'u=0, i',
+			"Origin" => "https://aloula.sba.sa",
+            "Referer" => "https://aloula.sba.sa/",
             'sec-ch-ua' => '"Not;A=Brand";v="8", "Chromium";v="150", "Google Chrome";v="150"',
             'sec-ch-ua-mobile' => '?0',
             'sec-ch-ua-platform' => '"Windows"',

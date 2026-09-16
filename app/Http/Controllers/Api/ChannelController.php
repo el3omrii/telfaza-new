@@ -163,7 +163,7 @@ class ChannelController extends Controller
             ->unique('id')
             ->values();
 
-        return ChannelResource::collection($relatedChannels)->response();
+        return response()->json($relatedChannels);
     }
 
     // ─── GET /api/channels/featured ──────────────────────────────────────────

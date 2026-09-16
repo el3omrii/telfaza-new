@@ -4,9 +4,10 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-
+use App\Traits\ClearsNextjsCache;
 class Source extends Model
 {
+	use ClearsNextjsCache;
     protected $fillable = [
         'type',
         'link',
