@@ -89,7 +89,7 @@ class ChannelController extends Controller
     }
 
     // ─── GET /api/channels/{channel} ─────────────────────────────────────────
-    public function show(Channel $channel, Request $request): JsonResponse
+    public function show(Channel $channel): JsonResponse
     {   
         // if channel not published, return 404
         if (!$channel->published)
@@ -110,10 +110,6 @@ class ChannelController extends Controller
             $real_url = "https://api.telfazalive.com/api/scraper/" . Str::after($stream_url, $prefix);
             $channel->sources->first()->link = json_decode(Http::get($real_url))->stream_url;
         }
-        $embed = $request->input('embed', false);
-
-        if (!$embed)
-            $channel->incrementViews();
 
         return response()->json($channel);
     }
