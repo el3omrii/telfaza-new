@@ -5,6 +5,7 @@ namespace App\Services;
 
 use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Facades\Session;
+use App\Models\Channel;
 
 class ViewingTracker
 {
@@ -22,6 +23,10 @@ class ViewingTracker
         
         // Track user's current channel
         Redis::setex("user:{$viewerToken}:current_channel", $this->expirySeconds, $channelId);
+        // Increment channel views count
+        $channel = Channel::find($channelId);
+            if($channel)
+                $channel->incrementViews();
         
         return true;
     }
