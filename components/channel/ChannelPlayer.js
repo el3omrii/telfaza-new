@@ -27,6 +27,12 @@ import {
   setupSnrtUrlFix,
   shouldRetrySource,
 } from '@/lib/shaka-helpers';
+/* ─── NEXT.JS / SSR SAFE MUX.JS BINDING ──────────────────────────────────── */
+if (typeof window !== 'undefined' && !window.muxjs) {
+  // Shaka looks for the library mapped precisely under window.muxjs
+  window.muxjs = require('mux.js');
+}
+/* ───────────────────────────────────────────────────────────────────────── */
 
 /* ─── P2P stats menu icons & stat row ────────────────────────────────────── */
 const DownloadArrowIcon = () => (
@@ -178,6 +184,30 @@ export default function ChannelPlayer({ channel }) {
         try {
           video.api.resetConfiguration?.();
           video.api.configure(buildShakaConfig({ link, drm, clearkeys }));
+	  const handleTracksChanged = () => {
+      const tracks = video.api.getVariantTracks();
+      if (tracks.length <= 1) {
+        console.log('Single-variant stream detected. Disabling ABR for ultra-fast startup.');
+        video.api.configure({
+          abr: { enabled: false },
+          streaming: { 
+            rebufferingGoal: 2, // Play after 1 segment (5s) lands
+            bufferingGoal: 5 
+          }
+        });
+      } else {
+        console.log('Multi-variant stream detected. Keeping ABR enabled.');
+        video.api.configure({
+          abr: { enabled: true }
+        });
+      }
+    };
+
+    // Remove old listener if it exists to prevent memory leaks during stream switches
+    video.api.removeEventListener('trackschanged', video.api._onTracksChangedCleanup);
+    // Attach the new one and save a reference for easy cleanup
+    video.api.addEventListener('trackschanged', handleTracksChanged);
+    video.api._onTracksChangedCleanup = handleTracksChanged;
           if (p2penabled) {
             ensureP2PPluginsRegistered();
 

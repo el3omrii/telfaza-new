@@ -10,6 +10,7 @@ import ChannelSidebarTabs from '@/components/channel/ChannelSidebarTabs'
 import { fmtViews } from '@/lib/utils'
 import { buildMetadata, generateVideoSchema } from '@/lib/seo'
 import ReactMarkDown from "react-markdown"
+import rehypeRaw from "rehype-raw"
 
 
 interface Props {
@@ -148,7 +149,7 @@ export default async function ChannelDetailPage({ params }: Props) {
           {/* Description */}
           {channel.description && (
               <div className="prose prose-invert max-w-none text-sm md:text-base font-light leading-relaxed text-zinc-400">
-                <ReactMarkDown>{channel.description}</ReactMarkDown>
+                <ReactMarkDown rehypePlugins={[rehypeRaw]}>{channel.description}</ReactMarkDown>
               </div>
             )}
           {/* Categories & Tags */}

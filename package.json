@@ -13,6 +13,7 @@
     "devtools-detect": "^4.0.2",
     "keen-slider": "^6.8.6",
     "media-chrome": "^4.19.0",
+    "mux.js": "^6.3.0",
     "next": "16.2.4",
     "nprogress": "^0.2.0",
     "p2p-media-loader-shaka": "^4.0.0",
@@ -22,6 +23,7 @@
     "react-dom": "19.2.4",
     "react-markdown": "^10.1.0",
     "redis": "^6.2.1",
+    "rehype-raw": "^7.0.0",
     "shaka-video-element": "^0.7.1",
     "tw-prose": "^0.0.10"
   },
