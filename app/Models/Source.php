@@ -16,15 +16,16 @@ class Source extends Model
         'enabled',
         'p2penabled',
         'channel_id',
+        'priority',
     ];
- 
+  
     protected $casts = [
         'drm'       => 'boolean',
         'enabled'   => 'boolean',
         'p2penabled'=> 'boolean',
         'clearkeys' => 'array',
     ];
- 
+  
     public function channel(): BelongsTo
     {
         return $this->belongsTo(Channel::class);

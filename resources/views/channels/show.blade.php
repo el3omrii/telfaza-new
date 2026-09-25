@@ -118,67 +118,179 @@
 <div class="bg-surface border border-border rounded-[10px] overflow-hidden">
     <div class="px-5 py-4 border-b border-border flex items-center justify-between">
         <span class="font-semibold text-sm">Sources</span>
-        <a href="{{ route('channels.sources.create', $channel) }}"
-           class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-accent hover:bg-yellow-400 text-black text-xs font-medium rounded-lg transition-colors">
-            + Add Source
-        </a>
+
+        <div class="flex items-center gap-2">
+            <form id="source-reorder-form"
+                  action="{{ route('channels.sources.reorder', $channel) }}"
+                  method="POST"
+                  class="hidden">
+                @csrf
+                <div id="source-order-inputs"></div>
+            </form>
+
+            <button type="submit"
+                    form="source-reorder-form"
+                    id="save-source-order"
+                    class="hidden inline-flex items-center gap-1.5 px-3 py-1.5 bg-green-500 hover:bg-green-400 text-white text-xs font-medium rounded-lg transition-colors">
+                Save Order
+            </button>
+
+            <a href="{{ route('channels.sources.create', $channel) }}"
+               class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-accent hover:bg-yellow-400 text-black text-xs font-medium rounded-lg transition-colors">
+                + Add Source
+            </a>
+        </div>
     </div>
-    <div class="overflow-x-auto"><table class="w-full border-collapse">
-        <thead>
-            <tr class="border-b border-border">
-                <th class="px-4 py-3 text-left text-[0.72rem] uppercase tracking-wider text-muted">Type</th>
-                <th class="px-4 py-3 text-left text-[0.72rem] uppercase tracking-wider text-muted">Link</th>
-                <th class="px-4 py-3 text-left text-[0.72rem] uppercase tracking-wider text-muted">DRM</th>
-                <th class="px-4 py-3 text-left text-[0.72rem] uppercase tracking-wider text-muted">Clearkeys</th>
-                <th class="px-4 py-3 text-left text-[0.72rem] uppercase tracking-wider text-muted">Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-        @forelse($channel->sources as $source)
-            <tr class="border-b border-border last:border-0 hover:bg-white/[.02] transition-colors">
-                <td class="px-4 py-3">
-                    <span class="px-2 py-0.5 rounded-full text-[0.72rem] font-semibold bg-accent/15 text-accent">{{ strtoupper($source->type) }}</span>
-                </td>
-                <td class="px-4 py-3 max-w-xs">
-                    <code class="text-xs text-muted truncate block">{{ $source->link ?? '—' }}</code>
-                </td>
-                <td class="px-4 py-3">
-                    @if($source->drm)
-                        <span class="px-2 py-0.5 rounded-full text-[0.72rem] font-semibold bg-green-500/15 text-green-400">Yes</span>
-                    @else
-                        <span class="px-2 py-0.5 rounded-full text-[0.72rem] font-semibold bg-border text-muted">No</span>
-                    @endif
-                </td>
-                <td class="px-4 py-3 max-w-xs">
-                    <code class="text-xs text-muted truncate block">{!! $source->clearkeys_formatted ?? '—' !!}</code>
-                </td>
-                <td class="px-4 py-3">
-                    <div class="flex flex-wrap items-center gap-2">
-                        <form action="{{ route('sources.toggle', $source) }}" method="POST" class="flex items-center gap-2">
-                            @csrf
-                            <label class="inline-flex items-center cursor-pointer">
-                                <input type="checkbox" name="enabled" value="1" class="sr-only peer"
-                                       {{ $source->enabled ? 'checked' : '' }} onchange="this.form.submit()">
-                                <span class="relative h-5 w-10 rounded-full bg-border transition-colors peer-checked:bg-green-500/30">
-                                    <span class="absolute left-0.5 top-0.5 h-4 w-4 rounded-full bg-white transition-transform peer-checked:translate-x-5"></span>
-                                </span>
-                                <span class="ml-2 text-[0.72rem] font-medium {{ $source->enabled ? 'text-green-400' : 'text-muted' }}">{{ $source->enabled ? 'On' : 'Off' }}</span>
-                            </label>
-                        </form>
-                        <a href="{{ route('sources.edit', $source) }}"
-                           class="px-3 py-1.5 bg-border hover:bg-[#2e3748] text-gray-200 text-xs font-medium rounded-lg transition-colors">Edit</a>
-                        <form action="{{ route('sources.destroy', $source) }}" method="POST"
-                              onsubmit="return confirm('Delete source?')">
-                            @csrf @method('DELETE')
-                            <button class="px-3 py-1.5 bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30 text-xs font-medium rounded-lg transition-colors">Delete</button>
-                        </form>
-                    </div>
-                </td>
-            </tr>
-        @empty
-            <tr><td colspan="5" class="px-4 py-8 text-center text-muted text-sm">No sources yet.</td></tr>
-        @endforelse
-        </tbody>
-    </table></div>
+
+    <div class="overflow-x-auto">
+        <table class="w-full border-collapse">
+            <thead>
+                <tr class="border-b border-border">
+                    <th class="w-10 px-4 py-3"></th>
+                    <th class="px-4 py-3 text-left text-[0.72rem] uppercase tracking-wider text-muted">Priority</th>
+                    <th class="px-4 py-3 text-left text-[0.72rem] uppercase tracking-wider text-muted">Type</th>
+                    <th class="px-4 py-3 text-left text-[0.72rem] uppercase tracking-wider text-muted">Link</th>
+                    <th class="px-4 py-3 text-left text-[0.72rem] uppercase tracking-wider text-muted">DRM</th>
+                    <th class="px-4 py-3 text-left text-[0.72rem] uppercase tracking-wider text-muted">Clearkeys</th>
+                    <th class="px-4 py-3 text-left text-[0.72rem] uppercase tracking-wider text-muted">Actions</th>
+                </tr>
+            </thead>
+            <tbody id="sources-sortable">
+            @forelse($channel->sources as $source)
+                <tr draggable="true"
+                    data-source-id="{{ $source->id }}"
+                    class="source-row border-b border-border last:border-0 hover:bg-white/[.02] transition-colors cursor-grab active:cursor-grabbing">
+
+                    <td class="px-4 py-3 text-muted text-center select-none">
+                        <span aria-label="Drag to reorder" title="Drag to reorder">☷</span>
+                    </td>
+
+                    <td class="source-priority px-4 py-3 text-sm font-semibold text-accent">
+                        {{ $loop->iteration }}
+                    </td>
+
+                    <td class="px-4 py-3">
+                        <span class="px-2 py-0.5 rounded-full text-[0.72rem] font-semibold bg-accent/15 text-accent">{{ strtoupper($source->type) }}</span>
+                    </td>
+                    <td class="px-4 py-3 max-w-xs">
+                        <code class="text-xs text-muted truncate block">{{ $source->link ?? '—' }}</code>
+                    </td>
+                    <td class="px-4 py-3">
+                        @if($source->drm)
+                            <span class="px-2 py-0.5 rounded-full text-[0.72rem] font-semibold bg-green-500/15 text-green-400">Yes</span>
+                        @else
+                            <span class="px-2 py-0.5 rounded-full text-[0.72rem] font-semibold bg-border text-muted">No</span>
+                        @endif
+                    </td>
+                    <td class="px-4 py-3 max-w-xs">
+                        <code class="text-xs text-muted truncate block">{!! $source->clearkeys_formatted ?? '—' !!}</code>
+                    </td>
+                    <td class="px-4 py-3">
+                        <div class="flex flex-wrap items-center gap-2">
+                            <form action="{{ route('sources.toggle', $source) }}" method="POST" class="flex items-center gap-2">
+                                @csrf
+                                <label class="inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" name="enabled" value="1" class="sr-only peer"
+                                           {{ $source->enabled ? 'checked' : '' }} onchange="this.form.submit()">
+                                    <span class="relative h-5 w-10 rounded-full bg-border transition-colors peer-checked:bg-green-500/30">
+                                        <span class="absolute left-0.5 top-0.5 h-4 w-4 rounded-full bg-white transition-transform peer-checked:translate-x-5"></span>
+                                    </span>
+                                    <span class="ml-2 text-[0.72rem] font-medium {{ $source->enabled ? 'text-green-400' : 'text-muted' }}">{{ $source->enabled ? 'On' : 'Off' }}</span>
+                                </label>
+                            </form>
+                            <a href="{{ route('sources.edit', $source) }}"
+                               class="px-3 py-1.5 bg-border hover:bg-[#2e3748] text-gray-200 text-xs font-medium rounded-lg transition-colors">Edit</a>
+                            <form action="{{ route('sources.destroy', $source) }}" method="POST"
+                                  onsubmit="return confirm('Delete source?')">
+                                @csrf @method('DELETE')
+                                <button class="px-3 py-1.5 bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30 text-xs font-medium rounded-lg transition-colors">Delete</button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+            @empty
+                <tr><td colspan="7" class="px-4 py-8 text-center text-muted text-sm">No sources yet.</td></tr>
+            @endforelse
+            </tbody>
+        </table>
+    </div>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const tableBody = document.getElementById('sources-sortable');
+        const saveButton = document.getElementById('save-source-order');
+        const orderInputs = document.getElementById('source-order-inputs');
+
+        if (!tableBody || !saveButton || !orderInputs) {
+            return;
+        }
+
+        let draggedRow = null;
+        let hasChanges = false;
+
+        const updateSourceOrder = () => {
+            orderInputs.innerHTML = '';
+
+            tableBody.querySelectorAll('.source-row').forEach((row, index) => {
+                const priorityCell = row.querySelector('.source-priority');
+                const sourceId = row.dataset.sourceId;
+
+                priorityCell.textContent = index + 1;
+
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = 'source_ids[]';
+                input.value = sourceId;
+
+                orderInputs.appendChild(input);
+            });
+        };
+
+        tableBody.querySelectorAll('.source-row').forEach(row => {
+            row.addEventListener('dragstart', event => {
+                draggedRow = row;
+                row.classList.add('opacity-50');
+                event.dataTransfer.effectAllowed = 'move';
+            });
+
+            row.addEventListener('dragend', () => {
+                row.classList.remove('opacity-50');
+                draggedRow = null;
+            });
+
+            row.addEventListener('dragover', event => {
+                event.preventDefault();
+
+                if (!draggedRow || draggedRow === row) {
+                    return;
+                }
+
+                const rect = row.getBoundingClientRect();
+                const insertAfter = event.clientY > rect.top + rect.height / 2;
+
+                if (insertAfter) {
+                    row.after(draggedRow);
+                } else {
+                    row.before(draggedRow);
+                }
+
+                hasChanges = true;
+                updateSourceOrder();
+                saveButton.classList.remove('hidden');
+            });
+        });
+
+        updateSourceOrder();
+
+        window.addEventListener('beforeunload', event => {
+            if (!hasChanges) {
+                return;
+            }
+
+            event.preventDefault();
+            event.returnValue = '';
+        });
+    });
+</script>
 @endsection

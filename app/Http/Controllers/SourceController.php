@@ -6,6 +6,7 @@ use App\Models\Channel;
 use App\Models\Source;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 
 class SourceController extends Controller
@@ -131,9 +132,9 @@ class SourceController extends Controller
             }
         }
         $data['clearkeys'] = $clearkeysArray;
-		// if drm is not checked, it's not posted so we enforce the false state
-		if (empty($data['drm']))
-			$data['drm'] = false;
+ 		// if drm is not checked, it's not posted so we enforce the false state
+ 		if (empty($data['drm']))
+ 			$data['drm'] = false;
 
         $data['enabled'] = (bool) ($data['enabled'] ?? false);
         $data['p2penabled'] = (bool) ($data['p2penabled'] ?? false);
@@ -142,6 +143,49 @@ class SourceController extends Controller
 
         return redirect()->route('channels.show', $source->channel)
                          ->with('success', 'Source updated.');
+    }
+
+    public function reorder(Request $request, Channel $channel): RedirectResponse
+    {
+        $validated = $request->validate([
+            'source_ids'   => ['required', 'array'],
+            'source_ids.*' => ['integer', 'distinct'],
+        ]);
+
+        $sourceIds = array_map('intval', $validated['source_ids']);
+
+        $channelSourceIds = $channel->sources()
+            ->whereIn('id', $sourceIds)
+            ->pluck('id')
+            ->map(fn ($id) => (int) $id)
+            ->sort()
+            ->values()
+            ->all();
+
+        $submittedSourceIds = collect($sourceIds)
+            ->map(fn ($id) => (int) $id)
+            ->sort()
+            ->values()
+            ->all();
+
+        abort_unless(
+            $channelSourceIds === $submittedSourceIds,
+            422,
+            'Invalid source order.'
+        );
+
+        DB::transaction(function () use ($channel, $sourceIds) {
+            foreach ($sourceIds as $position => $sourceId) {
+                $channel->sources()
+                    ->whereKey($sourceId)
+                    ->update([
+                        'priority' => $position + 1,
+                    ]);
+            }
+        });
+
+        return redirect()->route('channels.show', $channel)
+            ->with('success', 'Source order updated.');
     }
 
     public function toggle(Request $request, Source $source): RedirectResponse
