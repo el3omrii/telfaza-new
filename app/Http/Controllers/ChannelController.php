@@ -59,7 +59,7 @@ class ChannelController extends Controller
         return view('channels.create', compact('countries', 'categories', 'tags'));
     }
 
-    // ─── Helpers ─────────────────────────────────────────────────────────────────
+    // ─── Helpers ──────────────────────────────────────────────────────────
 
     private function storeImage($file, string $folder, string $channelName, string $suffix): string
     {
@@ -96,6 +96,7 @@ class ChannelController extends Controller
             'sources.*.link'      => 'nullable|url|max:2048',
             'sources.*.drm'       => 'nullable|boolean',
             'sources.*.clearkeys' => 'nullable|string|max:4000',
+            'sources.*.priority'  => 'nullable|integer|min:1',
         ]);
 
         $channel = Channel::create([
@@ -137,6 +138,7 @@ class ChannelController extends Controller
                 'link'      => $src['link']      ?? null,
                 'drm'       => !empty($src['drm']),
                 'clearkeys' => $src['clearkeys'] ?? null,
+                'priority'  => $src['priority']  ?? 1,
             ]);
         }
 
@@ -146,8 +148,12 @@ class ChannelController extends Controller
 
     public function show(Channel $channel): View
     {
-        $channel->load(['country', 'categories', 'tags', 'sources']);
-        $channel->incrementViews();
+        $channel->load([
+            'country',
+            'categories',
+            'tags',
+            'sources' => fn ($query) => $query->orderBy('priority')->orderBy('id'),
+        ]);
 
         return view('channels.show', compact('channel'));
     }
@@ -164,22 +170,29 @@ class ChannelController extends Controller
     public function update(Request $request, Channel $channel): RedirectResponse
     {
         $request->validate([
-            'name'        => 'required|string|max:255',
-            'slug'        => 'required|string',
-            'description' => 'nullable|string',
-            'metadescription' => 'nullable|string|max:255',
-            'logo'        => 'nullable|image|mimes:jpeg,png,webp,svg|max:2048',
-            'image'       => 'nullable|image|mimes:jpeg,png,webp|max:4096',
-            'country_id'  => 'nullable|exists:countries,id',
-            'language'    => 'nullable|string|max:100',
-            'epgid'       => 'nullable|string|max:10',
-            'quality'     => 'nullable|in:4K,1080p,720p,480p,360p',
-            'featured'    => 'nullable|boolean',
-            'published'   => 'nullable|boolean',
-            'categories'  => 'nullable|array',
-            'categories.*'=> 'exists:categories,id',
-            'tags'        => 'nullable|array',
-            'tags.*'      => 'exists:tags,id',
+            'name'                => 'required|string|max:255',
+            'slug'                => 'required|string',
+            'description'         => 'nullable|string',
+            'metadescription'     => 'nullable|string|max:255',
+            'logo'                => 'nullable|image|mimes:jpeg,png,webp,svg|max:2048',
+            'image'               => 'nullable|image|mimes:jpeg,png,webp|max:4096',
+            'country_id'          => 'nullable|exists:countries,id',
+            'language'            => 'nullable|string|max:100',
+            'epgid'               => 'nullable|string|max:10',
+            'quality'             => 'nullable|in:4K,1080p,720p,480p,360p',
+            'featured'            => 'nullable|boolean',
+            'published'           => 'nullable|boolean',
+            'categories'          => 'nullable|array',
+            'categories.*'        => 'exists:categories,id',
+            'tags'                => 'nullable|array',
+            'tags.*'              => 'exists:tags,id',
+            'sources'             => 'nullable|array',
+            'sources.*.id'        => 'nullable|integer',
+            'sources.*.type'      => 'required_with:sources|in:hls,dash,mp4',
+            'sources.*.link'      => 'nullable|url|max:2048',
+            'sources.*.drm'       => 'nullable|boolean',
+            'sources.*.clearkeys' => 'nullable|string|max:4000',
+            'sources.*.priority'  => 'nullable|integer|min:1',
         ]);
 
         $data = [
@@ -225,6 +238,26 @@ class ChannelController extends Controller
         $channel->update($data);
         $channel->categories()->sync($request->input('categories', []));
         $channel->tags()->sync($request->input('tags', []));
+
+        if ($request->has('sources')) {
+            foreach ($request->input('sources', []) as $src) {
+                if (empty($src['type'])) continue;
+
+                $sourceData = [
+                    'type'      => $src['type'],
+                    'link'      => $src['link']      ?? null,
+                    'drm'       => !empty($src['drm']),
+                    'clearkeys' => $src['clearkeys'] ?? null,
+                    'priority'  => $src['priority']  ?? 1,
+                ];
+
+                if (!empty($src['id'])) {
+                    $channel->sources()->whereKey($src['id'])->update($sourceData);
+                } else {
+                    $channel->sources()->create($sourceData);
+                }
+            }
+        }
 
         return redirect()->route('channels.show', $channel)
                          ->with('success', 'Channel updated successfully.');
