@@ -102,6 +102,7 @@ class ChannelController extends Controller
             'tags',
             'sources' => function ($query) {
                 $query->where('enabled', true);
+                $query->orderBy('priority')->orderBy('id');
             }
         ]);
         $stream_url = $channel->sources->first()->link;
