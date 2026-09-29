@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Cache;
 
 class ScraperController extends Controller
 {
-    function getGlwizStreamUrl(String $channelName)
+    function getGlwizStreamUrl(string $channelName)
     {
         if (empty($channelName)) {
             return response('Channel name is required.', 400);
