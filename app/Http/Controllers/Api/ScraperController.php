@@ -117,7 +117,7 @@ class ScraperController extends Controller
         if (json_last_error() === JSON_ERROR_NONE) {
             $stream_url = $data['streams']['hls'];
             if ($stream_url)
-                return response()->json(["stream_url" => $stream_url]);
+                return response()->json(["stream_url" => $stream_url], 200, ['X-Manifest-URL' => $stream_url]);
         }
 
         // Fallback if the API changes or the session cookie expires
