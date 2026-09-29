@@ -372,7 +372,7 @@ async function testSource() {
 }
 
 function buildConfig(type, drmOn, ckRaw) {
-    const config = { streaming: { bufferingGoal: 30, rebufferingGoal: 2, preferNativeHls: false, inaccurateManifestTolerance: 1.5, jumpLargeGaps: true } };
+    const config = { streaming: { bufferingGoal: 30, rebufferingGoal: 2, preferNativeHls: false, inaccurateManifestTolerance: 1.5, gapJumpTimerTime: 0.25 } };
 
     if (type === 'hls') {
         config.manifest = { hls: { ignoreTextStreamFailures: true, ignoreManifestProgramDateTime: true, sequenceMode: true } };
