@@ -205,5 +205,42 @@ class ScraperController extends Controller
         // Fallback if the API changes or the session cookie expires
         return response('Failed to fetch or parse stream URL.', 500);
     }
+    
+    function getFranceStreamUrl(string $channel) 
+    {
+        $m3uUrl = 'https://raw.githubusercontent.com/Paradise-91/ParaTV/refs/heads/main/playlists/paratv/group/france/france.m3u';
+
+        // Pro Tip: Cache the result for 1 hour to avoid hitting the remote server on every request
+        $streamUrl = null;
+        $response = Http::timeout(10)->get($m3uUrl);
+
+        if ($response->failed()) {
+            return null;
+        }
+
+        $m3uContent = $response->body();
+
+            // Regex breakdown:
+            // #EXTINF              : Matches the literal "#EXTINF"
+            // [^\n]*               : Matches any characters except a newline (rest of the EXTINF line)
+            // tvg-id="TF1\.fr"     : Specifically targets the TF1.fr channel ID (avoids TMC, TFX, etc.)
+            // [^\n]*               : Matches the rest of the line
+            // \n                   : Matches the newline character
+            // \s*                  : Matches any optional whitespace (spaces/tabs)
+            // (https?:\/\/[^\s]+)  : Captures the URL (http/https up to the next whitespace/newline)
+        $pattern = "/#EXTINF[^\n]*$channel[^\n]*\n\s*(https?:\/\/[^\s]+)/i";
+
+        if (preg_match($pattern, $m3uContent, $matches)) {
+            $streamUrl = $matches[1]; // Return the captured URL (Group 1)
+        }
+
+        if (!$streamUrl) {
+            return response()->json([
+                'success' => false,
+                'message' => 'TF1.fr stream not found or failed to fetch M3U file.'
+            ], 404);
+        }
+
+        return return response($streamUrl, 200, ['Content-Type' => 'text/plain', 'X-Manifest-URL' => $streamUrl]);
 
 }
