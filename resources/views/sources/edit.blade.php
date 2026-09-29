@@ -372,10 +372,10 @@ async function testSource() {
 }
 
 function buildConfig(type, drmOn, ckRaw) {
-    const config = { streaming: { bufferingGoal: 30, rebufferingGoal: 2, preferNativeHls: false, inaccurateManifestTolerance: 0 } };
+    const config = { streaming: { bufferingGoal: 30, rebufferingGoal: 2, preferNativeHls: false, inaccurateManifestTolerance: 1.5, jumpLargeGaps: true } };
 
     if (type === 'hls') {
-        config.manifest = { hls: { ignoreTextStreamFailures: true, ignoreManifestProgramDateTime: true, ignoreManifestTimestampsInSegmentsMode: true } };
+        config.manifest = { hls: { ignoreTextStreamFailures: true, ignoreManifestProgramDateTime: true, sequenceMode: true } };
     }
 
     if (drmOn && ckRaw) {
