@@ -375,7 +375,7 @@ function buildConfig(type, drmOn, ckRaw) {
     const config = { streaming: { bufferingGoal: 30, rebufferingGoal: 2, preferNativeHls: false, inaccurateManifestTolerance: 0 } };
 
     if (type === 'hls') {
-        config.manifest = { hls: { ignoreTextStreamFailures: true, ignoreManifestProgramDateTime: true, gnoreManifestTimestampsInSegmentsMode: true } };
+        config.manifest = { hls: { ignoreTextStreamFailures: true, ignoreManifestProgramDateTime: true, ignoreManifestTimestampsInSegmentsMode: true } };
     }
 
     if (drmOn && ckRaw) {
