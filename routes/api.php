@@ -113,6 +113,7 @@ Route::get('/watching-now', function (ViewingTracker $tracker) {
 });
 Route::get('/scraper/glwiz/{channelName}', [ScraperController::class, 'getGlwizStreamUrl']);
 Route::get('/scraper/saudia/{channelName}', [ScraperController::class, 'getSaudiaStreamUrl']);
+Route::get('/scraper/france/{channelName}', [ScraperController::class, 'getFranceStreamUrl']);
 Route::get('/scraper/alkass/{channelName}', [ScraperController::class, 'getAlkassStreamUrl'])->whereNumber('channelName');
 Route::get('/scraper/sumaria', [ScraperController::class, 'getSumariaStreamUrl']);
 });
