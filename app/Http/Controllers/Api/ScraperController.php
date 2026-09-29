@@ -242,5 +242,5 @@ class ScraperController extends Controller
         }
 
         return response($streamUrl, 200, ['Content-Type' => 'text/plain', 'X-Manifest-URL' => $streamUrl]);
-
+    }
 }
