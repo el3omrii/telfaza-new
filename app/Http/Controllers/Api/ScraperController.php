@@ -228,7 +228,8 @@ class ScraperController extends Controller
             // \n                   : Matches the newline character
             // \s*                  : Matches any optional whitespace (spaces/tabs)
             // (https?:\/\/[^\s]+)  : Captures the URL (http/https up to the next whitespace/newline)
-        $pattern = '/#EXTINF[^\n]*'.$channel.'[^\n]*\n\s*(https?:\/\/[^\s]+)/i';
+        //$pattern = '/#EXTINF[^\n]*'.$channel.'[^\n]*\n\s*(https?:\/\/[^\s]+)/i';
+        $pattern = '/#EXTINF[^\n]*'.$channel.'[^\n]*\n\s*(https?:\/\/[^\s]+)/';
 
         if (preg_match($pattern, $m3uContent, $matches)) {
             $streamUrl = $matches[1]; // Return the captured URL (Group 1)
