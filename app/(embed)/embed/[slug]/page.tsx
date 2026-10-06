@@ -10,7 +10,7 @@ interface Props {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params
   try {
-    const channel = await getChannel(slug + '?embed=1')
+    const channel = await getChannel(slug)
     return {
       title: `Watch ${channel.name} Live Streaming Online | ${SITE_NAME}`,
       description: channel.metadescription || `Watch ${channel.name} live on Telfaza LIVE.`,
@@ -30,7 +30,7 @@ export default async function EmbedPage({ params }: Props) {
   let channel
 
   try {
-    channel = await getChannel(slug + '?embed=1')
+    channel = await getChannel(slug)
   } catch {
     notFound()
   }
@@ -41,7 +41,3 @@ export default async function EmbedPage({ params }: Props) {
     </div>
   )
 }
-
-// Disable the app layout for this page
-export const dynamic = 'force-dynamic'
-export const revalidate = 0
