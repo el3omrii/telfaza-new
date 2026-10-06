@@ -1,8 +1,9 @@
 import type { Metadata } from 'next'
+import Image from 'next/image'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { getChannel, getChannels, getRelatedChannels, storageUrl } from '@/lib/api'
-import ClientChannelPlayer from '@/components/channel/ClientChannelPlayer'
+//import ClientChannelPlayer from '@/components/channel/ClientChannelPlayer'
 import { RelatedChannelsSlider } from '@/components/channel/RelatedChannelsSlider'
 import ChannelActionButtons from '@/components/channel/ChannelActionButtons'
 import LiveViewerCount from '@/components/channel/LiveViewerCount'
@@ -11,7 +12,6 @@ import { fmtViews } from '@/lib/utils'
 import { buildMetadata, generateVideoSchema } from '@/lib/seo'
 import ReactMarkDown from "react-markdown"
 import rehypeRaw from "rehype-raw"
-
 
 interface Props {
   params: { slug: string }
@@ -82,7 +82,7 @@ export default async function ChannelDetailPage({ params }: Props) {
           <div className="flex h-18 w-18 md:h-24 md:w-24 items-center justify-center overflow-hidden rounded-2xl border border-white/10 bg-zinc-800">
             {logo ? (
               // eslint-disable-next-line @next/next/no-img-element
-              <img src={logo} alt={channel.name} className="h-full w-full object-contain" />
+              <Image src={logo} alt={channel.name} className="h-full w-full object-contain" width="96" height="96" />
             ) : (
               <span className="font-head text-xl font-black text-zinc-400">
                 {channel.name.slice(0, 3).toUpperCase()}
@@ -198,7 +198,7 @@ export default async function ChannelDetailPage({ params }: Props) {
                       href={`/countries/${channel.country?.slug}`}
                       className="flex flex-row gap-2 items-center text-zinc-400 text-xs transition-all hover:opacity-80"
                     >
-                      <img src={flag} alt={channel.country?.name} className="rounded-md w-6 h-6" />
+                      <img src={flag} alt={channel.country?.name} width="24" height="24" className="rounded-md w-6 h-6" />
                       <span className="rounded-lg border border-gray-500 bg-zinc-900 px-3 py-1.5">{channel.country?.name}</span>
                     </Link>
                 </div>
