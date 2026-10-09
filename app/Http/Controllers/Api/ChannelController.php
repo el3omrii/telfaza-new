@@ -209,9 +209,9 @@ class ChannelController extends Controller
     {
         $watching = $tracker->getWatchingNow();
 
-        $channels = Channel::makeHidden(['description', 'created_at', 'updated_at'])->with(['country:id,name,flag'])
+        $channels = Channel::with(['country:id,name,flag'])
             ->whereIn('id', collect($watching)->pluck('channel_id'))
-            ->get()
+            ->get()->makeHidden(['description', 'metadescription', 'created_at', 'updated_at'])
             ->map(function ($channel) use ($watching) {
                 $info = collect($watching)->firstWhere('channel_id', (string) $channel->id);
                 $channel->active_viewers = $info['viewers'] ?? 0;
