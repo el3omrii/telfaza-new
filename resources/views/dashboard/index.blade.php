@@ -99,6 +99,121 @@
     @endif
 </div>
 
+@php
+    $watchingNowDomain = config('services.telfaza_api.domain');
+    $watchingNowUrl = $watchingNowDomain
+        ? 'https://' . rtrim($watchingNowDomain, '/') . '/api/channels/watching-now'
+        : null;
+@endphp
+<section
+    id="current-viewers"
+    class="mb-8 border-b border-border pb-7"
+    data-endpoint="{{ $watchingNowUrl }}"
+>
+    <div class="flex items-center justify-between gap-3 mb-3">
+        <div>
+            <h2 class="font-display font-bold text-lg">Current viewers</h2>
+            <p class="text-muted text-xs mt-0.5">Live channel viewership</p>
+        </div>
+        <p id="current-viewers-total" class="text-sm text-muted" aria-live="polite">— viewers</p>
+    </div>
+
+    <p id="current-viewers-status" class="text-sm text-muted mb-3" role="status">
+        {{ $watchingNowUrl ? 'Loading current viewers…' : 'APP_API_DOMAIN is not configured.' }}
+    </p>
+
+    <div id="current-viewers-table-wrapper" class="hidden overflow-x-auto rounded-[10px] border border-border">
+        <table class="w-full text-sm">
+            <thead class="bg-surface text-left text-muted">
+                <tr>
+                    <th class="px-4 py-3 font-medium">Channel</th>
+                    <th class="px-4 py-3 font-medium">Viewers</th>
+                    <th class="px-4 py-3 font-medium">Started at</th>
+                </tr>
+            </thead>
+            <tbody id="current-viewers-rows" class="divide-y divide-border"></tbody>
+        </table>
+    </div>
+</section>
+
+<script>
+(() => {
+    const section = document.getElementById('current-viewers');
+    const endpoint = section.dataset.endpoint;
+    const status = document.getElementById('current-viewers-status');
+    const total = document.getElementById('current-viewers-total');
+    const tableWrapper = document.getElementById('current-viewers-table-wrapper');
+    const rows = document.getElementById('current-viewers-rows');
+
+    if (!endpoint) {
+        return;
+    }
+
+    const renderViewers = (channels) => {
+        const activeChannels = channels
+            .filter((channel) => Number(channel.active_viewers) > 0)
+            .sort((a, b) => Number(b.active_viewers) - Number(a.active_viewers));
+        const viewerCount = activeChannels.reduce(
+            (sum, channel) => sum + Number(channel.active_viewers),
+            0
+        );
+
+        total.textContent = `${viewerCount} ${viewerCount === 1 ? 'viewer' : 'viewers'}`;
+        rows.replaceChildren();
+
+        if (activeChannels.length === 0) {
+            tableWrapper.classList.add('hidden');
+            status.textContent = 'No active viewers right now.';
+            return;
+        }
+
+        activeChannels.forEach((channel) => {
+            const row = document.createElement('tr');
+            const name = document.createElement('td');
+            const viewers = document.createElement('td');
+            const startedAt = document.createElement('td');
+
+            name.className = 'px-4 py-3 font-medium';
+            name.textContent = channel.name || 'Unknown channel';
+            viewers.className = 'px-4 py-3';
+            viewers.textContent = String(Number(channel.active_viewers));
+            startedAt.className = 'px-4 py-3 text-muted';
+            startedAt.textContent = Number.isFinite(Number(channel.started_at)) && channel.started_at !== null
+                ? new Date(Number(channel.started_at) * 1000).toLocaleString()
+                : '—';
+
+            row.append(name, viewers, startedAt);
+            rows.append(row);
+        });
+
+        tableWrapper.classList.remove('hidden');
+        status.textContent = `Updated ${new Date().toLocaleTimeString()}`;
+    };
+
+    const refreshViewers = async () => {
+        try {
+            const response = await fetch(endpoint, { cache: 'no-store' });
+            if (!response.ok) {
+                throw new Error(`Request failed with status ${response.status}`);
+            }
+
+            const channels = await response.json();
+            if (!Array.isArray(channels)) {
+                throw new Error('Unexpected response from the watching-now API');
+            }
+
+            renderViewers(channels);
+        } catch (error) {
+            status.textContent = `Unable to load current viewers: ${error.message}`;
+        } finally {
+            window.setTimeout(refreshViewers, 5000);
+        }
+    };
+
+    refreshViewers();
+})();
+</script>
+
 <div class="border-t border-border pt-6">
     <div class="flex items-end justify-between gap-3 mb-3">
         <div>

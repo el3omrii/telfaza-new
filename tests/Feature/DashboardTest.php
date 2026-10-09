@@ -31,10 +31,12 @@ class DashboardTest extends TestCase
         Tag::create(['name' => 'football', 'slug' => 'football']);
         Report::create(['channel_id' => $channel->id, 'issue_type' => 'dead_stream', 'user_token' => 'token-1']);
 
+        config(['services.telfaza_api.domain' => 'api.test']);
         $response = $this->get('/dashboard');
 
         $response->assertOk();
         $response->assertSee('Dashboard');
+        $response->assertSee('https://api.test/api/channels/watching-now');
         $response->assertViewHas('channels', 1);
         $response->assertViewHas('sources', 1);
         $response->assertViewHas('categories', 1);

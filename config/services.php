@@ -43,4 +43,8 @@ return [
 	    'base_url' => env('EPG_API_URL'),
     ],
 
+    'telfaza_api' => [
+        'domain' => env('APP_API_DOMAIN'),
+    ],
+
 ];
