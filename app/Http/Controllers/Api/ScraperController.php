@@ -80,7 +80,7 @@ class ScraperController extends Controller
         // Fallback if the API changes or the session cookie expires
         return response('Failed to fetch or parse stream URL.', 500);
     }
-    function getSaudiaStreamUrl(String $channelName)
+    function getSaudiaStreamUrl(string $channelName)
     {
         if (empty($channelName)) {
             return response('Channel name is required.', 400);
@@ -208,6 +208,10 @@ class ScraperController extends Controller
     
     function getFranceStreamUrl(string $channel) 
     {
+        if ($channel === "tv5monde") {
+			$streamUrl = "https://raw.githubusercontent.com/Paradise-91/ParaTV/refs/heads/main/streams/francetv/tv5-monde.m3u8";
+			return response($streamUrl, 200, ['Content-Type' => 'text/plain', 'X-Manifest-URL' => $streamUrl]);
+		}
         $m3uUrl = 'https://raw.githubusercontent.com/Paradise-91/ParaTV/refs/heads/main/playlists/paratv/group/france/france.m3u';
 
         // Pro Tip: Cache the result for 1 hour to avoid hitting the remote server on every request
@@ -217,6 +221,9 @@ class ScraperController extends Controller
         if ($response->failed()) {
             return null;
         }
+
+		// replace dash by space
+		$channel = preg_replace('/[_-]/', ' ', $channel);
 
         $m3uContent = $response->body();
 
@@ -229,7 +236,7 @@ class ScraperController extends Controller
             // \s*                  : Matches any optional whitespace (spaces/tabs)
             // (https?:\/\/[^\s]+)  : Captures the URL (http/https up to the next whitespace/newline)
         //$pattern = '/#EXTINF[^\n]*'.$channel.'[^\n]*\n\s*(https?:\/\/[^\s]+)/i';
-        $pattern = '/#EXTINF[^\n]*'.$channel.'[^\n]*\n\s*(https?:\/\/[^\s]+)/';
+        $pattern = '/#EXTINF[^\n]*'.$channel.'[^\n]*\n\s*(https?:\/\/[^\s]+)/i';
 
         if (preg_match($pattern, $m3uContent, $matches)) {
             $streamUrl = $matches[1]; // Return the captured URL (Group 1)
@@ -238,7 +245,7 @@ class ScraperController extends Controller
         if (!$streamUrl) {
             return response()->json([
                 'success' => false,
-                'message' => 'TF1.fr stream not found or failed to fetch M3U file.'
+                'message' => $channel.' stream not found or failed to fetch M3U file.'
             ], 404);
         }
 
