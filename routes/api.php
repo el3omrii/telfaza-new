@@ -95,22 +95,7 @@ Route::get('/countries', [CountryController::class, 'index']);
 //      ?category=1  &quality=1080p  &sort=views  &order=desc  &per_page=24
 Route::get('/countries/{country:slug}/channels', [CountryController::class, 'channels']);
 Route::post('/pusher/webhook', [PusherController::class, 'webhook']);
-Route::get('/watching-now', function (ViewingTracker $tracker) {
-    $watchingNow = $tracker->getWatchingNow();
-    
-    // Fetch channel details from database
-    $channels = \App\Models\Channel::whereIn('id', collect($watchingNow)->pluck('channel_id'))
-        ->get()
-        ->map(function ($channel) use ($watchingNow) {
-            $viewerInfo = collect($watchingNow)->firstWhere('channel_id', $channel->id);
-            $channel->active_viewers = $viewerInfo['viewers'];
-            return $channel;
-        })
-        ->sortByDesc('active_viewers')
-        ->values();
-    
-    return response()->json($channels);
-});
+
 Route::get('/scraper/glwiz/{channelName}', [ScraperController::class, 'getGlwizStreamUrl']);
 Route::get('/scraper/saudia/{channelName}', [ScraperController::class, 'getSaudiaStreamUrl']);
 Route::get('/scraper/france/{channelName}', [ScraperController::class, 'getFranceStreamUrl']);
