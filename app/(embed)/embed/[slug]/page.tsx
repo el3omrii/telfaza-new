@@ -14,8 +14,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     return {
       title: `Watch ${channel.name} Live Streaming Online | ${SITE_NAME}`,
       description: channel.metadescription || `Watch ${channel.name} live on Telfaza LIVE.`,
-      robots: 'index, follow',
-      referrer: 'no-referrer',
+      robots: 'index, follow'
     }
   } catch {
     return {

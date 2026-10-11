@@ -77,6 +77,7 @@ const P2pStatRow = ({ icon, label, value, detail }) => (
 
 export default function ChannelPlayer({ channel }) {
   const [error, setError] = useState('');
+  const [policy, setPolicy] = useState('no-referrer-when-downgrade');
   const [currentSourceIndex, setCurrentSourceIndex] = useState(0);
   const [mediaHeight, setMediaHeight] = useState('Auto');
   const [p2pPeerCount, setP2pPeerCount] = useState(0);
@@ -300,7 +301,11 @@ export default function ChannelPlayer({ channel }) {
               console.log('Segment Loaded:', details);
             });
           }
-
+          // build referrer policy based on manifest url
+          if (link.includes('intigral-ott.net') || link.includes('starzplayarabia.com'))
+            setPolicy('no-referrer');
+          else
+            setPolicy('no-referrer-when-downgrade');
           if (link.includes('/snrt/')) {
             setupSnrtUrlFix(video.api);
           }
@@ -358,6 +363,7 @@ export default function ChannelPlayer({ channel }) {
           suppressHydrationWarning
           poster={storageUrl(channel.image)}
           className="object-cover bg-black"
+          referrerPolicy={policy}
         />
         <div slot="middle-chrome" className="center-overlay">
           <MediaPlayButton className="big-play-btn"></MediaPlayButton>
