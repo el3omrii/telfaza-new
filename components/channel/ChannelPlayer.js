@@ -1,6 +1,7 @@
 'use client'
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { formatBytes, formatSpeed, storageUrl } from '@/lib';
+import { configureShakaReferrerPolicy } from '@/lib/shaka-referrer-policy';
 import {
   MediaController,
   MediaControlBar,
@@ -77,7 +78,6 @@ const P2pStatRow = ({ icon, label, value, detail }) => (
 
 export default function ChannelPlayer({ channel }) {
   const [error, setError] = useState('');
-  const [policy, setPolicy] = useState('no-referrer-when-downgrade');
   const [currentSourceIndex, setCurrentSourceIndex] = useState(0);
   const [mediaHeight, setMediaHeight] = useState('Auto');
   const [p2pPeerCount, setP2pPeerCount] = useState(0);
@@ -92,6 +92,9 @@ export default function ChannelPlayer({ channel }) {
   const { sources } = channel;
   const activeSource = sources[currentSourceIndex] ?? sources[0];
   const { link, p2penabled, drm, clearkeys } = activeSource;
+  const policy = link.includes('intigral-ott.net') || link.includes('starzplayarabia.com') || link.includes('playco.com')
+    ? 'no-referrer'
+    : 'no-referrer-when-downgrade';
   const videoRef = useRef(null);
   const currentSourceIndexRef = useRef(0);
   const p2pEngineRef = useRef(null);
@@ -171,6 +174,8 @@ export default function ChannelPlayer({ channel }) {
     };
 
     const loadSource = () => {
+      let cleanupReferrerPolicy = () => {};
+
       try {
         video.api?.unload?.();
       } catch (error) {
@@ -185,6 +190,7 @@ export default function ChannelPlayer({ channel }) {
         try {
           video.api.resetConfiguration?.();
           video.api.configure(buildShakaConfig({ link, drm, clearkeys }));
+          cleanupReferrerPolicy = configureShakaReferrerPolicy(video.api, policy);
 	  const handleTracksChanged = () => {
       const tracks = video.api.getVariantTracks();
       if (tracks.length <= 1) {
@@ -301,11 +307,6 @@ export default function ChannelPlayer({ channel }) {
               console.log('Segment Loaded:', details);
             });
           }
-          // build referrer policy based on manifest url
-          if (link.includes('intigral-ott.net') || link.includes('starzplayarabia.com'))
-            setPolicy('no-referrer');
-          else
-            setPolicy('no-referrer-when-downgrade');
           if (link.includes('/snrt/')) {
             setupSnrtUrlFix(video.api);
           }
@@ -329,6 +330,7 @@ export default function ChannelPlayer({ channel }) {
       handleResize();
 
       return () => {
+        cleanupReferrerPolicy();
         cleanupAnalytics();
         video.removeEventListener('error', handlePlayerError);
       };
@@ -352,7 +354,7 @@ export default function ChannelPlayer({ channel }) {
 
       setPlayEventSent(false);
     };
-  }, [channel, currentSourceIndex, link, p2penabled, drm, clearkeys, switchToNextSource, stopP2PMonitoring]);
+  }, [channel, currentSourceIndex, link, policy, p2penabled, drm, clearkeys, switchToNextSource, stopP2PMonitoring]);
 
   return (
     <div className='w-full h-full aspect-video'>
