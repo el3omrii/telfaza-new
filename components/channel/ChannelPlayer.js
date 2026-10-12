@@ -27,6 +27,7 @@ import {
   ensureP2PPluginsRegistered,
   setupSnrtUrlFix,
   shouldRetrySource,
+  resolveStreamUrl
 } from '@/lib/shaka-helpers';
 /* ─── NEXT.JS / SSR SAFE MUX.JS BINDING ──────────────────────────────────── */
 if (typeof window !== 'undefined' && !window.muxjs) {
@@ -92,6 +93,22 @@ export default function ChannelPlayer({ channel }) {
   const { sources } = channel;
   const activeSource = sources[currentSourceIndex] ?? sources[0];
   const { link, p2penabled, drm, clearkeys } = activeSource;
+  const [resolvedLink, setResolvedLink] = useState(null);
+
+  // Turn /local/ links into backend-signed URLs before Shaka ever sees them.
+  // Non-/local/ sources pass through untouched.
+  useEffect(() => {
+    let cancelled = false;
+    setResolvedLink(null);
+    resolveStreamUrl(link)
+      .then((url) => { if (!cancelled) setResolvedLink(url); })
+      .catch((err) => {
+        console.error('Failed to sign stream URL, falling back to raw link', err);
+        if (!cancelled) setResolvedLink(link);
+      });
+    return () => { cancelled = true; };
+  }, [link]);
+
   const policy = link.includes('intigral-ott.net') || link.includes('starzplayarabia.com') || link.includes('playco.com')
     ? 'no-referrer'
     : 'no-referrer-when-downgrade';
@@ -157,7 +174,7 @@ export default function ChannelPlayer({ channel }) {
 
   useEffect(() => {
     const video = videoRef.current;
-    if (!video) return;
+    if (!video || !resolvedLink) return;
 
     const handlePlayerError = (event) => {
       const errorDetail = event?.detail ?? event;
@@ -326,7 +343,7 @@ export default function ChannelPlayer({ channel }) {
 
       video.addEventListener('error', handlePlayerError);
       setPlayEventSent(false);
-      video.src = link;
+      video.src = resolvedLink;
       handleResize();
 
       return () => {
@@ -354,7 +371,7 @@ export default function ChannelPlayer({ channel }) {
 
       setPlayEventSent(false);
     };
-  }, [channel, currentSourceIndex, link, policy, p2penabled, drm, clearkeys, switchToNextSource, stopP2PMonitoring]);
+  }, [channel, currentSourceIndex, resolvedLink, policy, p2penabled, drm, clearkeys, switchToNextSource, stopP2PMonitoring]);
 
   return (
     <div className='w-full h-full aspect-video'>
