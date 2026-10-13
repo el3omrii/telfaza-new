@@ -8,7 +8,7 @@ const TTL_SECONDS = 1800; // 30 min — pragmatic middle ground from the freshne
 export async function GET(req: NextRequest) {
   const streamId = req.nextUrl.searchParams.get('streamId');
 
-  if (!streamId || !/^\d+$/.test(streamId)) {
+  if (!streamId || !/.*\.m3u8$/.test(streamId)) {
     return NextResponse.json({ error: 'invalid streamId' }, { status: 400 });
   }
   if (!SALT) {
@@ -24,7 +24,7 @@ export async function GET(req: NextRequest) {
     .update(`${exp}${streamId} ${SALT}`)
     .digest('base64url');
 
-  const url = `${STREAM_ORIGIN}/local/${streamId}.m3u8?sig=${sig}&exp=${exp}`;
+  const url = `${STREAM_ORIGIN}${streamId}?sig=${sig}&exp=${exp}`;
   return NextResponse.json(
     { url, exp },
     { headers: { 'Cache-Control': 'no-store' } }
