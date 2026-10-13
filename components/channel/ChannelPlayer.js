@@ -15,10 +15,8 @@ import {
 import {
   MediaChromeMenu,
   MediaChromeMenuButton,
-  MediaRenditionMenu,
-  MediaRenditionMenuButton,
 } from 'media-chrome/react/menu';
-import ShakaVideo from 'shaka-video-element/react';
+import shaka from 'shaka-player';
 import { ShakaP2PEngine } from 'p2p-media-loader-shaka';
 import {
   attachAnalyticsTracking,
@@ -29,6 +27,11 @@ import {
   shouldRetrySource,
   resolveStreamUrl
 } from '@/lib/shaka-helpers';
+
+// P2P plugin registration expects window.shaka — provide the direct import.
+if (typeof window !== 'undefined' && !window.shaka) {
+  window.shaka = shaka;
+}
 /* ─── NEXT.JS / SSR SAFE MUX.JS BINDING ──────────────────────────────────── */
 if (typeof window !== 'undefined' && !window.muxjs) {
   // Shaka looks for the library mapped precisely under window.muxjs
@@ -94,6 +97,9 @@ export default function ChannelPlayer({ channel }) {
   const activeSource = sources[currentSourceIndex] ?? sources[0];
   const { link, p2penabled, drm, clearkeys } = activeSource;
   const [resolvedLink, setResolvedLink] = useState(null);
+  // Renditions for the quality menu (populated from Shaka variant tracks).
+  const [renditions, setRenditions] = useState([]);
+  const [selectedRenditionId, setSelectedRenditionId] = useState('auto');
 
   // Turn /local/ links into backend-signed URLs before Shaka ever sees them.
   // Non-/local/ sources pass through untouched.
@@ -113,6 +119,7 @@ export default function ChannelPlayer({ channel }) {
     ? 'no-referrer'
     : 'no-referrer-when-downgrade';
   const videoRef = useRef(null);
+  const playerRef = useRef(null);
   const currentSourceIndexRef = useRef(0);
   const p2pEngineRef = useRef(null);
   const peerCountIntervalRef = useRef(null);
@@ -172,9 +179,31 @@ export default function ChannelPlayer({ channel }) {
     });
   }, []);
 
+  // Manual rendition selection (replaces shaka-video-element's media-tracks).
+  const selectRendition = useCallback((renditionId) => {
+    const player = playerRef.current;
+    if (!player) return;
+
+    if (renditionId === 'auto') {
+      player.configure({ abr: { enabled: true } });
+      setSelectedRenditionId('auto');
+      return;
+    }
+
+    const track = player.getVariantTracks().find((t) => String(t.id) === String(renditionId));
+    if (track) {
+      player.configure({ abr: { enabled: false } });
+      player.selectVariantTrack(track, /* clearBuffer= */ true);
+      setSelectedRenditionId(String(renditionId));
+    }
+  }, []);
+
   useEffect(() => {
     const video = videoRef.current;
     if (!video || !resolvedLink) return;
+
+    let cancelled = false;
+    let player = playerRef.current;
 
     const handlePlayerError = (event) => {
       const errorDetail = event?.detail ?? event;
@@ -190,199 +219,241 @@ export default function ChannelPlayer({ channel }) {
       setMediaHeight(`${Math.min(video.videoWidth, video.videoHeight)}P`);
     };
 
-    const loadSource = () => {
+    const loadSource = async () => {
       let cleanupReferrerPolicy = () => {};
 
-      try {
-        video.api?.unload?.();
-      } catch (error) {
-        console.warn('Failed to unload previous source', error);
+      // Create the player once, attach to the plain <video>.
+      if (!player) {
+        player = new shaka.Player();
+        playerRef.current = player;
+        await player.attach(video);
+        player.addEventListener('error', handlePlayerError);
+        video.addEventListener('resize', handleResize);
       }
 
       stopP2PMonitoring();
       setP2pPeerCount(0);
       destroyP2PEngine(p2pEngineRef);
+      setRenditions([]);
+      setSelectedRenditionId('auto');
 
-      if (video.api) {
-        try {
-          video.api.resetConfiguration?.();
-          video.api.configure(buildShakaConfig({ link, drm, clearkeys }));
-          cleanupReferrerPolicy = configureShakaReferrerPolicy(video.api, policy);
-	  const handleTracksChanged = () => {
-      const tracks = video.api.getVariantTracks();
-      if (tracks.length <= 1) {
-        console.log('Single-variant stream detected. Disabling ABR for ultra-fast startup.');
-        video.api.configure({
-          abr: { enabled: false },
-          streaming: { 
-            rebufferingGoal: 2, // Play after 1 segment (5s) lands
-            bufferingGoal: 5 
+      try {
+        player.resetConfiguration();
+        player.configure(buildShakaConfig({ link, drm, clearkeys }));
+        cleanupReferrerPolicy = configureShakaReferrerPolicy(player, policy);
+
+        const handleTracksChanged = () => {
+          const tracks = player.getVariantTracks();
+          // Populate the quality menu (dedupe by height, keep highest bandwidth).
+          const byHeight = new Map();
+          for (const t of tracks) {
+            if (!t.height) continue;
+            const prev = byHeight.get(t.height);
+            if (!prev || (t.bandwidth ?? 0) > (prev.bandwidth ?? 0)) byHeight.set(t.height, t);
           }
-        });
-      } else {
-        console.log('Multi-variant stream detected. Keeping ABR enabled.');
-        video.api.configure({
-          abr: { enabled: true }
-        });
-      }
-    };
+          setRenditions(
+            [...byHeight.values()]
+              .sort((a, b) => b.height - a.height)
+              .map((t) => ({ id: String(t.id), height: t.height }))
+          );
 
-    // Remove old listener if it exists to prevent memory leaks during stream switches
-    video.api.removeEventListener('trackschanged', video.api._onTracksChangedCleanup);
-    // Attach the new one and save a reference for easy cleanup
-    video.api.addEventListener('trackschanged', handleTracksChanged);
-    video.api._onTracksChangedCleanup = handleTracksChanged;
-          if (p2penabled) {
-            ensureP2PPluginsRegistered();
-
-            const shakaP2PEngine = new ShakaP2PEngine(
-              {
-                core: {
-                  swarmId: `telfaza-live-${channel.id}-swarm`,
-                  announceTrackers: ['wss://tracker.webtorrent.dev', 'wss://tracker.openwebtorrent.com'],
-                },
-              },
-              window.shaka,
-            );
-
-            shakaP2PEngine.bindShakaPlayer(video.api);
-            p2pEngineRef.current = shakaP2PEngine;
-
-            // Track how many bytes come from / go to the swarm so the peers
-            // menu can show live P2P download & upload stats.
-            const chunkDownloadedListener = (bytesLength, downloadSource) => {
-              if (downloadSource === 'p2p') {
-                p2pStatsRef.current.p2pDownloaded += bytesLength;
-              } else if (downloadSource === 'http') {
-                p2pStatsRef.current.httpDownloaded += bytesLength;
+          if (tracks.length <= 1) {
+            console.log('Single-variant stream detected. Disabling ABR for ultra-fast startup.');
+            player.configure({
+              abr: { enabled: false },
+              streaming: {
+                rebufferingGoal: 2,
+                bufferingGoal: 5
               }
-            };
-
-            const chunkUploadedListener = (bytesLength) => {
-              p2pStatsRef.current.p2pUploaded += bytesLength;
-            };
-
-            shakaP2PEngine.addEventListener('onChunkDownloaded', chunkDownloadedListener);
-            shakaP2PEngine.addEventListener('onChunkUploaded', chunkUploadedListener);
-            p2pStatsListenersRef.current = [
-              { eventName: 'onChunkDownloaded', listener: chunkDownloadedListener },
-              { eventName: 'onChunkUploaded', listener: chunkUploadedListener },
-            ];
-
-            // Poll the connected peer count from the engine's internal loader
-            // (p2pLoaders lives on the core's stream loaders, not on core itself)
-            const readConnectedPeerCount = () => {
-              const mainLoader = shakaP2PEngine?.core?.mainStreamLoader;
-              const secondaryLoader = shakaP2PEngine?.core?.secondaryStreamLoader;
-              return (
-                mainLoader?.p2pLoaders?.currentLoader?.connectedPeerCount ??
-                secondaryLoader?.p2pLoaders?.currentLoader?.connectedPeerCount ??
-                0
-              );
-            };
-
-            // Sliding window of (timestamp, cumulative bytes) snapshots used to
-            // compute download / upload speed over roughly the last 3 seconds.
-            const pushSpeedSample = () => {
-              const now = Date.now();
-              speedSamplesRef.current = [
-                ...speedSamplesRef.current.filter((sample) => sample.at >= now - 3000),
-                {
-                  at: now,
-                  p2pDownloaded: p2pStatsRef.current.p2pDownloaded,
-                  p2pUploaded: p2pStatsRef.current.p2pUploaded,
-                },
-              ];
-
-              const samples = speedSamplesRef.current;
-              if (samples.length > 1) {
-                const oldest = samples[0];
-                const newest = samples[samples.length - 1];
-                const elapsedSeconds = (newest.at - oldest.at) / 1000;
-
-                if (elapsedSeconds >= 1) {
-                  setP2pStats({
-                    p2pDownloadSpeed: Math.max(0, (newest.p2pDownloaded - oldest.p2pDownloaded) / elapsedSeconds),
-                    p2pUploadSpeed: Math.max(0, (newest.p2pUploaded - oldest.p2pUploaded) / elapsedSeconds),
-                    p2pDownloaded: p2pStatsRef.current.p2pDownloaded,
-                    p2pUploaded: p2pStatsRef.current.p2pUploaded,
-                    httpDownloaded: p2pStatsRef.current.httpDownloaded,
-                  });
-                }
-              }
-            };
-
-            peerCountIntervalRef.current = setInterval(() => {
-              setP2pPeerCount(readConnectedPeerCount());
-              pushSpeedSample();
-            }, 500);
-
-            setP2pPeerCount(readConnectedPeerCount());
-            pushSpeedSample();
-
-            shakaP2PEngine.addEventListener('onSegmentLoaded', (details) => {
-              console.log('Segment Loaded:', details);
+            });
+          } else {
+            console.log('Multi-variant stream detected. Keeping ABR enabled.');
+            player.configure({
+              abr: { enabled: true }
             });
           }
-          if (link.includes('/snrt/')) {
-            setupSnrtUrlFix(video.api);
+        };
+
+        player.removeEventListener('trackschanged', player._onTracksChangedCleanup);
+        player.addEventListener('trackschanged', handleTracksChanged);
+        player._onTracksChangedCleanup = handleTracksChanged;
+
+        // Keep the quality button label in sync when ABR switches variants.
+        const handleVariantChanged = (event) => {
+          const newTrack = event?.newTrack;
+          if (newTrack?.height) {
+            setMediaHeight(`${newTrack.height}P`);
           }
-        } catch (error) {
-          console.error('Failed to configure Shaka for source', error);
-          setError('DRM configuration failed');
+        };
+        player.removeEventListener('variantchanged', player._onVariantChangedCleanup);
+        player.addEventListener('variantchanged', handleVariantChanged);
+        player._onVariantChangedCleanup = handleVariantChanged;
+
+        if (p2penabled) {
+          ensureP2PPluginsRegistered();
+
+          const shakaP2PEngine = new ShakaP2PEngine(
+            {
+              core: {
+                swarmId: `telfaza-live-${channel.id}-swarm`,
+                announceTrackers: ['wss://tracker.webtorrent.dev', 'wss://tracker.openwebtorrent.com'],
+              },
+            },
+            shaka,
+          );
+
+          shakaP2PEngine.bindShakaPlayer(player);
+          p2pEngineRef.current = shakaP2PEngine;
+
+          // Track how many bytes come from / go to the swarm so the peers
+          // menu can show live P2P download & upload stats.
+          const chunkDownloadedListener = (bytesLength, downloadSource) => {
+            if (downloadSource === 'p2p') {
+              p2pStatsRef.current.p2pDownloaded += bytesLength;
+            } else if (downloadSource === 'http') {
+              p2pStatsRef.current.httpDownloaded += bytesLength;
+            }
+          };
+
+          const chunkUploadedListener = (bytesLength) => {
+            p2pStatsRef.current.p2pUploaded += bytesLength;
+          };
+
+          shakaP2PEngine.addEventListener('onChunkDownloaded', chunkDownloadedListener);
+          shakaP2PEngine.addEventListener('onChunkUploaded', chunkUploadedListener);
+          p2pStatsListenersRef.current = [
+            { eventName: 'onChunkDownloaded', listener: chunkDownloadedListener },
+            { eventName: 'onChunkUploaded', listener: chunkUploadedListener },
+          ];
+
+          // Poll the connected peer count from the engine's internal loader
+          // (p2pLoaders lives on the core's stream loaders, not on core itself)
+          const readConnectedPeerCount = () => {
+            const mainLoader = shakaP2PEngine?.core?.mainStreamLoader;
+            const secondaryLoader = shakaP2PEngine?.core?.secondaryStreamLoader;
+            return (
+              mainLoader?.p2pLoaders?.currentLoader?.connectedPeerCount ??
+              secondaryLoader?.p2pLoaders?.currentLoader?.connectedPeerCount ??
+              0
+            );
+          };
+
+          // Sliding window of (timestamp, cumulative bytes) snapshots used to
+          // compute download / upload speed over roughly the last 3 seconds.
+          const pushSpeedSample = () => {
+            const now = Date.now();
+            speedSamplesRef.current = [
+              ...speedSamplesRef.current.filter((sample) => sample.at >= now - 3000),
+              {
+                at: now,
+                p2pDownloaded: p2pStatsRef.current.p2pDownloaded,
+                p2pUploaded: p2pStatsRef.current.p2pUploaded,
+              },
+            ];
+
+            const samples = speedSamplesRef.current;
+            if (samples.length > 1) {
+              const oldest = samples[0];
+              const newest = samples[samples.length - 1];
+              const elapsedSeconds = (newest.at - oldest.at) / 1000;
+
+              if (elapsedSeconds >= 1) {
+                setP2pStats({
+                  p2pDownloadSpeed: Math.max(0, (newest.p2pDownloaded - oldest.p2pDownloaded) / elapsedSeconds),
+                  p2pUploadSpeed: Math.max(0, (newest.p2pUploaded - oldest.p2pUploaded) / elapsedSeconds),
+                  p2pDownloaded: p2pStatsRef.current.p2pDownloaded,
+                  p2pUploaded: p2pStatsRef.current.p2pUploaded,
+                  httpDownloaded: p2pStatsRef.current.httpDownloaded,
+                });
+              }
+            }
+          };
+
+          peerCountIntervalRef.current = setInterval(() => {
+            setP2pPeerCount(readConnectedPeerCount());
+            pushSpeedSample();
+          }, 500);
+
+          setP2pPeerCount(readConnectedPeerCount());
+          pushSpeedSample();
+
+          shakaP2PEngine.addEventListener('onSegmentLoaded', (details) => {
+            console.log('Segment Loaded:', details);
+          });
         }
+        if (link.includes('/snrt/')) {
+          setupSnrtUrlFix(player);
+        }
+      } catch (error) {
+        console.error('Failed to configure Shaka for source', error);
+        setError('DRM configuration failed');
       }
 
       const cleanupAnalytics = attachAnalyticsTracking({
         video,
-        api: video.api,
+        api: player,
         channel,
         link,
         setPlayEventSent,
       });
 
-      video.addEventListener('error', handlePlayerError);
       setPlayEventSent(false);
-      video.src = resolvedLink;
+
+      // Shaka's load() unloads any previous content internally.
+      try {
+        await player.load(resolvedLink);
+      } catch (error) {
+        console.error('Shaka load failed', error);
+        handlePlayerError(error);
+      }
       handleResize();
 
       return () => {
         cleanupReferrerPolicy();
         cleanupAnalytics();
-        video.removeEventListener('error', handlePlayerError);
       };
     };
 
-    const cleanupSource = loadSource();
-    video.addEventListener('resize', handleResize);
+    let cleanupSource;
+    loadSource().then((cleanup) => {
+      if (cancelled) {
+        cleanup?.();
+      } else {
+        cleanupSource = cleanup;
+      }
+    });
 
     return () => {
-      video.removeEventListener('resize', handleResize);
-      video.removeEventListener('error', handlePlayerError);
+      cancelled = true;
       cleanupSource?.();
       stopP2PMonitoring();
       destroyP2PEngine(p2pEngineRef);
-
-      try {
-        video.api?.unload?.();
-      } catch (error) {
-        console.error('Failed to cleanup channel player', error);
-      }
-
       setPlayEventSent(false);
     };
   }, [channel, currentSourceIndex, resolvedLink, policy, p2penabled, drm, clearkeys, switchToNextSource, stopP2PMonitoring]);
 
+  // Destroy the player on unmount.
+  useEffect(() => {
+    return () => {
+      const player = playerRef.current;
+      playerRef.current = null;
+      if (player) {
+        player.destroy().catch(() => {});
+      }
+    };
+  }, []);
+
   return (
     <div className='w-full h-full aspect-video'>
       <MediaController className="w-full h-full bg-black" autohide="5">
-        <ShakaVideo
+        <video
           ref={videoRef}
           slot="media"
           suppressHydrationWarning
           poster={storageUrl(channel.image)}
-          className="object-cover bg-black"
+          className="object-cover bg-black w-full h-full"
           referrerPolicy={policy}
+          playsInline
         />
         <div slot="middle-chrome" className="center-overlay">
           <MediaPlayButton className="big-play-btn"></MediaPlayButton>
@@ -425,7 +496,7 @@ export default function ChannelPlayer({ channel }) {
               <MediaChromeMenu
                 id={`p2p-stats-menu-${channel.id}`}
                 hidden
-                anchor={`p2p-stats-button-${channel.id}`}
+                anchor={`p2p-stats-menu-${channel.id}`}
                 className="min-w-[240px]"
                 style={{
                   '--media-menu-background': 'rgba(10, 14, 22, 0.95)',
@@ -460,10 +531,40 @@ export default function ChannelPlayer({ channel }) {
               </MediaChromeMenu>
             </>
           )}
-          <MediaRenditionMenuButton className="media-control">
+          <MediaChromeMenuButton
+            id={`quality-button-${channel.id}`}
+            invoketarget={`quality-menu-${channel.id}`}
+            className="media-control"
+            aria-label="Quality"
+          >
             <span slot="icon" className="text-[#58BEC9] border border-[#58BEC9] py-1 px-2 rounded-md bg-green-950/50 text-xs sm:text-base">{mediaHeight}</span>
-          </MediaRenditionMenuButton>
-          <MediaRenditionMenu hidden anchor="auto"></MediaRenditionMenu>
+          </MediaChromeMenuButton>
+          <MediaChromeMenu
+            id={`quality-menu-${channel.id}`}
+            hidden
+            anchor={`quality-button-${channel.id}`}
+          >
+            <div
+              slot="header"
+              role="menuitemradio"
+              aria-checked={selectedRenditionId === 'auto'}
+              onClick={() => selectRendition('auto')}
+              className="cursor-pointer px-3 py-2 text-sm text-white hover:bg-white/10"
+            >
+              Auto{selectedRenditionId === 'auto' ? ' ✓' : ''}
+            </div>
+            {renditions.map((r) => (
+              <div
+                key={r.id}
+                role="menuitemradio"
+                aria-checked={selectedRenditionId === r.id}
+                onClick={() => selectRendition(r.id)}
+                className="cursor-pointer px-3 py-2 text-sm text-white hover:bg-white/10"
+              >
+                {r.height}p{selectedRenditionId === r.id ? ' ✓' : ''}
+              </div>
+            ))}
+          </MediaChromeMenu>
           <MediaFullscreenButton className="media-control"></MediaFullscreenButton>
         </MediaControlBar>
       </MediaController>
