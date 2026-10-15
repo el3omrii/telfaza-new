@@ -32,12 +32,6 @@ import {
 if (typeof window !== 'undefined' && !window.shaka) {
   window.shaka = shaka;
 }
-/* ─── NEXT.JS / SSR SAFE MUX.JS BINDING ──────────────────────────────────── */
-if (typeof window !== 'undefined' && !window.muxjs) {
-  // Shaka looks for the library mapped precisely under window.muxjs
-  window.muxjs = require('mux.js');
-}
-/* ───────────────────────────────────────────────────────────────────────── */
 
 /* ─── P2P stats menu icons & stat row ────────────────────────────────────── */
 const DownloadArrowIcon = () => (
@@ -120,6 +114,7 @@ export default function ChannelPlayer({ channel }) {
     : 'no-referrer-when-downgrade';
   const videoRef = useRef(null);
   const playerRef = useRef(null);
+  const manualRenditionRef = useRef(false);
   const currentSourceIndexRef = useRef(0);
   const p2pEngineRef = useRef(null);
   const peerCountIntervalRef = useRef(null);
@@ -185,10 +180,12 @@ export default function ChannelPlayer({ channel }) {
     if (!player) return;
 
     if (renditionId === 'auto') {
+      manualRenditionRef.current = false;
       player.configure({ abr: { enabled: true } });
       setSelectedRenditionId('auto');
       return;
     }
+    manualRenditionRef.current = true;
 
     const track = player.getVariantTracks().find((t) => String(t.id) === String(renditionId));
     if (track) {
@@ -236,6 +233,7 @@ export default function ChannelPlayer({ channel }) {
       destroyP2PEngine(p2pEngineRef);
       setRenditions([]);
       setSelectedRenditionId('auto');
+      manualRenditionRef.current = false;
 
       try {
         player.resetConfiguration();
@@ -256,6 +254,9 @@ export default function ChannelPlayer({ channel }) {
               .sort((a, b) => b.height - a.height)
               .map((t) => ({ id: String(t.id), height: t.height }))
           );
+          
+          // Don't override ABR if the user manually picked a quality.
+          if (manualRenditionRef.current) return;
 
           if (tracks.length <= 1) {
             console.log('Single-variant stream detected. Disabling ABR for ultra-fast startup.');
@@ -536,8 +537,9 @@ export default function ChannelPlayer({ channel }) {
             invoketarget={`quality-menu-${channel.id}`}
             className="media-control"
             aria-label="Quality"
+            notooltip
           >
-            <span slot="icon" className="text-[#58BEC9] border border-[#58BEC9] py-1 px-2 rounded-md bg-green-950/50 text-xs sm:text-base">{mediaHeight}</span>
+            <span className="text-teal-400 border border-teal-400 py-1 px-2 rounded-md bg-green-950/50 text-xs sm:text-base">{mediaHeight}</span>
           </MediaChromeMenuButton>
           <MediaChromeMenu
             id={`quality-menu-${channel.id}`}
@@ -545,11 +547,10 @@ export default function ChannelPlayer({ channel }) {
             anchor={`quality-button-${channel.id}`}
           >
             <div
-              slot="header"
               role="menuitemradio"
               aria-checked={selectedRenditionId === 'auto'}
-              onClick={() => selectRendition('auto')}
-              className="cursor-pointer px-3 py-2 text-sm text-white hover:bg-white/10"
+              onClickCapture={() => selectRendition('auto')}
+              className={`cursor-pointer px-6 py-2 text-sm hover:bg-white/10 border-b border-white/10 ${selectedRenditionId === 'auto' ? 'text-teal-400' : 'text-white'}`}
             >
               Auto{selectedRenditionId === 'auto' ? ' ✓' : ''}
             </div>
@@ -558,8 +559,8 @@ export default function ChannelPlayer({ channel }) {
                 key={r.id}
                 role="menuitemradio"
                 aria-checked={selectedRenditionId === r.id}
-                onClick={() => selectRendition(r.id)}
-                className="cursor-pointer px-3 py-2 text-sm text-white hover:bg-white/10"
+                onClickCapture={() => selectRendition(r.id)}
+                className={`cursor-pointer px-6 py-2 text-sm hover:bg-white/10 ${selectedRenditionId === r.id ? 'text-teal-400 font-bold' : 'text-white'}`}
               >
                 {r.height}p{selectedRenditionId === r.id ? ' ✓' : ''}
               </div>

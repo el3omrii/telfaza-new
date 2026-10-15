@@ -3,7 +3,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { getChannel, getChannels, getRelatedChannels, storageUrl } from '@/lib/api'
-//import ClientChannelPlayer from '@/components/channel/ClientChannelPlayer'
+import ClientChannelPlayer from '@/components/channel/ClientChannelPlayer'
 import { RelatedChannelsSlider } from '@/components/channel/RelatedChannelsSlider'
 import ChannelActionButtons from '@/components/channel/ChannelActionButtons'
 import LiveViewerCount from '@/components/channel/LiveViewerCount'
@@ -136,15 +136,9 @@ export default async function ChannelDetailPage({ params }: Props) {
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_280px]">
         {/* Left — player + meta */}
         <div className="border-r border-white/[0.07]">
-          <div className="w-full h-64 sm:h-72 md:h-96 lg:h-128 bg-black">
-            <iframe 
-              src={embedUrl}
-              width="100%" 
-              height="100%" 
-              allow="autoplay; encrypted-media; picture-in-picture" 
-              allowFullScreen>
-            </iframe>
-            </div>
+          <div className="w-full aspect-video bg-black">
+            <ClientChannelPlayer channel={channel} />
+          </div>
            <ChannelActionButtons channelId={channel.id} channelName={channel.name} slug={channel.slug} />
           {/* Description */}
           {channel.description && (
