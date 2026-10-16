@@ -6,30 +6,20 @@ import dynamic from 'next/dynamic';
 
 // `next/dynamic` with `ssr: false` only renders the `loading` option on the
 // server (and while the Shaka chunk loads on the client). The channel is passed
-// through context so the fallback can render a real <video> with the poster +
-// source in the initial HTML (visibility for Googlebot / no-JS clients).
+// through context so the fallback can show its poster without loading a stream.
 const ChannelContext = createContext(null);
 
 const PlayerFallback = () => {
   const channel = useContext(ChannelContext);
-  const source = channel?.sources?.[0];
 
   return (
     <div className="w-full h-full bg-black flex items-center justify-center">
       <video
         className="w-full h-full object-cover"
         poster={storageUrl(channel?.image)} // Accessibilité immédiate pour Googlebot
-        preload="metadata"
-        controls
+        preload="none"
         playsInline
-      >
-        {source?.link && (
-          <source
-            src={source.link}
-            type={source.type === 'hls' ? 'application/x-mpegURL' : 'application/dash+xml'}
-          />
-        )}
-      </video>
+      />
     </div>
   );
 };
