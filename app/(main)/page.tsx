@@ -12,7 +12,7 @@ import { HeroBanner } from '@/components/ui/HeroBanner'
 
 export const metadata = buildMetadata({
   title: 'Telfaza Live',
-  description: 'Watch live TV channels and discover featured stations, countries, categories, and tags.',
+  description: process.env.NEXT_PUBLIC_SITE_DESCRIPTION || 'Watch live TV channels and discover featured stations, countries, categories, and tags.',
   path: '/',
 })
 
@@ -39,7 +39,7 @@ export default async function Home() {
 
         {/* ── Countries ── */}
         <section className="mt-8">
-          <SectionHead title="✦ TV By Country" href="/channels?featured=1" />
+          <SectionHead title="✦ TV By Country" href="/countries" />
           <HomeCountryGrid countries={countries} />
         </section>
       </main>
