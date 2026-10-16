@@ -16,6 +16,7 @@ import {
   MediaChromeMenu,
   MediaChromeMenuButton,
 } from 'media-chrome/react/menu';
+import { configureShakaReferrerPolicy } from '@/lib/shaka-referrer-policy';
 import shaka from 'shaka-player';
 import {
   attachAnalyticsTracking,
@@ -120,6 +121,7 @@ export default function ChannelPlayer({ channel }) {
 
     let cleanupSnrtUrlFix = () => {};
     let cleanupAnalytics = () => {};
+    let cleanupReferrerPolicy = () => {};
     let handleTracksChanged;
     let handleVariantChanged;
 
@@ -142,6 +144,7 @@ export default function ChannelPlayer({ channel }) {
       try {
         player.resetConfiguration();
         player.configure(buildShakaConfig({ link, drm, clearkeys }));
+        cleanupReferrerPolicy = configureShakaReferrerPolicy(player, policy);
 
         setRenditions([]);
         setSelectedRenditionId('auto');
@@ -208,6 +211,7 @@ export default function ChannelPlayer({ channel }) {
       cancelled = true;
       cleanupSnrtUrlFix();
       cleanupAnalytics();
+      cleanupReferrerPolicy();
       destroyP2PEngine(p2pEngineRef);
       player?.removeEventListener('error', handlePlayerError);
       if (handleTracksChanged) player?.removeEventListener('trackschanged', handleTracksChanged);
