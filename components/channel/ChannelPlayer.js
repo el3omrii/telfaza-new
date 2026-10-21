@@ -80,7 +80,7 @@ export default function ChannelPlayer({ channel }) {
     return () => { cancelled = true; };
   }, [link]);
 
-  const policy = link.includes('intigral-ott.net') || link.includes('starzplayarabia.com') || link.includes('playco.com')
+  const policy = link.includes('intigral-ott.net') || link.includes('starzplayarabia.com') || link.includes('playco.com') || link.includes('edgenextcdn.net')
     ? 'no-referrer'
     : 'no-referrer-when-downgrade';
   const videoRef = useRef(null);
