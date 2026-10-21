@@ -162,6 +162,7 @@ export default function ChannelPlayer({ channel }) {
 
       // Create the player once, attach to the plain <video>.
       if (!player) {
+        shaka.polyfill.installAll();
         player = new shaka.Player();
         playerRef.current = player;
         playerAttachPromiseRef.current = player.attach(video);
