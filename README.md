@@ -20,6 +20,13 @@ You can start editing the page by modifying `app/page.tsx`. The page auto-update
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
+## Contact form backend
+
+The contact form submits to the Next.js `/api/contact` route, which forwards
+messages to `POST ${NEXT_PUBLIC_API_URL}/sendmail`. Configure
+`CONTACT_VALIDATION_SECRET` as a server-only environment variable with the
+shared secret expected by the backend's `X-Validation-Secret` header.
+
 ## Learn More
 
 To learn more about Next.js, take a look at the following resources:
