@@ -94,6 +94,76 @@ export default function ChannelPlayer({ channel }) {
     currentSourceIndexRef.current = currentSourceIndex;
   }, [currentSourceIndex]);
 
+  useEffect(() => {
+    const video = videoRef.current;
+    const controller = video?.closest('media-controller');
+    const orientation = window.screen.orientation;
+
+    if (!video || !controller || typeof orientation?.lock !== 'function') return;
+
+    let active = true;
+    let lockPending = false;
+    let orientationLocked = false;
+
+    const isMobile = () =>
+      navigator.maxTouchPoints > 0 || window.matchMedia('(pointer: coarse)').matches;
+
+    const isFullscreen = () => {
+      const fullscreenElement =
+        document.fullscreenElement || document.webkitFullscreenElement;
+
+      return Boolean(
+        (fullscreenElement &&
+          (fullscreenElement === controller || controller.contains(fullscreenElement))) ||
+          video.webkitDisplayingFullscreen ||
+          video.webkitPresentationMode === 'fullscreen'
+      );
+    };
+
+    const updateOrientationLock = () => {
+      if (!isMobile()) return;
+
+      if (isFullscreen()) {
+        if (lockPending || orientationLocked) return;
+
+        lockPending = true;
+        orientation.lock('landscape')
+          .then(() => {
+            orientationLocked = true;
+            if (!active || !isFullscreen()) {
+              orientation.unlock?.();
+              orientationLocked = false;
+            }
+          })
+          .catch((error) => {
+            console.warn('Unable to lock video fullscreen to landscape.', error);
+          })
+          .finally(() => {
+            lockPending = false;
+          });
+      } else if (orientationLocked) {
+        orientation.unlock?.();
+        orientationLocked = false;
+      }
+    };
+
+    document.addEventListener('fullscreenchange', updateOrientationLock);
+    document.addEventListener('webkitfullscreenchange', updateOrientationLock);
+    video.addEventListener('webkitbeginfullscreen', updateOrientationLock);
+    video.addEventListener('webkitendfullscreen', updateOrientationLock);
+    video.addEventListener('webkitpresentationmodechanged', updateOrientationLock);
+
+    return () => {
+      document.removeEventListener('fullscreenchange', updateOrientationLock);
+      document.removeEventListener('webkitfullscreenchange', updateOrientationLock);
+      video.removeEventListener('webkitbeginfullscreen', updateOrientationLock);
+      video.removeEventListener('webkitendfullscreen', updateOrientationLock);
+      video.removeEventListener('webkitpresentationmodechanged', updateOrientationLock);
+      active = false;
+      if (orientationLocked) orientation.unlock?.();
+    };
+  }, []);
+
   const switchToNextSource = useCallback(() => {
     const nextIndex = currentSourceIndexRef.current + 1;
 
@@ -323,14 +393,14 @@ export default function ChannelPlayer({ channel }) {
   }, []);
 
   return (
-    <div className='w-full h-full aspect-video'>
-      <MediaController className="w-full h-full bg-black" autohide="5">
+    <div className='channel-player-frame w-full h-full aspect-video'>
+      <MediaController className="channel-player-controller w-full h-full bg-black" autohide="5">
         <video
           ref={videoRef}
           slot="media"
           suppressHydrationWarning
           poster={storageUrl(channel.image)}
-          className="object-cover bg-black w-full h-full"
+          className="object-contain bg-black w-full h-full"
           referrerPolicy={policy}
           playsInline
         />

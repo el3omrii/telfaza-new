@@ -15,7 +15,7 @@ const PlayerFallback = () => {
   return (
     <div className="w-full h-full bg-black flex items-center justify-center">
       <video
-        className="w-full h-full object-cover"
+        className="w-full h-full object-contain"
         poster={storageUrl(channel?.image)} // Accessibilité immédiate pour Googlebot
         preload="none"
         playsInline
