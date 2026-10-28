@@ -1,43 +1,63 @@
 'use client';
 
 import { useEffect } from 'react';
+import type { DevToolsEvent } from 'devtools-detect';
 
 export default function DevToolsGuard() {
   useEffect(() => {
-    // Only run this logic in your production build
     if (process.env.NODE_ENV !== 'production') return;
 
+    let active = true;
     let isRedirecting = false;
+    let devtools: { isOpen: boolean } | undefined;
+    let redirectTimeout: number | undefined;
 
-    const checkDevTools = async () => {
-      // Dynamically import the package so it does not break Next.js Server-Side Rendering (SSR)
-      const devtools = (await import('devtools-detect')).default;
+    const isMobile = () =>
+      /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent) ||
+      (navigator.maxTouchPoints > 1 && /Macintosh/i.test(navigator.userAgent));
 
-      // 1. Initial check right when the page loads
-      if (devtools.isOpen && !isRedirecting) {
+    const isFullscreen = () => Boolean(document.fullscreenElement);
+
+    const scheduleRedirect = () => {
+      if (!active || isRedirecting || isMobile() || isFullscreen()) return;
+
+      window.clearTimeout(redirectTimeout);
+      redirectTimeout = window.setTimeout(() => {
+        if (!active || !devtools?.isOpen || isMobile() || isFullscreen()) return;
+
         isRedirecting = true;
+        debugger;
         window.location.replace('https://google.com');
-        return;
-      }
-
-      // 2. Continuous listener that fires immediately if DevTools is opened later
-      const handleChange = (event: any) => {
-        if (event.detail.isOpen && !isRedirecting) {
-          isRedirecting = true;
-          window.location.replace('https://google.com');
-        }
-      };
-
-      window.addEventListener('devtoolschange', handleChange);
-
-      // Clean up the event listener if the component unmounts
-      return () => {
-        window.removeEventListener('devtoolschange', handleChange);
-      };
+      }, 750);
     };
 
-    checkDevTools();
+    const handleChange = (event: DevToolsEvent) => {
+      if (event.detail.isOpen) {
+        scheduleRedirect();
+      } else {
+        window.clearTimeout(redirectTimeout);
+      }
+    };
+
+    window.addEventListener('devtoolschange', handleChange);
+
+    void import('devtools-detect')
+      .then(({ default: detectedDevtools }) => {
+        if (!active) return;
+
+        devtools = detectedDevtools;
+        if (devtools.isOpen) scheduleRedirect();
+      })
+      .catch((error: unknown) => {
+        console.error('Unable to initialize DevTools detection.', error);
+      });
+
+    return () => {
+      active = false;
+      window.clearTimeout(redirectTimeout);
+      window.removeEventListener('devtoolschange', handleChange);
+    };
   }, []);
 
-  return null; // This component runs silently in the background and renders nothing visually
+  return null;
 }
