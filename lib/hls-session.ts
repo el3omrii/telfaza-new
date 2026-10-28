@@ -56,9 +56,21 @@ export function getHlsGuestSessionExpiry(token: string | undefined) {
 }
 
 export function isSameOriginRequest(request: Request) {
-  const origin = request.headers.get('origin');
+  const originHeader = request.headers.get('origin');
   const fetchSite = request.headers.get('sec-fetch-site');
-  const requestOrigin = new URL(request.url).origin;
+  const requestUrl = new URL(request.url);
+  const forwardedHost = request.headers.get('x-forwarded-host')?.split(',')[0].trim();
+  const forwardedProto = request.headers.get('x-forwarded-proto')?.split(',')[0].trim();
+  const host = forwardedHost || request.headers.get('host') || requestUrl.host;
+  const protocol = forwardedProto || requestUrl.protocol.slice(0, -1);
 
-  return origin === requestOrigin && (!fetchSite || fetchSite === 'same-origin');
+  if (!originHeader || (fetchSite && fetchSite !== 'same-origin')) return false;
+
+  try {
+    const origin = new URL(originHeader);
+    const requestOrigin = new URL(`${protocol}://${host}`).origin;
+    return origin.origin === requestOrigin;
+  } catch {
+    return false;
+  }
 }
