@@ -1,9 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import crypto from 'crypto';
 import {
+  createHlsGuestSession,
+  getHlsGuestSessionExpiry,
   HLS_SESSION_COOKIE,
   isSameOriginRequest,
-  isValidHlsGuestSession,
+  HLS_SESSION_TTL_SECONDS,
 } from '@/lib/hls-session';
 
 const SALT = process.env.HLS_MINT_SALT;
@@ -15,7 +17,11 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'forbidden' }, { status: 403 });
   }
 
-  if (!isValidHlsGuestSession(req.cookies.get(HLS_SESSION_COOKIE)?.value)) {
+  const sessionExpiresAt = req.cookies
+    .getAll(HLS_SESSION_COOKIE)
+    .map(({ value }) => getHlsGuestSessionExpiry(value))
+    .find((expiresAt) => expiresAt !== undefined);
+  if (!sessionExpiresAt) {
     return NextResponse.json({ error: 'guest session required' }, { status: 401 });
   }
 
@@ -52,8 +58,20 @@ export async function POST(req: NextRequest) {
     .digest('base64url');
 
   const url = `${STREAM_ORIGIN}${uri}?sig=${sig}&exp=${exp}`;
-  return NextResponse.json(
+  const response = NextResponse.json(
     { url, exp },
     { headers: { 'Cache-Control': 'no-store' } }
   );
+
+  if (sessionExpiresAt - Math.floor(Date.now() / 1000) < 60 * 60) {
+    response.cookies.set(HLS_SESSION_COOKIE, createHlsGuestSession(), {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      path: '/',
+      maxAge: HLS_SESSION_TTL_SECONDS,
+    });
+  }
+
+  return response;
 }

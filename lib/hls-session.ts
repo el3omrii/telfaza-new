@@ -2,7 +2,7 @@ import 'server-only';
 
 import { createHmac, randomBytes, timingSafeEqual } from 'node:crypto';
 
-export const HLS_SESSION_COOKIE = 'hls_guest_session';
+export const HLS_SESSION_COOKIE = 'h_g_session';
 export const HLS_SESSION_TTL_SECONDS = 12 * 60 * 60;
 
 function getSigningKey() {
@@ -28,11 +28,11 @@ export function createHlsGuestSession() {
   return `${payload}.${sign(payload)}`;
 }
 
-export function isValidHlsGuestSession(token: string | undefined) {
-  if (!token) return false;
+export function getHlsGuestSessionExpiry(token: string | undefined) {
+  if (!token) return undefined;
 
   const match = /^(\d+)\.([A-Za-z0-9_-]{32})\.([A-Za-z0-9_-]{43})$/.exec(token);
-  if (!match) return false;
+  if (!match) return undefined;
 
   const [, expiresAtText, , signature] = match;
   const expiresAt = Number(expiresAtText);
@@ -43,14 +43,16 @@ export function isValidHlsGuestSession(token: string | undefined) {
     expiresAt <= now ||
     expiresAt > now + HLS_SESSION_TTL_SECONDS
   ) {
-    return false;
+    return undefined;
   }
 
   const payload = token.slice(0, token.lastIndexOf('.'));
   const expected = Buffer.from(sign(payload), 'base64url');
   const received = Buffer.from(signature, 'base64url');
 
-  return received.length === expected.length && timingSafeEqual(received, expected);
+  return received.length === expected.length && timingSafeEqual(received, expected)
+    ? expiresAt
+    : undefined;
 }
 
 export function isSameOriginRequest(request: Request) {
