@@ -12,6 +12,7 @@
 
 use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\ChannelController;
+use App\Http\Controllers\Api\ContactController;
 use App\Http\Controllers\Api\CountryController;
 use App\Http\Controllers\Api\SearchController;
 use App\Http\Controllers\Api\TagController;
@@ -23,6 +24,8 @@ use Illuminate\Support\Facades\Route;
 
 
 Route::domain(env('APP_API_DOMAIN'))->group(function () {
+Route::post('/sendmail', [ContactController::class, 'sendmail']);
+
 // ─── Global search ────────────────────────────────────────────────────────────
 // GET /api/search?q=bbc
 Route::get('/search', SearchController::class);
