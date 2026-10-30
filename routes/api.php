@@ -97,6 +97,7 @@ Route::get('/countries/{country:slug}/channels', [CountryController::class, 'cha
 Route::post('/pusher/webhook', [PusherController::class, 'webhook']);
 
 Route::get('/scraper/glwiz/{channelName}', [ScraperController::class, 'getGlwizStreamUrl']);
+Route::get('/scraper/dramalive/{channelName}', [ScraperController::class, 'getDramaliveStreamUrl']);
 Route::get('/scraper/saudia/{channelName}', [ScraperController::class, 'getSaudiaStreamUrl']);
 Route::get('/scraper/france/{channelName}', [ScraperController::class, 'getFranceStreamUrl']);
 Route::get('/scraper/alkass/{channelName}', [ScraperController::class, 'getAlkassStreamUrl'])->whereNumber('channelName');
