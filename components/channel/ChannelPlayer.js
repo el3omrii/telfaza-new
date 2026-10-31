@@ -1,4 +1,5 @@
-'use client'
+'use client';
+
 import { useState, useRef, useEffect, useCallback } from 'react';
 import Image from 'next/image';
 import { formatBytes, formatSpeed, storageUrl } from '@/lib';
@@ -28,7 +29,7 @@ import {
   getUniqueRenditions,
   setupSnrtUrlFix,
   shouldRetrySource,
-  resolveStreamUrl
+  resolveStreamUrl,
 } from '@/lib/shaka-helpers';
 
 const initialP2PStats = {
@@ -51,48 +52,110 @@ function P2PStatRow({ label, speed, total }) {
   );
 }
 
+function areRenditionsEqual(a, b) {
+  if (a.length !== b.length) return false;
+
+  return a.every((rendition, index) => {
+    const next = b[index];
+    return next && rendition.id === next.id && rendition.height === next.height;
+  });
+}
+
+function areP2PStatsEqual(a, b) {
+  return (
+    a.p2pDownloadSpeed === b.p2pDownloadSpeed &&
+    a.p2pUploadSpeed === b.p2pUploadSpeed &&
+    a.p2pDownloaded === b.p2pDownloaded &&
+    a.p2pUploaded === b.p2pUploaded &&
+    a.httpDownloaded === b.httpDownloaded
+  );
+}
+
 export default function ChannelPlayer({ channel }) {
   const [error, setError] = useState('');
   const [currentSourceIndex, setCurrentSourceIndex] = useState(0);
   const [mediaHeight, setMediaHeight] = useState('Auto');
   const [renditions, setRenditions] = useState([]);
   const [selectedRenditionId, setSelectedRenditionId] = useState('auto');
-  const [p2pPeerCount, setP2pPeerCount] = useState(0);
-  const [p2pStats, setP2pStats] = useState(initialP2PStats);
+
+  const [p2pUi, setP2pUi] = useState({
+    peerCount: 0,
+    stats: initialP2PStats,
+  });
+
   const [, setPlayEventSent] = useState(false);
   const { sources } = channel;
   const activeSource = sources[currentSourceIndex] ?? sources[0];
   const { link, p2penabled, drm, clearkeys } = activeSource;
   const channelLogo = storageUrl(channel.logo);
+
   const [resolvedSource, setResolvedSource] = useState(null);
   const resolvedLink = resolvedSource?.link === link ? resolvedSource.url : null;
 
-  // Turn /local/ links into backend-signed URLs before Shaka ever sees them.
-  // Non-/local/ sources pass through untouched.
-  useEffect(() => {
-    let cancelled = false;
-    resolveStreamUrl(link)
-      .then((url) => { if (!cancelled) setResolvedSource({ link, url }); })
-      .catch((err) => {
-        console.error('Failed to sign stream URL, falling back to raw link', err);
-        if (!cancelled) setResolvedSource({ link, url: link });
-      });
-    return () => { cancelled = true; };
-  }, [link]);
+  const policy =
+    link.includes('intigral-ott.net') ||
+    link.includes('starzplayarabia.com') ||
+    link.includes('playco.com') ||
+    link.includes('edgenextcdn.net')
+      ? 'no-referrer'
+      : 'no-referrer-when-downgrade';
 
-  const policy = link.includes('intigral-ott.net') || link.includes('starzplayarabia.com') || link.includes('playco.com') || link.includes('edgenextcdn.net')
-    ? 'no-referrer'
-    : 'no-referrer-when-downgrade';
   const videoRef = useRef(null);
   const playerRef = useRef(null);
   const playerAttachPromiseRef = useRef(null);
   const p2pEngineRef = useRef(null);
-  const manualRenditionRef = useRef(false);
   const currentSourceIndexRef = useRef(0);
+  const p2pStatsRef = useRef(initialP2PStats);
 
   useEffect(() => {
     currentSourceIndexRef.current = currentSourceIndex;
   }, [currentSourceIndex]);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    resolveStreamUrl(link)
+      .then((url) => {
+        if (!cancelled) setResolvedSource({ link, url });
+      })
+      .catch((err) => {
+        console.error('Failed to sign stream URL, falling back to raw link', err);
+        if (!cancelled) setResolvedSource({ link, url: link });
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [link]);
+
+  const switchToNextSource = useCallback(() => {
+    const nextIndex = currentSourceIndexRef.current + 1;
+
+    if (nextIndex >= sources.length) {
+      console.error('All available stream sources have failed or are geo-blocked.');
+      return;
+    }
+
+    setCurrentSourceIndex(nextIndex);
+  }, [sources]);
+
+  const selectRendition = useCallback((renditionId) => {
+    const player = playerRef.current;
+    if (!player) return;
+
+    if (renditionId === 'auto') {
+      player.configure({ abr: { enabled: true } });
+      setSelectedRenditionId('auto');
+      return;
+    }
+
+    const track = player.getVariantTracks().find((variant) => String(variant.id) === renditionId);
+    if (!track) return;
+
+    player.configure({ abr: { enabled: false } });
+    player.selectVariantTrack(track, true);
+    setSelectedRenditionId(renditionId);
+  }, []);
 
   useEffect(() => {
     const video = videoRef.current;
@@ -109,8 +172,7 @@ export default function ChannelPlayer({ channel }) {
       navigator.maxTouchPoints > 0 || window.matchMedia('(pointer: coarse)').matches;
 
     const isFullscreen = () => {
-      const fullscreenElement =
-        document.fullscreenElement || document.webkitFullscreenElement;
+      const fullscreenElement = document.fullscreenElement || document.webkitFullscreenElement;
 
       return Boolean(
         (fullscreenElement &&
@@ -127,7 +189,8 @@ export default function ChannelPlayer({ channel }) {
         if (lockPending || orientationLocked) return;
 
         lockPending = true;
-        orientation.lock('landscape')
+        orientation
+          .lock('landscape')
           .then(() => {
             orientationLocked = true;
             if (!active || !isFullscreen()) {
@@ -164,37 +227,6 @@ export default function ChannelPlayer({ channel }) {
     };
   }, []);
 
-  const switchToNextSource = useCallback(() => {
-    const nextIndex = currentSourceIndexRef.current + 1;
-
-    if (nextIndex >= sources.length) {
-      console.error('All available stream sources have failed or are geo-blocked.');
-      return;
-    }
-
-    setCurrentSourceIndex(nextIndex);
-  }, [sources]);
-
-  const selectRendition = useCallback((renditionId) => {
-    const player = playerRef.current;
-    if (!player) return;
-
-    if (renditionId === 'auto') {
-      manualRenditionRef.current = false;
-      player.configure({ abr: { enabled: true } });
-      setSelectedRenditionId('auto');
-      return;
-    }
-
-    const track = player.getVariantTracks().find((variant) => String(variant.id) === renditionId);
-    if (!track) return;
-
-    manualRenditionRef.current = true;
-    player.configure({ abr: { enabled: false } });
-    player.selectVariantTrack(track, true);
-    setSelectedRenditionId(renditionId);
-  }, []);
-
   useEffect(() => {
     const video = videoRef.current;
     if (!video || !resolvedLink) return;
@@ -223,20 +255,13 @@ export default function ChannelPlayer({ channel }) {
     let speedSamples = [];
 
     const loadSource = async () => {
-      setP2pPeerCount(0);
-      setP2pStats({ ...initialP2PStats });
-
-      if (p2penabled) {
-        ensureP2PPluginsRegistered(shaka);
-      }
-
-      // Create the player once, attach to the plain <video>.
       if (!player) {
         shaka.polyfill.installAll();
         player = new shaka.Player();
         playerRef.current = player;
         playerAttachPromiseRef.current = player.attach(video);
       }
+
       await playerAttachPromiseRef.current;
       if (cancelled) return;
 
@@ -249,23 +274,14 @@ export default function ChannelPlayer({ channel }) {
 
         setRenditions([]);
         setSelectedRenditionId('auto');
-        manualRenditionRef.current = false;
 
         handleTracksChanged = () => {
           const nextRenditions = getUniqueRenditions(player.getVariantTracks());
-          setRenditions((previousRenditions) => {
-            if (
-              previousRenditions.length === nextRenditions.length &&
-              previousRenditions.every((rendition, index) => {
-                const next = nextRenditions[index];
-                return next && rendition.id === next.id && rendition.height === next.height;
-              })
-            ) {
-              return previousRenditions;
-            }
-
-            return nextRenditions;
-          });
+          setRenditions((previousRenditions) =>
+            areRenditionsEqual(previousRenditions, nextRenditions)
+              ? previousRenditions
+              : nextRenditions
+          );
         };
         player.addEventListener('trackschanged', handleTracksChanged);
 
@@ -274,16 +290,19 @@ export default function ChannelPlayer({ channel }) {
           if (!nextHeight) return;
 
           const nextLabel = `${nextHeight}P`;
-          setMediaHeight((previousHeight) => previousHeight === nextLabel ? previousHeight : nextLabel);
+          setMediaHeight((currentHeight) =>
+            currentHeight === nextLabel ? currentHeight : nextLabel
+          );
         };
         player.addEventListener('variantchanged', handleVariantChanged);
 
         if (link.includes('/snrt/')) {
           cleanupSnrtUrlFix = setupSnrtUrlFix(player);
-        };
+        }
 
         if (p2penabled) {
-          p2pEngine = createP2PEngine({
+          await ensureP2PPluginsRegistered(shaka);
+          p2pEngine = await createP2PEngine({
             shaka,
             player,
             channelId: channel.id,
@@ -294,6 +313,7 @@ export default function ChannelPlayer({ channel }) {
             if (downloadSource === 'p2p') p2pTotals.p2pDownloaded += bytesLength;
             if (downloadSource === 'http') p2pTotals.httpDownloaded += bytesLength;
           };
+
           const onChunkUploaded = (bytesLength) => {
             p2pTotals.p2pUploaded += bytesLength;
           };
@@ -315,6 +335,34 @@ export default function ChannelPlayer({ channel }) {
             );
           };
 
+          const publishP2PState = () => {
+            const nextStats = {
+              p2pDownloadSpeed: p2pStatsRef.current.p2pDownloadSpeed,
+              p2pUploadSpeed: p2pStatsRef.current.p2pUploadSpeed,
+              p2pDownloaded: p2pTotals.p2pDownloaded,
+              p2pUploaded: p2pTotals.p2pUploaded,
+              httpDownloaded: p2pTotals.httpDownloaded,
+            };
+
+            const nextPeerCount = readConnectedPeerCount();
+
+            setP2pUi((current) => {
+              const next = {
+                peerCount: nextPeerCount,
+                stats: nextStats,
+              };
+
+              if (
+                current.peerCount === next.peerCount &&
+                areP2PStatsEqual(current.stats, next.stats)
+              ) {
+                return current;
+              }
+
+              return next;
+            });
+          };
+
           const updateP2PStats = () => {
             const now = Date.now();
             speedSamples = [
@@ -324,6 +372,8 @@ export default function ChannelPlayer({ channel }) {
 
             const firstSample = speedSamples[0];
             const lastSample = speedSamples[speedSamples.length - 1];
+            if (!firstSample || !lastSample) return;
+
             const elapsedSeconds = (lastSample.at - firstSample.at) / 1000;
             const downloadSpeed = elapsedSeconds >= 1
               ? Math.max(0, (lastSample.p2pDownloaded - firstSample.p2pDownloaded) / elapsedSeconds)
@@ -332,16 +382,19 @@ export default function ChannelPlayer({ channel }) {
               ? Math.max(0, (lastSample.p2pUploaded - firstSample.p2pUploaded) / elapsedSeconds)
               : 0;
 
-            setP2pPeerCount(readConnectedPeerCount());
-            setP2pStats({
+            p2pStatsRef.current = {
               p2pDownloadSpeed: downloadSpeed,
               p2pUploadSpeed: uploadSpeed,
-              ...p2pTotals,
-            });
+              p2pDownloaded: p2pTotals.p2pDownloaded,
+              p2pUploaded: p2pTotals.p2pUploaded,
+              httpDownloaded: p2pTotals.httpDownloaded,
+            };
+
+            publishP2PState();
           };
 
           updateP2PStats();
-          p2pStatsInterval = setInterval(updateP2PStats, 500);
+          p2pStatsInterval = setInterval(updateP2PStats, 1000);
         }
       } catch (error) {
         console.error('Failed to configure Shaka for source', error);
@@ -359,7 +412,6 @@ export default function ChannelPlayer({ channel }) {
 
       setPlayEventSent(false);
 
-      // Shaka's load() unloads any previous content internally.
       try {
         if (cancelled) return;
         await player.load(resolvedLink);
@@ -383,9 +435,11 @@ export default function ChannelPlayer({ channel }) {
       cleanupAnalytics();
       cleanupReferrerPolicy();
       if (p2pStatsInterval) clearInterval(p2pStatsInterval);
+
       for (const [eventName, listener] of p2pStatsListeners) {
         p2pEngine?.removeEventListener(eventName, listener);
       }
+
       destroyP2PEngine(p2pEngineRef);
       player?.removeEventListener('error', handlePlayerError);
       if (handleTracksChanged) player?.removeEventListener('trackschanged', handleTracksChanged);
@@ -393,7 +447,6 @@ export default function ChannelPlayer({ channel }) {
     };
   }, [channel, currentSourceIndex, link, resolvedLink, policy, p2penabled, drm, clearkeys, switchToNextSource]);
 
-  // Destroy the player on unmount.
   useEffect(() => {
     const video = videoRef.current;
 
@@ -408,7 +461,7 @@ export default function ChannelPlayer({ channel }) {
   }, []);
 
   return (
-    <div className='channel-player-frame w-full h-full aspect-video'>
+    <div className="channel-player-frame w-full h-full aspect-video">
       <MediaController className="channel-player-controller w-full h-full bg-black" autohide="5">
         <video
           ref={videoRef}
@@ -419,15 +472,18 @@ export default function ChannelPlayer({ channel }) {
           referrerPolicy={policy}
           playsInline
         />
+
         <div slot="middle-chrome" className="center-overlay">
-          <MediaPlayButton className="big-play-btn"></MediaPlayButton>
-          <MediaLoadingIndicator></MediaLoadingIndicator>
+          <MediaPlayButton className="big-play-btn" />
+          <MediaLoadingIndicator />
         </div>
+
         <MediaControlBar className="flex items-center bg-black/75 p-1 md:p-2 m-4 rounded-full">
-          <MediaPlayButton className="media-control"></MediaPlayButton>
-          <MediaLiveButton className="media-control scale-80 sm:scale-100"></MediaLiveButton>
-          <MediaMuteButton className="media-control"></MediaMuteButton>
-          <MediaVolumeRange className="media-control hidden md:block"></MediaVolumeRange>
+          <MediaPlayButton className="media-control" />
+          <MediaLiveButton className="media-control scale-80 sm:scale-100" />
+          <MediaMuteButton className="media-control" />
+          <MediaVolumeRange className="media-control hidden md:block" />
+
           <div className="flex items-center justify-center gap-2 truncate flex-grow">
             {channelLogo && (
               <Image
@@ -441,14 +497,15 @@ export default function ChannelPlayer({ channel }) {
             )}
             <span className="truncate text-xs sm:text-sm text-muted">{channel.name}</span>
           </div>
+
           {p2penabled && (
             <>
               <MediaChromeMenuButton
                 id={`p2p-stats-button-${channel.id}`}
                 invoketarget={`p2p-stats-menu-${channel.id}`}
                 className="media-control"
-                aria-label={`P2P network: ${p2pPeerCount} connected peers`}
-                title={`${p2pPeerCount} connected peer${p2pPeerCount === 1 ? '' : 's'}`}
+                aria-label={`P2P network: ${p2pUi.peerCount} connected peers`}
+                title={`${p2pUi.peerCount} connected peer${p2pUi.peerCount === 1 ? '' : 's'}`}
                 notooltip
               >
                 <span className="flex items-center gap-1 text-teal-400">
@@ -456,9 +513,10 @@ export default function ChannelPlayer({ channel }) {
                     <circle cx="12" cy="8" r="3" />
                     <path d="M5 20v-1a7 7 0 0 1 14 0v1M5 8a3 3 0 0 1 2-2.83M19 8a3 3 0 0 0-2-2.83" />
                   </svg>
-                  <span className="text-xs font-semibold">{p2pPeerCount}</span>
+                  <span className="text-xs font-semibold">{p2pUi.peerCount}</span>
                 </span>
               </MediaChromeMenuButton>
+
               <MediaChromeMenu
                 id={`p2p-stats-menu-${channel.id}`}
                 hidden
@@ -466,26 +524,27 @@ export default function ChannelPlayer({ channel }) {
                 className="min-w-[180px] rounded-md p-2"
               >
                 <div slot="header" className="px-3 py-2 text-xs font-semibold uppercase tracking-wider text-teal-400">
-                  P2P Network · {p2pPeerCount} peer{p2pPeerCount === 1 ? '' : 's'}
+                  P2P Network · {p2pUi.peerCount} peer{p2pUi.peerCount === 1 ? '' : 's'}
                 </div>
                 <P2PStatRow
                   label="P2P download"
-                  speed={formatSpeed(p2pStats.p2pDownloadSpeed)}
-                  total={formatBytes(p2pStats.p2pDownloaded)}
+                  speed={formatSpeed(p2pUi.stats.p2pDownloadSpeed)}
+                  total={formatBytes(p2pUi.stats.p2pDownloaded)}
                 />
                 <P2PStatRow
                   label="P2P upload"
-                  speed={formatSpeed(p2pStats.p2pUploadSpeed)}
-                  total={formatBytes(p2pStats.p2pUploaded)}
+                  speed={formatSpeed(p2pUi.stats.p2pUploadSpeed)}
+                  total={formatBytes(p2pUi.stats.p2pUploaded)}
                 />
                 <P2PStatRow
                   label="HTTP download"
                   speed="—"
-                  total={formatBytes(p2pStats.httpDownloaded)}
+                  total={formatBytes(p2pUi.stats.httpDownloaded)}
                 />
               </MediaChromeMenu>
             </>
           )}
+
           <MediaChromeMenuButton
             id={`quality-button-${channel.id}`}
             invoketarget={`quality-menu-${channel.id}`}
@@ -493,8 +552,11 @@ export default function ChannelPlayer({ channel }) {
             aria-label="Quality"
             notooltip
           >
-            <span className="text-teal-400 border border-teal-400 py-1 px-2 rounded-md bg-green-950/50 text-xs sm:text-base">{mediaHeight}</span>
+            <span className="text-teal-400 border border-teal-400 py-1 px-2 rounded-md bg-green-950/50 text-xs sm:text-base">
+              {mediaHeight}
+            </span>
           </MediaChromeMenuButton>
+
           <MediaChromeMenu
             id={`quality-menu-${channel.id}`}
             hidden
@@ -520,7 +582,8 @@ export default function ChannelPlayer({ channel }) {
               </div>
             ))}
           </MediaChromeMenu>
-          <MediaFullscreenButton className="media-control"></MediaFullscreenButton>
+
+          <MediaFullscreenButton className="media-control" />
         </MediaControlBar>
       </MediaController>
 
