@@ -252,14 +252,29 @@ export default function ChannelPlayer({ channel }) {
         manualRenditionRef.current = false;
 
         handleTracksChanged = () => {
-          setRenditions(getUniqueRenditions(player.getVariantTracks()));
+          const nextRenditions = getUniqueRenditions(player.getVariantTracks());
+          setRenditions((previousRenditions) => {
+            if (
+              previousRenditions.length === nextRenditions.length &&
+              previousRenditions.every((rendition, index) => {
+                const next = nextRenditions[index];
+                return next && rendition.id === next.id && rendition.height === next.height;
+              })
+            ) {
+              return previousRenditions;
+            }
+
+            return nextRenditions;
+          });
         };
         player.addEventListener('trackschanged', handleTracksChanged);
 
         handleVariantChanged = (event) => {
-          if (event.newTrack?.height) {
-            setMediaHeight(`${event.newTrack.height}P`);
-          }
+          const nextHeight = event.newTrack?.height;
+          if (!nextHeight) return;
+
+          const nextLabel = `${nextHeight}P`;
+          setMediaHeight((previousHeight) => previousHeight === nextLabel ? previousHeight : nextLabel);
         };
         player.addEventListener('variantchanged', handleVariantChanged);
 
