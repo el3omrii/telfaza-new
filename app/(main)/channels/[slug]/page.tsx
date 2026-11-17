@@ -36,6 +36,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
 }
 
+export async function generateStaticParams() {
+  const { data } = await getChannels({ per_page: 200 })
+  return data.map((c) => ({ slug: c.slug }))
+}
+
 export default async function ChannelDetailPage({ params }: Props) {
   const { slug } = await params
   let channel
