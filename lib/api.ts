@@ -59,7 +59,7 @@ export function storageUrl(path: string | null | undefined): string | null {
 // ── Slides ────────────────────────────────────────────────────────────────
 
 export const getSlides = () =>
-  get<Slide[]>('/slides', [], 60)
+  get<Slide[]>('/slides', cacheTags('slides'), 7200)
 
 
 // ── Channels ──────────────────────────────────────────────────────────────────
@@ -83,7 +83,7 @@ export const getFiltersMeta = () =>
   get<FiltersMeta>('/channels/filters/meta', cacheTags('channels', 'channels:filters-meta'))
 
 export const getChannel = (slug: string | string) =>
-  get<Channel>(`/channels/${slug}`, cacheTags('channels', `channel:${slug}`), 3600)
+  get<Channel>(`/channels/${slug}`, cacheTags('channels', `channel:${slug}`), 86400)
 
 export const getRelatedChannels = (slug: string | string) =>
   get<Channel[]>(`/channels/${slug}/related`, [], 3600 * 12)
