@@ -40,7 +40,7 @@ class ChannelController extends Controller
             'featured' => 'nullable|boolean',
             'sort'     => 'nullable|in:views,name,created_at',
             'order'    => 'nullable|in:asc,desc',
-            'per_page' => 'nullable|integer|min:1|max:100',
+            'per_page' => 'nullable|integer|min:1|max:200',
         ]);
 
         $query = Channel::with(['country:id,name,flag', 'categories:id,name,color', 'tags:id,name'])
