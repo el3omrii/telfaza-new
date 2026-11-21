@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 
 const SITEMAP_URL = 'https://admin.telfazalive.com/video-sitemap.xml'
-const CACHE_DURATION = 86400 // 24 hours in seconds
+const CACHE_DURATION = 3600 // 24 hours in seconds
 
 export async function GET() {
   try {
