@@ -1,4 +1,5 @@
 name: Deploy Next.js Standalone to DirectAdmin
+
 on:
   push:
     branches:
@@ -15,8 +16,8 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20' # Match your DirectAdmin Node version
-          cache: 'npm'
+          node-version: "20"
+          cache: "npm"
 
       - name: Install dependencies & Build
         env:
@@ -41,26 +42,52 @@ jobs:
           mkdir -p .next/standalone/.next
           cp -r .next/static .next/standalone/.next/
 
-      - name: Setup SSH Key
+      - name: Setup SSH multiplexing
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_PORT: ${{ secrets.SSH_PORT }}
+          SSH_USERNAME: ${{ secrets.SSH_USERNAME }}
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          chmod 700 ~/.ssh
+
+          printf '%s\n' "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan -p ${{ secrets.SSH_PORT }} -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
+
+          ssh-keyscan -p "$SSH_PORT" -H "$SSH_HOST" >> ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/known_hosts
+
+          cat > ~/.ssh/config <<EOF
+          Host da-server
+            HostName $SSH_HOST
+            Port $SSH_PORT
+            User $SSH_USERNAME
+            IdentityFile ~/.ssh/id_rsa
+            StrictHostKeyChecking yes
+            ServerAliveInterval 30
+            ServerAliveCountMax 3
+            ConnectTimeout 30
+            ControlMaster auto
+            ControlPath ~/.ssh/cm-%C
+            ControlPersist 10m
+          EOF
+          chmod 600 ~/.ssh/config
+
+          # Establish and keep one master SSH connection
+          ssh -MNf da-server
 
       - name: Sync files & Restart App
+        env:
+          APP_PATH: ${{ secrets.APP_PATH }}
         run: |
           rsync -avz --delete \
             --exclude='.next/cache' \
             --exclude='.env' \
             --exclude='.env.*' \
             --exclude='tmp/' \
-            -e "ssh -p ${{ secrets.SSH_PORT }}" \
+            -e "ssh" \
             .next public package.json package-lock.json next.config.* \
-            ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }}:${{ secrets.APP_PATH }}/
+            "da-server:$APP_PATH/"
 
-          ssh -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }} << 'EOF'
-            cd ${{ secrets.APP_PATH }}
-            mkdir -p tmp
-            touch tmp/restart.txt
-          EOF
+          ssh da-server "cd '$APP_PATH' && mkdir -p tmp && touch tmp/restart.txt"
