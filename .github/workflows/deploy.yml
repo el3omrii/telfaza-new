@@ -51,7 +51,7 @@ jobs:
       - name: Sync files & Restart App
         run: |
           rsync -avz --delete \
-            --exclude='.next/cache'
+            --exclude='.next/cache' \
             --exclude='.env' \
             --exclude='.env.*' \
             --exclude='tmp/' \
