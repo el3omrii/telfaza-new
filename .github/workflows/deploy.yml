@@ -1,9 +1,9 @@
-name: Deploy Next.js to DirectAdmin
+name: Deploy Next.js Standalone to DirectAdmin
 
 on:
   push:
     branches:
-      - front # Change this if your default branch is 'master'
+      - main
 
 jobs:
   build-and-deploy:
@@ -16,13 +16,19 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20' # Match the Node version set in DirectAdmin
+          node-version: '20' # Match your DirectAdmin Node version
           cache: 'npm'
 
       - name: Install dependencies & Build
         run: |
           npm ci
           npm run build
+
+      - name: Prepare Standalone Folder
+        run: |
+          cp -r public .next/standalone/
+          mkdir -p .next/standalone/.next
+          cp -r .next/static .next/standalone/.next/
 
       - name: Setup SSH Key
         run: |
@@ -31,14 +37,17 @@ jobs:
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -p ${{ secrets.SSH_PORT }} -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
 
-      - name: Sync files to DirectAdmin
+      - name: Sync Standalone Build to DirectAdmin
         run: |
           rsync -avz --delete \
+            --exclude='.env' \
+            --exclude='.env.*' \
+            --exclude='tmp/' \
             -e "ssh -p ${{ secrets.SSH_PORT }}" \
-            .next public package.json package-lock.json next.config.* server.js \
+            .next/standalone/ \
             ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }}:${{ secrets.APP_PATH }}/
 
-      - name: Install production dependencies & Restart App
+      - name: Restart Node.js App
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.SSH_HOST }}
@@ -47,7 +56,5 @@ jobs:
           port: ${{ secrets.SSH_PORT }}
           script: |
             cd ${{ secrets.APP_PATH }}
-            source /home3/${{ secrets.SSH_USERNAME }}/nodevenv/$(basename ${{ secrets.APP_PATH }})/20/bin/activate
-            npm install --omit=dev
             mkdir -p tmp
             touch tmp/restart.txt
