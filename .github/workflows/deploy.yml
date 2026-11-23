@@ -32,7 +32,6 @@ jobs:
           NEXT_PUBLIC_PUSHER_PORT: ${{ vars.NEXT_PUBLIC_PUSHER_PORT }}
           NEXT_PUBLIC_GA_TRACKING_ID: ${{ vars.NEXT_PUBLIC_GA_TRACKING_ID }}
         run: |
-          echo "Building with API URL: $NEXT_PUBLIC_API_URL"
           npm ci
           npm run build
 
@@ -49,24 +48,19 @@ jobs:
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -p ${{ secrets.SSH_PORT }} -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
 
-      - name: Sync Standalone Build to DirectAdmin
+      - name: Sync files & Restart App
         run: |
           rsync -avz --delete \
+            --exclude='.next/cache'
             --exclude='.env' \
             --exclude='.env.*' \
             --exclude='tmp/' \
             -e "ssh -p ${{ secrets.SSH_PORT }}" \
-            .next/standalone/ \
+            .next public package.json package-lock.json next.config.* server.js \
             ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }}:${{ secrets.APP_PATH }}/
 
-      - name: Restart Node.js App
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USERNAME }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          port: ${{ secrets.SSH_PORT }}
-          script: |
+          ssh -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }} << 'EOF'
             cd ${{ secrets.APP_PATH }}
             mkdir -p tmp
             touch tmp/restart.txt
+          EOF
