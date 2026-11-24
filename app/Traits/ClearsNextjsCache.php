@@ -17,7 +17,7 @@ trait ClearsNextjsCache
 	            ];
 				// Source specific invalidation
 				if($tag === 'sources') {
-					$payload = ["channel:" . $model->channel->slug];
+					$payload['tags'] = ["channel:" . $model->channel->slug];
 				}
 	
 	            // Channel-specific invalidation
