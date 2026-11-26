@@ -41,7 +41,7 @@ export default function Footer() {
                 <div>
                     <p className='text-lg'>COMPANY</p>
                     <ul className='mt-3 flex flex-col gap-2 text-sm'>
-                        <li><a href="#">About</a></li>
+                        <li><Link href="/about">About</Link></li>
                         <li><Link href="/contact">Contact us</Link></li>
                         <li><a href="#">Blog</a></li>
                     </ul>
