@@ -32,6 +32,7 @@ jobs:
           NEXT_PUBLIC_PUSHER_HOST: ${{ vars.NEXT_PUBLIC_PUSHER_HOST }}
           NEXT_PUBLIC_PUSHER_PORT: ${{ vars.NEXT_PUBLIC_PUSHER_PORT }}
           NEXT_PUBLIC_GA_TRACKING_ID: ${{ vars.NEXT_PUBLIC_GA_TRACKING_ID }}
+          NEXT_PUBLIC_SWARMCLOUD_TOKEN: ${{ secrets.SWARMCLOUD_TOKEN }}
         run: |
           npm ci
           npm run build
